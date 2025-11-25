@@ -1,0 +1,40 @@
+name: jovi_app
+description: "A new Flutter project for Jovi AR World."
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Librerías para el Mapa y GPS
+  mapbox_maps_flutter: 2.12.0
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
+
+  # Librería para la Cámara (AR)
+  camera: ^0.11.3
+
+  # Estilos e Iconos
+  google_fonts: ^6.1.0
+  lucide_icons: ^0.257.0
+  
+  # Utilidades
+  cached_network_image: ^3.3.0
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # Aquí registramos los assets si tienes imágenes locales
+  # assets:
+  #   - assets/images/

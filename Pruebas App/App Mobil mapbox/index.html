@@ -258,7 +258,9 @@
                             this.mixer = new THREE.AnimationMixer(this.avatar);
                             if (gltf.animations.length > 0) {
                                 this.action = this.mixer.clipAction(gltf.animations[0]);
+                                // No reproducimos automáticamente, lo controlaremos con las teclas
                                 this.action.play();
+                                this.action.paused = true; // Pausado al inicio
                             }
                         });
 
@@ -284,19 +286,44 @@
                     render: function (gl, matrix) {
                         if (!this.avatar) { map.triggerRepaint(); return; }
 
-                        const speed = 0.00002;
-                        let moved = false;
-                        if (this.keys.w) { this.gameState.lat += speed; moved = true; }
-                        if (this.keys.s) { this.gameState.lat -= speed; moved = true; }
-                        if (this.keys.a) { this.gameState.lng -= speed; moved = true; }
-                        if (this.keys.d) { this.gameState.lng += speed; moved = true; }
+                        // 1. CONFIGURACIÓN DE MOVIMIENTO
+                        const speed = 0.000005; // Velocidad reducida (más lento)
+                        const rotationSpeed = 0.05; // Velocidad de giro
+                        let isWalking = false;
 
-                        if (moved) {
-                            if(this.keys.w) this.gameState.rotation = Math.PI;
-                            if(this.keys.s) this.gameState.rotation = 0;
-                            if(this.keys.a) this.gameState.rotation = -Math.PI/2;
-                            if(this.keys.d) this.gameState.rotation = Math.PI/2;
-                            
+                        // 2. LÓGICA DE ROTACIÓN (A / D)
+                        if (this.keys.a) {
+                            this.gameState.rotation += rotationSpeed; // Girar Izquierda
+                        }
+                        if (this.keys.d) {
+                            this.gameState.rotation -= rotationSpeed; // Girar Derecha
+                        }
+
+                        // 3. LÓGICA DE DESPLAZAMIENTO (W / S) - Basado en la rotación actual
+                        if (this.keys.w) {
+                            // Mover hacia adelante en la dirección que mira el avatar
+                            this.gameState.lng -= Math.sin(this.gameState.rotation) * speed;
+                            this.gameState.lat -= Math.cos(this.gameState.rotation) * speed;
+                            isWalking = true;
+                        }
+                        if (this.keys.s) {
+                            // Mover hacia atrás (retroceder)
+                            this.gameState.lng += Math.sin(this.gameState.rotation) * speed;
+                            this.gameState.lat += Math.cos(this.gameState.rotation) * speed;
+                            isWalking = true;
+                        }
+
+                        // 4. CONTROL DE ANIMACIÓN
+                        if (this.action) {
+                            if (isWalking) {
+                                this.action.paused = false; // Mover extremidades
+                            } else {
+                                this.action.paused = true; // Congelar si está quieto (o podrías hacer fadeOut)
+                            }
+                        }
+
+                        // Actualizar cámara suavemente si nos movemos
+                        if (isWalking || this.keys.a || this.keys.d) {
                             map.easeTo({ center: [this.gameState.lng, this.gameState.lat], duration: 0, easing: x=>x });
                         }
 
@@ -305,8 +332,9 @@
                         );
                         const modelScale = modelOrigin.meterInMercatorCoordinateUnits();
                         
+                        // NOTA: Ajustamos rotationY para que coincida con la lógica matemática usada arriba
                         const rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-                        const rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), this.gameState.rotation);
+                        const rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), this.gameState.rotation); // Usamos la rotación acumulada
                         const translation = new THREE.Matrix4().makeTranslation(modelOrigin.x, modelOrigin.y, modelOrigin.z);
                         const scale = new THREE.Matrix4().makeScale(modelScale, -modelScale, modelScale);
 
@@ -362,7 +390,7 @@
                     <div ref={mapContainer} className="w-full h-full" />
                     
                     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-jovi-blue border border-white">
-                        Usa W-A-S-D para explorar
+                        Usa W/S para caminar, A/D para girar
                     </div>
 
                     {/* --- POPUP MEJORADO CON FOTO --- */}
