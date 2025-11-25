@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jovi AR World</title>
+
+    <!-- Mapbox CSS & JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+
+    <!-- React & ReactDOM (via CDN) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel (para JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS (para estilos rápidos) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts: Poppins & Baloo 2 -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Iconos: Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Import Map para Three.js (Versión estable) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- Configuración de Estilos Personalizada (Jovi Brand) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jovi: {
+                            yellow: '#F8C41E',
+                            blue: '#2A4D9B',
+                            red: '#E34132',
+                            white: '#FFFFFF',
+                            gray: '#F2F2F5',
+                            text: '#1A1A1A'
+                        }
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                        baloo: ['"Baloo 2"', 'cursive'],
+                    },
+                    borderRadius: {
+                        'xl': '16px',
+                        '2xl': '24px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F2F2F5; overflow: hidden; }
+        .font-baloo { font-family: 'Baloo 2', cursive; }
+        
+        /* Animaciones */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Mapbox Custom Markers */
+        .art-marker {
+            background-color: #F8C41E;
+            border: 3px solid #FFFFFF;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .art-marker:hover { transform: scale(1.1); background-color: #E34132; }
+        
+        /* Cámara AR */
+        #camera-feed {
+            object-fit: cover;
+            width: 100vw; height: 100vh;
+            position: absolute; top: 0; left: 0; z-index: 0;
+        }
+
+        /* Ocultar scrollbars */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <!-- CÓDIGO REACT -->
+    <script type="text/babel" data-type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        const { useState, useEffect, useRef } = React;
+
+        // --- MOCK DATA ---
+        // Añadidas imágenes de ejemplo
+        const MOCK_STOPS = [
+            { 
+                id: 1, 
+                title: "Mural Urbano", 
+                lat: 41.3855, 
+                lng: 2.1730, 
+                author: "Ana G.", 
+                type: "Mural",
+                image: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&q=80&w=500"
+            },
+            { 
+                id: 2, 
+                title: "Escultura de Luz", 
+                lat: 41.3848, 
+                lng: 2.1740, 
+                author: "Dani R.", 
+                type: "Escultura",
+                image: "https://images.unsplash.com/photo-1554188248-986adbb73be0?auto=format&fit=crop&q=80&w=500" 
+            },
+            { 
+                id: 3, 
+                title: "Graffiti Digital", 
+                lat: 41.3860, 
+                lng: 2.1745, 
+                author: "JoviTeam", 
+                type: "Digital",
+                image: "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?auto=format&fit=crop&q=80&w=500"
+            },
+        ];
+
+        // --- COMPONENTE: BOTÓN ---
+        const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
+            const baseClass = "w-full py-3 rounded-xl font-bold transition-all shadow-md active:scale-95 flex justify-center items-center gap-2";
+            const variants = {
+                primary: "bg-jovi-yellow text-jovi-blue hover:bg-yellow-400",
+                secondary: "bg-jovi-blue text-white hover:bg-blue-800",
+                danger: "bg-jovi-red text-white",
+                outline: "border-2 border-jovi-blue text-jovi-blue bg-transparent"
+            };
+            return (
+                <button onClick={onClick} className={`${baseClass} ${variants[variant]} ${className}`}>
+                    {children}
+                </button>
+            );
+        };
+
+        // --- COMPONENTE: LOGIN / REGISTRO ---
+        const AuthScreen = ({ onLogin }) => {
+            const [isLogin, setIsLogin] = useState(true);
+            const [email, setEmail] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if(email) onLogin({ name: email.split('@')[0], email });
+            };
+
+            return (
+                <div className="flex flex-col items-center justify-center h-screen p-6 bg-white fade-in">
+                    <div className="mb-8 text-center">
+                        <div className="w-24 h-24 bg-jovi-yellow rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-jovi-blue">
+                            <i data-lucide="palette" className="w-12 h-12 text-jovi-blue"></i>
+                        </div>
+                        <h1 className="text-4xl font-baloo font-bold text-jovi-blue">Jovi AR World</h1>
+                        <p className="text-jovi-text mt-2">Crea, explora y conecta con arte.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-600">Email</label>
+                            <input 
+                                type="email" 
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                className="w-full p-4 bg-jovi-gray rounded-xl border border-gray-200 focus:border-jovi-blue focus:outline-none"
+                                placeholder="tu@email.com" 
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-600">Contraseña</label>
+                            <input 
+                                type="password" 
+                                className="w-full p-4 bg-jovi-gray rounded-xl border border-gray-200 focus:border-jovi-blue focus:outline-none"
+                                placeholder="••••••••" 
+                                required
+                            />
+                        </div>
+                        
+                        <Button type="submit">{isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}</Button>
+                    </form>
+
+                    <p className="mt-6 text-sm text-gray-500">
+                        {isLogin ? "¿No tienes cuenta? " : "¿Ya tienes cuenta? "}
+                        <button onClick={() => setIsLogin(!isLogin)} className="text-jovi-blue font-bold underline">
+                            {isLogin ? "Regístrate" : "Entra"}
+                        </button>
+                    </p>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE: MAPA 3D (JUEGO) ---
+        const MapGame = ({ onEnterAR }) => {
+            const mapContainer = useRef(null);
+            const mapInstance = useRef(null);
+            const [selectedStop, setSelectedStop] = useState(null); 
+            const [activePopup, setActivePopup] = useState(null);
+
+            useEffect(() => {
+                if (mapInstance.current) return;
+
+                mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWRmNHAwdTA0anYyanNjbHZibnBkcmUifQ.GWjrEAwP4-v8St3jYbSkzQ";
+                
+                const startCoords = [2.1734, 41.3851];
+
+                const map = new mapboxgl.Map({
+                    container: mapContainer.current,
+                    style: "mapbox://styles/mapbox/light-v11",
+                    center: startCoords,
+                    zoom: 18,
+                    pitch: 60,
+                    bearing: 0,
+                    antialias: true
+                });
+
+                mapInstance.current = map;
+
+                const customLayer = {
+                    id: '3d-model',
+                    type: 'custom',
+                    renderingMode: '3d',
+                    onAdd: function (map, gl) {
+                        this.camera = new THREE.Camera();
+                        this.scene = new THREE.Scene();
+
+                        const ambientLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3.0);
+                        this.scene.add(ambientLight);
+                        const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+                        dirLight.position.set(0, -1, 1).normalize();
+                        this.scene.add(dirLight);
+
+                        const loader = new GLTFLoader();
+                        loader.load("https://models.readyplayer.me/692562db672cca15c2e7f7dd.glb", (gltf) => {
+                            this.avatar = gltf.scene;
+                            this.avatar.scale.set(1.5, 1.5, 1.5); 
+                            this.scene.add(this.avatar);
+                            
+                            this.mixer = new THREE.AnimationMixer(this.avatar);
+                            if (gltf.animations.length > 0) {
+                                this.action = this.mixer.clipAction(gltf.animations[0]);
+                                this.action.play();
+                            }
+                        });
+
+                        this.renderer = new THREE.WebGLRenderer({
+                            canvas: map.getCanvas(),
+                            context: gl,
+                            antialias: true
+                        });
+                        this.renderer.autoClear = false;
+                        
+                        this.gameState = { lng: startCoords[0], lat: startCoords[1], rotation: 0 };
+                        
+                        this.keys = { w: false, a: false, s: false, d: false };
+                        window.addEventListener('keydown', (e) => {
+                            const k = e.key.toLowerCase();
+                            if(this.keys.hasOwnProperty(k)) this.keys[k] = true;
+                        });
+                        window.addEventListener('keyup', (e) => {
+                            const k = e.key.toLowerCase();
+                            if(this.keys.hasOwnProperty(k)) this.keys[k] = false;
+                        });
+                    },
+                    render: function (gl, matrix) {
+                        if (!this.avatar) { map.triggerRepaint(); return; }
+
+                        const speed = 0.00002;
+                        let moved = false;
+                        if (this.keys.w) { this.gameState.lat += speed; moved = true; }
+                        if (this.keys.s) { this.gameState.lat -= speed; moved = true; }
+                        if (this.keys.a) { this.gameState.lng -= speed; moved = true; }
+                        if (this.keys.d) { this.gameState.lng += speed; moved = true; }
+
+                        if (moved) {
+                            if(this.keys.w) this.gameState.rotation = Math.PI;
+                            if(this.keys.s) this.gameState.rotation = 0;
+                            if(this.keys.a) this.gameState.rotation = -Math.PI/2;
+                            if(this.keys.d) this.gameState.rotation = Math.PI/2;
+                            
+                            map.easeTo({ center: [this.gameState.lng, this.gameState.lat], duration: 0, easing: x=>x });
+                        }
+
+                        const modelOrigin = mapboxgl.MercatorCoordinate.fromLngLat(
+                            { lng: this.gameState.lng, lat: this.gameState.lat }, 0
+                        );
+                        const modelScale = modelOrigin.meterInMercatorCoordinateUnits();
+                        
+                        const rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
+                        const rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), this.gameState.rotation);
+                        const translation = new THREE.Matrix4().makeTranslation(modelOrigin.x, modelOrigin.y, modelOrigin.z);
+                        const scale = new THREE.Matrix4().makeScale(modelScale, -modelScale, modelScale);
+
+                        const modelMatrix = new THREE.Matrix4()
+                            .multiply(translation).multiply(scale).multiply(rotationX).multiply(rotationY);
+
+                        this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix).multiply(modelMatrix);
+                        
+                        this.renderer.resetState();
+                        this.renderer.render(this.scene, this.camera);
+                        if (this.mixer) this.mixer.update(0.02);
+                        map.triggerRepaint();
+                    }
+                };
+
+                map.on('style.load', () => {
+                    map.addLayer({
+                        'id': '3d-buildings',
+                        'source': 'composite',
+                        'source-layer': 'building',
+                        'filter': ['==', 'extrude', 'true'],
+                        'type': 'fill-extrusion',
+                        'minzoom': 15,
+                        'paint': {
+                            'fill-extrusion-color': '#ddd',
+                            'fill-extrusion-height': ['get', 'height'],
+                            'fill-extrusion-opacity': 0.8
+                        }
+                    });
+                    
+                    map.addLayer(customLayer);
+
+                    MOCK_STOPS.forEach(stop => {
+                        const el = document.createElement('div');
+                        el.className = 'art-marker';
+                        el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A4D9B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                        
+                        el.addEventListener('click', () => {
+                            setActivePopup(stop);
+                        });
+
+                        new mapboxgl.Marker(el)
+                            .setLngLat([stop.lng, stop.lat])
+                            .addTo(map);
+                    });
+                });
+
+                return () => map.remove();
+            }, []);
+
+            return (
+                <div className="relative w-full h-full">
+                    <div ref={mapContainer} className="w-full h-full" />
+                    
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-4 py-2 rounded-full shadow-lg text-sm font-semibold text-jovi-blue border border-white">
+                        Usa W-A-S-D para explorar
+                    </div>
+
+                    {/* --- POPUP MEJORADO CON FOTO --- */}
+                    {activePopup && (
+                        <div className="absolute bottom-24 left-4 right-4 bg-white p-4 rounded-2xl shadow-xl border-b-8 border-jovi-yellow fade-in flex flex-col gap-3">
+                            {/* Botón Cerrar */}
+                            <button onClick={() => setActivePopup(null)} className="absolute top-2 right-2 bg-white/80 rounded-full p-1 text-gray-400 hover:text-red-500 z-10">
+                                <i data-lucide="x" className="w-6 h-6"></i>
+                            </button>
+
+                            {/* Imagen de la Obra */}
+                            <div className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-200">
+                                <img src={activePopup.image} alt={activePopup.title} className="w-full h-full object-cover" />
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                    <span className="text-white font-bold text-xs bg-jovi-blue px-2 py-1 rounded-md">{activePopup.type}</span>
+                                </div>
+                            </div>
+
+                            {/* Info */}
+                            <div>
+                                <h3 className="text-xl font-baloo font-bold text-jovi-blue leading-tight">{activePopup.title}</h3>
+                                <p className="text-gray-500 text-sm">Creado por <span className="font-semibold text-gray-700">{activePopup.author}</span></p>
+                            </div>
+
+                            {/* Acción Principal */}
+                            <Button onClick={() => onEnterAR(activePopup)} variant="primary">
+                                Quiero verlo en AR <i data-lucide="scan-line" className="w-5 h-5"></i>
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- COMPONENTE: ESCÁNER AR ---
+        const ARScanner = () => {
+            const videoRef = useRef(null);
+            const [scanned, setScanned] = useState(false);
+
+            useEffect(() => {
+                const startCamera = async () => {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                        if (videoRef.current) videoRef.current.srcObject = stream;
+                    } catch (err) {
+                        console.error("Error cámara:", err);
+                        alert("No se pudo acceder a la cámara");
+                    }
+                };
+                startCamera();
+                return () => {
+                    if(videoRef.current && videoRef.current.srcObject) {
+                        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                    }
+                }
+            }, []);
+
+            return (
+                <div className="relative w-full h-full bg-black">
+                    <video ref={videoRef} autoPlay playsInline muted id="camera-feed"></video>
+                    
+                    <div className="absolute inset-0 flex flex-col items-center justify-between py-12 pointer-events-none">
+                        <div className="bg-black/50 px-6 py-2 rounded-full text-white backdrop-blur-sm">
+                            Apunta a una superficie plana
+                        </div>
+                        
+                        <div className="w-64 h-64 border-2 border-white/50 rounded-2xl relative">
+                            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-jovi-yellow -mt-1 -ml-1"></div>
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-jovi-yellow -mt-1 -mr-1"></div>
+                            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-jovi-yellow -mb-1 -ml-1"></div>
+                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-jovi-yellow -mb-1 -mr-1"></div>
+                        </div>
+
+                        <div className="pointer-events-auto">
+                            <button className="w-16 h-16 bg-jovi-red rounded-full border-4 border-white shadow-lg active:scale-90 transition-transform flex items-center justify-center">
+                                <div className="w-6 h-6 bg-white rounded-full"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE: PERFIL ---
+        const ProfileView = ({ user, onLogout }) => (
+            <div className="p-6 bg-white h-full fade-in">
+                <h2 className="text-3xl font-baloo font-bold text-jovi-blue mb-6">Mi Perfil</h2>
+                
+                <div className="flex items-center space-x-4 mb-8">
+                    <div className="w-20 h-20 bg-jovi-yellow rounded-full flex items-center justify-center text-3xl font-bold text-white border-4 border-white shadow-lg">
+                        {user.name[0].toUpperCase()}
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold">{user.name}</h3>
+                        <p className="text-gray-500 text-sm">Explorador Principiante</p>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="bg-jovi-gray p-4 rounded-xl flex justify-between items-center">
+                        <span className="font-semibold text-gray-700">Obras Escaneadas</span>
+                        <span className="text-jovi-blue font-bold text-xl">12</span>
+                    </div>
+                    <div className="bg-jovi-gray p-4 rounded-xl flex justify-between items-center">
+                        <span className="font-semibold text-gray-700">Kilómetros AR</span>
+                        <span className="text-jovi-blue font-bold text-xl">4.5 km</span>
+                    </div>
+                </div>
+
+                <div className="mt-12">
+                    <Button variant="outline" onClick={onLogout} className="border-red-500 text-red-500">
+                        Cerrar Sesión
+                    </Button>
+                </div>
+            </div>
+        );
+
+        // --- APP PRINCIPAL ---
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [view, setView] = useState('map'); // 'map', 'ar', 'profile'
+            const [activeArtwork, setActiveArtwork] = useState(null);
+
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+
+            // Función para iniciar AR desde el mapa con una obra específica
+            const handleEnterAR = (artwork) => {
+                setActiveArtwork(artwork);
+                setView('ar');
+            };
+
+            if (!user) {
+                return <AuthScreen onLogin={setUser} />;
+            }
+
+            return (
+                <div className="w-full h-screen flex flex-col relative overflow-hidden">
+                    
+                    <div className="flex-1 relative bg-gray-100">
+                        {/* Pasamos la función de entrar a AR al mapa */}
+                        {view === 'map' && <MapGame onEnterAR={handleEnterAR} />}
+                        {view === 'ar' && <ARScanner />}
+                        {view === 'profile' && <ProfileView user={user} onLogout={() => setUser(null)} />}
+                    </div>
+
+                    <div className="h-20 bg-white rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-4 relative z-50">
+                        
+                        <button 
+                            onClick={() => setView('map')}
+                            className={`flex flex-col items-center p-2 transition-colors ${view === 'map' ? 'text-jovi-blue' : 'text-gray-400'}`}
+                        >
+                            <i data-lucide="map" className="w-6 h-6 mb-1"></i>
+                            <span className="text-xs font-semibold">Mapa</span>
+                        </button>
+
+                        <div className="relative -top-6">
+                            <button 
+                                onClick={() => setView('ar')}
+                                className="w-16 h-16 bg-jovi-yellow text-jovi-blue rounded-full shadow-lg flex items-center justify-center border-4 border-white transform transition-transform active:scale-95"
+                            >
+                                <i data-lucide="scan-line" className="w-8 h-8"></i>
+                            </button>
+                        </div>
+
+                        <button 
+                            onClick={() => setView('profile')}
+                            className={`flex flex-col items-center p-2 transition-colors ${view === 'profile' ? 'text-jovi-blue' : 'text-gray-400'}`}
+                        >
+                            <i data-lucide="user" className="w-6 h-6 mb-1"></i>
+                            <span className="text-xs font-semibold">Perfil</span>
+                        </button>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
