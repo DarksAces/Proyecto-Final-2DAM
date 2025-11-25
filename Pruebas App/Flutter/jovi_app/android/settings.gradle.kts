@@ -48,7 +48,7 @@ dependencyResolutionManagement {
             credentials {
                 username = "mapbox"
                 // ⚠️ PON AQUÍ TU NUEVO TOKEN CREADO CON EL CHECK 'DOWNLOADS:READ' MARCADO
-                password = "sk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWVmaHptYzAyMHUzZXIxdDk5ZGM4eG4ifQ.vGEIHL74z3yZtMCAAtCvrw" 
+                password = "sk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWVwNmU2dTA1YWkzZHM5MWZjNG9oZTQifQ.nZSbLC9WlMBQHFMa4uS3UQ" 
             }
         }
     }
