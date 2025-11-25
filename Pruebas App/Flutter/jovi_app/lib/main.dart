@@ -172,36 +172,52 @@ class _MapGameScreenState extends State<MapGameScreen> {
     });
   }
 
-  _onMapCreated(MapboxMap map) async {
+_onMapCreated(MapboxMap map) async {
     print("🗺️ Mapa creado");
     mapboxMap = map;
     
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
+      // 1. Configurar la cámara inicial
       await mapboxMap?.setCamera(CameraOptions(
         center: Point(coordinates: Position(userLng, userLat)),
-        zoom: 16.0,
-        pitch: 0.0,
+        zoom: 17.0, // Zoom más cercano para ver el muñeco
+        pitch: 60.0, // Inclinación 3D
         bearing: 0.0
       ));
       
       print("🎥 Cámara configurada");
 
+      // 2. CONFIGURAR EL AVATAR 3D (Aquí está el cambio clave)
       await mapboxMap?.location.updateSettings(LocationComponentSettings(
         enabled: true, 
-        pulsingEnabled: true,
-        puckBearingEnabled: true
+        pulsingEnabled: false, // Desactivamos el pulso azul para ver el muñeco
+        puckBearingEnabled: true,
+        
+        // Definimos el muñeco 3D
+        locationPuck: LocationPuck(
+          locationPuck3D: LocationPuck3D(
+            // La ruta debe coincidir con tu pubspec.yaml
+            modelUri: "asset://assets/avatar.glb", 
+            // Aumentamos la escala porque a veces se ven muy pequeños
+            modelScale: [100.0, 100.0, 100.0], 
+            // Rotación para que mire al frente si sale tumbado
+            modelRotation: [0.0, 0.0, 0.0],
+          )
+        )
       ));
       
-      print("📍 Ubicación activada");
+      print("📍 Avatar 3D configurado");
 
+      // 3. Cargar los puntos rojos (Marcadores)
       circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
       print("⭕ Gestor de anotaciones creado");
 
       await _drawPoints(); 
       print("🎯 Puntos dibujados");
 
+      // 4. Configurar el clic en los puntos
       circleAnnotationManager?.addOnCircleAnnotationClickListener(
         MyAnnotationClickListener(onTap: (annotation) {
           try {

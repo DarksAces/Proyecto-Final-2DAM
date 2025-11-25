@@ -35,6 +35,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
+  # 👇 DOS ESPACIOS AQUÍ
+  assets:
+    - assets/avatar.glb
+  
   # Aquí registramos los assets si tienes imágenes locales
   # assets:
   #   - assets/images/
