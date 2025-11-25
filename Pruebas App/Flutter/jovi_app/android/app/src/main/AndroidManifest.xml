@@ -8,7 +8,8 @@
     <application
         android:label="jovi_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:hardwareAccelerated="true"> 
         
         <activity
             android:name=".MainActivity"
@@ -35,7 +36,7 @@
 
         <meta-data
             android:name="com.mapbox.token"
-            android:value="pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWRmNHAwdTA0anYyanNjbHZibnBkcmUifQ.GWjrEAwP4-v8St3jYbSkzQ" />
+            android:value="pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWVpdXozMzAydTgzZXIxdWVyYjN1NDAifQ.DlQ0hO6UMGSde4aLxTPKSg" />
 
         <meta-data
             android:name="io.flutter.embedding.android.EnableImpeller"

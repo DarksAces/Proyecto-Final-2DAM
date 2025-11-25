@@ -8,12 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:permission_handler/permission_handler.dart';
 
-// ==========================================
-// CONFIGURACIÓN Y TEMAS (JOVI BRAND)
-// ==========================================
-
-const String MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWRmNHAwdTA0anYyanNjbHZibnBkcmUifQ.GWjrEAwP4-v8St3jYbSkzQ";
-const String AVATAR_URL = "https://models.readyplayer.me/6924944848062250a4f9c961.glb";
+const String MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWVpdXozMzAydTgzZXIxdWVyYjN1NDAifQ.DlQ0hO6UMGSde4aLxTPKSg";
 
 class JoviTheme {
   static const Color yellow = Color(0xFFF8C41E);
@@ -21,108 +16,48 @@ class JoviTheme {
   static const Color red = Color(0xFFE34132);
   static const Color white = Color(0xFFFFFFFF);
   static const Color gray = Color(0xFFF2F2F5);
-  static const Color text = Color(0xFF1A1A1A);
-
+  
   static TextStyle get fontBaloo => GoogleFonts.baloo2();
   static TextStyle get fontPoppins => GoogleFonts.poppins();
 }
 
-// Datos Mock
-// Datos Mock - ZONA GLÒRIES BARCELONA
 final List<Map<String, dynamic>> MOCK_STOPS = [
-  { 
-    "id": 1, 
-    "title": "Torre Glòries", 
-    "lat": 41.403629, 
-    "lng": 2.187406, 
-    "author": "Jean Nouvel", 
-    "type": "Arquitectura", 
-    "image": "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&q=80&w=500"
-  },
-  { 
-    "id": 2, 
-    "title": "Disseny Hub", 
-    "lat": 41.402465, 
-    "lng": 2.188835, 
-    "author": "Museo", 
-    "type": "Diseño", 
-    "image": "https://images.unsplash.com/photo-1580666836703-65e796b93417?auto=format&fit=crop&q=80&w=500" 
-  },
-  { 
-    "id": 3, 
-    "title": "Westfield Glòries", 
-    "lat": 41.4065, 
-    "lng": 2.1915, 
-    "author": "Centro", 
-    "type": "Ocio", 
-    "image": "https://images.unsplash.com/photo-1519567241046-7f570eee3c9e?auto=format&fit=crop&q=80&w=500"
-  },
-  { 
-    "id": 4, 
-    "title": "Els Encants", 
-    "lat": 41.4010, 
-    "lng": 2.1860, 
-    "author": "Mercado", 
-    "type": "Cultura", 
-    "image": "https://images.unsplash.com/photo-1561344640-2453889cde5b?auto=format&fit=crop&q=80&w=500"
-  },
+  { "id": 1, "title": "Torre Glòries", "lat": 41.403629, "lng": 2.187406, "author": "Jean Nouvel", "type": "Arquitectura", "image": "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&q=80&w=500" },
+  { "id": 2, "title": "Disseny Hub", "lat": 41.402465, "lng": 2.188835, "author": "Museo", "type": "Diseño", "image": "https://images.unsplash.com/photo-1580666836703-65e796b93417?auto=format&fit=crop&q=80&w=500" },
+  { "id": 3, "title": "Westfield Glòries", "lat": 41.4065, "lng": 2.1915, "author": "Centro", "type": "Ocio", "image": "https://images.unsplash.com/photo-1519567241046-7f570eee3c9e?auto=format&fit=crop&q=80&w=500" },
+  { "id": 4, "title": "Els Encants", "lat": 41.4010, "lng": 2.1860, "author": "Mercado", "type": "Cultura", "image": "https://images.unsplash.com/photo-1561344640-2453889cde5b?auto=format&fit=crop&q=80&w=500" },
 ];
 
 List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    cameras = await availableCameras();
-  } catch (e) {
-    print("Error camara: $e");
-  }
+  
+  // Pedir permisos uno por uno al inicio
+  await Permission.location.request();
+  await Permission.camera.request();
+  
+  try { cameras = await availableCameras(); } catch (e) { print("Error camara: $e"); }
   
   MapboxOptions.setAccessToken(MAPBOX_ACCESS_TOKEN);
-
   runApp(const JoviApp());
 }
 
 class JoviApp extends StatelessWidget {
   const JoviApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Jovi AR World',
+      title: 'Jovi AR',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: JoviTheme.blue,
-        scaffoldBackgroundColor: JoviTheme.gray,
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        useMaterial3: true,
-      ),
+      theme: ThemeData(useMaterial3: true),
       home: const AuthScreen(),
     );
   }
 }
 
-// ==========================================
-// 1. PANTALLA DE AUTH (Login)
-// ==========================================
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
-  @override State<AuthScreen> createState() => _AuthScreenState();
-}
-
-class _AuthScreenState extends State<AuthScreen> {
-  bool isLogin = true;
-  final TextEditingController _emailController = TextEditingController();
-
-  void _submit() {
-    if (_emailController.text.isNotEmpty) {
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(builder: (c) => MainLayout(username: _emailController.text.split('@')[0]))
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,54 +69,20 @@ class _AuthScreenState extends State<AuthScreen> {
           children: [
             Container(
               width: 96, height: 96,
-              decoration: BoxDecoration(
-                color: JoviTheme.yellow,
-                shape: BoxShape.circle,
-                border: Border.all(color: JoviTheme.blue, width: 4),
-              ),
+              decoration: BoxDecoration(color: JoviTheme.yellow, shape: BoxShape.circle, border: Border.all(color: JoviTheme.blue, width: 4)),
               child: const Icon(LucideIcons.palette, size: 48, color: JoviTheme.blue),
             ),
             const SizedBox(height: 16),
             Text("Jovi AR World", style: JoviTheme.fontBaloo.copyWith(fontSize: 32, fontWeight: FontWeight.bold, color: JoviTheme.blue)),
-            const Text("Crea, explora y conecta con arte.", style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 40),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                filled: true,
-                fillColor: JoviTheme.gray,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: "Contraseña",
-                filled: true,
-                fillColor: JoviTheme.gray,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-              ),
-            ),
-            const SizedBox(height: 24),
             SizedBox(
-              width: double.infinity,
-              height: 50,
+              width: double.infinity, height: 50,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: JoviTheme.yellow,
-                  foregroundColor: JoviTheme.blue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                onPressed: _submit,
-                child: Text(isLogin ? "Iniciar Sesión" : "Crear Cuenta", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style: ElevatedButton.styleFrom(backgroundColor: JoviTheme.yellow, foregroundColor: JoviTheme.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainLayout(username: "User"))),
+                child: const Text("Entrar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ),
-            TextButton(
-              onPressed: () => setState(() => isLogin = !isLogin),
-              child: Text(isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Entra", style: const TextStyle(color: JoviTheme.blue)),
-            )
           ],
         ),
       ),
@@ -189,9 +90,6 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-// ==========================================
-// 2. LAYOUT PRINCIPAL (Tabs)
-// ==========================================
 class MainLayout extends StatefulWidget {
   final String username;
   const MainLayout({super.key, required this.username});
@@ -200,301 +98,242 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
-  late List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      const MapGameScreen(),
-      const ARScannerScreen(), 
-      ProfileScreen(username: widget.username),
-    ];
-  }
-
-  void _onTabTapped(int index) {
-    setState(() => _currentIndex = index);
-  }
+  final List<Widget> _pages = [const MapGameScreen(), const ARScannerScreen(), const Center(child: Text("Perfil"))];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))],
-        ),
-        child: SafeArea(
-          child: SizedBox(
-            height: 70,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(LucideIcons.map, "Mapa", 0),
-                GestureDetector(
-                  onTap: () => _onTabTapped(1),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    width: 64, height: 64,
-                    decoration: BoxDecoration(
-                      color: JoviTheme.yellow,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
-                      boxShadow: [const BoxShadow(color: Colors.black26, blurRadius: 10)],
-                    ),
-                    child: const Icon(LucideIcons.scanLine, color: JoviTheme.blue, size: 32),
-                  ),
-                ),
-                _buildNavItem(LucideIcons.user, "Perfil", 2),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final bool isActive = _currentIndex == index;
-    return GestureDetector(
-      onTap: () => _onTabTapped(index),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: isActive ? JoviTheme.blue : Colors.grey),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isActive ? JoviTheme.blue : Colors.grey)),
+      body: IndexedStack(index: _currentIndex, children: _pages),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(LucideIcons.map), label: "Mapa"),
+          NavigationDestination(icon: Icon(LucideIcons.scanLine), label: "AR"),
+          NavigationDestination(icon: Icon(LucideIcons.user), label: "Perfil"),
         ],
       ),
     );
   }
 }
 
-// ==========================================
-// 3. PANTALLA DE MAPA (JUEGO)
-// ==========================================
 class MapGameScreen extends StatefulWidget {
   const MapGameScreen({super.key});
-
-  @override
-  State<MapGameScreen> createState() => _MapGameScreenState();
+  @override State<MapGameScreen> createState() => _MapGameScreenState();
 }
 
 class _MapGameScreenState extends State<MapGameScreen> {
   MapboxMap? mapboxMap;
-  PointAnnotationManager? pointAnnotationManager;
-  
-  StreamSubscription<geo.Position>? positionStreamSubscription;
+  CircleAnnotationManager? circleAnnotationManager;
   geo.Position? currentPosition;
-
-  double userLat = 41.3851;
-  double userLng = 2.1734;
-
   Map<String, dynamic>? selectedStop;
-  bool isLoadingLocation = true;
+  bool isLoading = true;
+  bool mapReady = false;
+  double userLat = 41.4036; 
+  double userLng = 2.1874;
 
   @override
   void initState() {
     super.initState();
-    _startLocationUpdates();
+    _initLocation();
   }
 
-  @override
-  void dispose() {
-    positionStreamSubscription?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _startLocationUpdates() async {
-    setState(() => isLoadingLocation = true);
-    
-    geo.LocationPermission permission = await geo.Geolocator.checkPermission();
-    if (permission == geo.LocationPermission.denied) {
-      permission = await geo.Geolocator.requestPermission();
-      if (permission == geo.LocationPermission.denied || permission == geo.LocationPermission.deniedForever) {
-        setState(() => isLoadingLocation = false);
-        return;
-      }
+  _initLocation() async {
+    print("📡 Iniciando ubicación...");
+    var status = await Permission.location.request();
+    if (!status.isGranted) {
+      print("❌ Permiso de ubicación denegado");
+      setState(() => isLoading = false);
+      return;
     }
     
-    const geo.LocationSettings locationSettings = geo.LocationSettings(
-      accuracy: geo.LocationAccuracy.high,
-      distanceFilter: 1, 
-    );
-
-    positionStreamSubscription = geo.Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-      (geo.Position position) {
-        currentPosition = position;
-        userLat = position.latitude;
-        userLng = position.longitude;
-        
-        if (mapboxMap != null) {
-          mapboxMap!.setCamera(CameraOptions(
-            center: Point(coordinates: Position(userLng, userLat)),
-            zoom: 18.0,
-            pitch: 60.0
-          ));
-          
-          mapboxMap!.location.updateSettings(LocationComponentSettings(
-            enabled: true,
-            showAccuracyRing: true,
-            pulsingEnabled: true,
-          ));
-        }
-        _checkProximity();
-        setState(() {
-          isLoadingLocation = false;
-        });
-      },
-      onError: (error) {
-        print("Error en Geolocator: $error");
-        setState(() => isLoadingLocation = false);
-      }
-    );
-  }
-
-_onMapCreated(MapboxMap map) async {
-    mapboxMap = map;
-    mapboxMap!.loadStyleURI("mapbox://styles/mapbox/streets-v12");
-
-    // Usamos círculos rojos para verlos fácilmente
-    final circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
-    _loadMarkers(circleAnnotationManager);
-    
-    // Configurar el punto azul (tu ubicación)
-    mapboxMap!.location.updateSettings(LocationComponentSettings(
-        enabled: true,
-        showAccuracyRing: true,
-        pulsingEnabled: true,
-    ));
-    
-    // Si el GPS ya nos dio una posición, vamos ahí inmediatamente
-    if (currentPosition != null) {
-        mapboxMap!.setCamera(CameraOptions(
-            center: Point(coordinates: Position(currentPosition!.longitude, currentPosition!.latitude)),
-            zoom: 16.0, // Zoom cercano para ver calles
-            pitch: 45.0 // Un poco inclinado para efecto 3D
-        ));
-    }
-  }
-
-// ✅ Correcto: Acepta el gestor de círculos
-_loadMarkers(CircleAnnotationManager manager) async {
-    for (var stop in MOCK_STOPS) {
-       var options = CircleAnnotationOptions(
-          geometry: Point(coordinates: Position(stop['lng'], stop['lat'])),
-          circleColor: JoviTheme.red.value, 
-          circleRadius: 12.0,
-          circleStrokeWidth: 3.0,
-          circleStrokeColor: Colors.white.value,
-       );
-       
-       await manager.create(options);
-    }
-}
-
-  void _checkProximity() {
-    for (var stop in MOCK_STOPS) {
-      double dLat = (stop['lat'] - userLat).abs();
-      double dLng = (stop['lng'] - userLng).abs();
+    geo.Geolocator.getPositionStream(
+      locationSettings: const geo.LocationSettings(
+        accuracy: geo.LocationAccuracy.high,
+        distanceFilter: 10,
+      )
+    ).listen((pos) {
+      print("📍 Nueva ubicación: ${pos.latitude}, ${pos.longitude}");
+      currentPosition = pos;
+      userLat = pos.latitude;
+      userLng = pos.longitude;
       
-      if (dLat < 0.0003 && dLng < 0.0003) {
-        if (selectedStop != stop) {
-          setState(() => selectedStop = stop);
-        }
-        return;
+      if(mounted && isLoading) {
+        setState(() => isLoading = false);
+        print("🔄 Actualizando cámara con ubicación real");
+        
+        mapboxMap?.setCamera(CameraOptions(
+          center: Point(coordinates: Position(pos.longitude, pos.latitude)),
+          zoom: 16.0, 
+          pitch: 0.0,
+          bearing: 0.0
+        ));
       }
-    }
-    if (selectedStop != null) setState(() => selectedStop = null);
+    });
   }
 
-  @override
+  _onMapCreated(MapboxMap map) async {
+    print("🗺️ Mapa creado");
+    mapboxMap = map;
+    
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    try {
+      await mapboxMap?.setCamera(CameraOptions(
+        center: Point(coordinates: Position(userLng, userLat)),
+        zoom: 16.0,
+        pitch: 0.0,
+        bearing: 0.0
+      ));
+      
+      print("🎥 Cámara configurada");
+
+      await mapboxMap?.location.updateSettings(LocationComponentSettings(
+        enabled: true, 
+        pulsingEnabled: true,
+        puckBearingEnabled: true
+      ));
+      
+      print("📍 Ubicación activada");
+
+      circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
+      print("⭕ Gestor de anotaciones creado");
+
+      await _drawPoints(); 
+      print("🎯 Puntos dibujados");
+
+      circleAnnotationManager?.addOnCircleAnnotationClickListener(
+        MyAnnotationClickListener(onTap: (annotation) {
+          try {
+            final stop = MOCK_STOPS.firstWhere((s) => 
+              (s['lat'] - annotation.geometry.coordinates.lat).abs() < 0.0001 &&
+              (s['lng'] - annotation.geometry.coordinates.lng).abs() < 0.0001
+            );
+            setState(() => selectedStop = stop);
+          } catch (e) { print("No encontrado"); }
+        })
+      );
+      
+      setState(() => mapReady = true);
+      print("✅ Mapa completamente listo");
+      
+    } catch (e) {
+      print("❌ Error configurando mapa: $e");
+    }
+  }
+
+  _drawPoints() async {
+    await circleAnnotationManager?.deleteAll();
+    for (var stop in MOCK_STOPS) {
+      await circleAnnotationManager?.create(CircleAnnotationOptions(
+        geometry: Point(coordinates: Position(stop['lng'], stop['lat'])),
+        circleColor: JoviTheme.red.value,
+        circleRadius: 15.0, 
+        circleStrokeWidth: 4.0,
+        circleStrokeColor: Colors.white.value,
+      ));
+    }
+  }
+
+
+@override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        MapWidget(
-          styleUri: "mapbox://styles/mapbox/streets-v12",
-          
-          cameraOptions: CameraOptions(
-            center: Point(coordinates: Position(userLng, userLat)),
-            zoom: 18.0,
-            pitch: 60.0
+        Container(
+          color: Colors.white, // Fondo por si el mapa tarda
+          child: MapWidget(
+            key: const ValueKey("mapWidget"),
+            // Usamos el estilo estándar de calles v12
+            styleUri: "mapbox://styles/mapbox/streets-v12", 
+            
+            // MANTENEMOS ESTO EN TRUE PARA SAMSUNG
+            textureView: true, 
+            
+            cameraOptions: CameraOptions(
+              center: Point(coordinates: Position(userLng, userLat)),
+              zoom: 15.0,
+              pitch: 0.0 // Sin inclinación al principio para asegurar renderizado
+            ), 
+            onMapCreated: _onMapCreated,
+            onStyleLoadedListener: (_) => print("🎨 ESTILO CARGADO OK"),
+            onMapLoadErrorListener: (err) => print("🚨 ERROR MAPA: ${err.message}"),
           ),
-          onMapCreated: _onMapCreated,
         ),
         
-        if (isLoadingLocation)
+        if (isLoading || !mapReady)
           Container(
-            color: Colors.black54,
-            child: const Center(child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(color: JoviTheme.yellow),
-                SizedBox(height: 10),
-                Text("Buscando ubicación...", style: TextStyle(color: Colors.white)),
-              ],
-            )),
+            color: Colors.white,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(color: JoviTheme.yellow),
+                  const SizedBox(height: 16),
+                  Text(
+                    isLoading ? "Obteniendo ubicación..." : "Cargando mapa...",
+                    style: const TextStyle(color: JoviTheme.blue, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
           ),
 
         if (selectedStop != null)
           Positioned(
-            bottom: 40, left: 20, right: 20,
+            bottom: 20, left: 20, right: 20,
             child: Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              elevation: 10,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                     child: CachedNetworkImage(
                       imageUrl: selectedStop!['image'],
-                      height: 120, width: double.infinity, fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(color: Colors.grey[300]),
+                      height: 150, width: double.infinity, fit: BoxFit.cover,
+                      placeholder: (c, u) => Container(color: Colors.grey[300]),
+                      errorWidget: (c, u, e) => Container(color: Colors.grey, child: const Icon(Icons.error)),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(selectedStop!['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                    subtitle: Text(selectedStop!['type']),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close), 
+                      onPressed: () => setState(() => selectedStop = null)
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(selectedStop!['title'], style: JoviTheme.fontBaloo.copyWith(fontSize: 20, fontWeight: FontWeight.bold, color: JoviTheme.blue)),
-                        Text("Por ${selectedStop!['author']}", style: const TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: JoviTheme.yellow,
-                              foregroundColor: JoviTheme.blue
-                            ),
-                            icon: const Icon(LucideIcons.scanLine, size: 16),
-                            label: const Text("Ver en AR"),
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (c) => const ARScannerScreen()));
-                            },
-                          ),
-                        )
-                      ],
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(backgroundColor: JoviTheme.yellow, foregroundColor: JoviTheme.blue, padding: const EdgeInsets.all(12)),
+                        icon: const Icon(LucideIcons.scanLine),
+                        label: const Text("Ver en AR"),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ARScannerScreen())),
+                      ),
                     ),
                   )
                 ],
               ),
             ),
-          ),
+          )
       ],
     );
   }
-} // 👈 ESTA LLAVE FALTABA - Cierra _MapGameScreenState
+}
 
-// ==========================================
-// 4. PANTALLA DE AR SCANNER
-// ==========================================
+class MyAnnotationClickListener implements OnCircleAnnotationClickListener {
+  final Function(CircleAnnotation) onTap;
+  MyAnnotationClickListener({required this.onTap});
+  @override
+  void onCircleAnnotationClick(CircleAnnotation annotation) {
+    onTap(annotation);
+  }
+}
+
 class ARScannerScreen extends StatefulWidget {
   const ARScannerScreen({super.key});
   @override State<ARScannerScreen> createState() => _ARScannerScreenState();
@@ -502,112 +341,61 @@ class ARScannerScreen extends StatefulWidget {
 
 class _ARScannerScreenState extends State<ARScannerScreen> {
   CameraController? controller;
-
   @override
   void initState() {
     super.initState();
     if (cameras.isNotEmpty) {
       controller = CameraController(cameras[0], ResolutionPreset.high);
-      controller!.initialize().then((_) {
-        if (!mounted) return;
-        setState(() {});
-      });
+      controller!.initialize().then((_) => setState(() {}));
     }
   }
-
   @override
-  void dispose() {
-    controller?.dispose();
-    super.dispose();
-  }
+  void dispose() { controller?.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
-    if (controller == null || !controller!.value.isInitialized) {
-      return const Scaffold(backgroundColor: Colors.black, body: Center(child: CircularProgressIndicator()));
-    }
-
+    if (controller == null || !controller!.value.isInitialized) return const Scaffold(backgroundColor: Colors.black);
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          SizedBox.expand(
-            child: CameraPreview(controller!),
+      body: Stack(children: [
+        CameraPreview(controller!),
+        SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(30)),
+                child: const Text("Apunta a una superficie plana", style: TextStyle(color: Colors.white)),
+              ),
+              const Spacer(),
+              Center(
+                child: Container(
+                  width: 250, height: 250,
+                  decoration: BoxDecoration(border: Border.all(color: Colors.white.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(20)),
+                  child: Stack(children: [
+                     Positioned(top: 0, left: 0, child: _corner()),
+                     Positioned(top: 0, right: 0, child: RotatedBox(quarterTurns: 1, child: _corner())),
+                     Positioned(bottom: 0, left: 0, child: RotatedBox(quarterTurns: 3, child: _corner())),
+                     Positioned(bottom: 0, right: 0, child: RotatedBox(quarterTurns: 2, child: _corner())),
+                  ]),
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Escaneado!"))),
+                child: Container(width: 80, height: 80, decoration: BoxDecoration(color: JoviTheme.red, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 5))),
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
-          SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(30)),
-                  child: const Text("Apunta a una superficie plana", style: TextStyle(color: Colors.white)),
-                ),
-                const Spacer(),
-                Center(
-                  child: Container(
-                    width: 250, height: 250,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(top: 0, left: 0, child: _corner()),
-                        Positioned(top: 0, right: 0, child: RotatedBox(quarterTurns: 1, child: _corner())),
-                        Positioned(bottom: 0, left: 0, child: RotatedBox(quarterTurns: 3, child: _corner())),
-                        Positioned(bottom: 0, right: 0, child: RotatedBox(quarterTurns: 2, child: _corner())),
-                      ],
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Obra escaneada!")));
-                  },
-                  child: Container(
-                    width: 80, height: 80,
-                    decoration: BoxDecoration(
-                      color: JoviTheme.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 5),
-                      boxShadow: [const BoxShadow(color: Colors.black45, blurRadius: 10)]
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 40, left: 20,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
-            ),
-          )
-        ],
-      ),
+        ),
+        Positioned(top: 40, left: 20, child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)))
+      ]),
     );
   }
-
-  Widget _corner() {
-    return Container(
-      width: 30, height: 30,
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: JoviTheme.yellow, width: 4),
-          left: BorderSide(color: JoviTheme.yellow, width: 4),
-        )
-      ),
-    );
-  }
+  Widget _corner() => Container(width: 30, height: 30, decoration: const BoxDecoration(border: Border(top: BorderSide(color: JoviTheme.yellow, width: 4), left: BorderSide(color: JoviTheme.yellow, width: 4))));
 }
 
-// ==========================================
-// 5. PANTALLA DE PERFIL
-// ==========================================
 class ProfileScreen extends StatelessWidget {
   final String username;
   const ProfileScreen({super.key, required this.username});
@@ -627,7 +415,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Container(
                     width: 80, height: 80,
-                    decoration: BoxDecoration(color: JoviTheme.yellow, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 4), boxShadow: [const BoxShadow(blurRadius: 10, color: Colors.black12)]),
+                    decoration: BoxDecoration(color: JoviTheme.yellow, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 4)),
                     alignment: Alignment.center,
                     child: Text(username.substring(0, 1).toUpperCase(), style: JoviTheme.fontBaloo.copyWith(fontSize: 40, color: Colors.white)),
                   ),
@@ -636,7 +424,7 @@ class ProfileScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(username, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      const Text("Explorador Principiante", style: TextStyle(color: Colors.grey)),
+                      const Text("Explorador", style: TextStyle(color: Colors.grey)),
                     ],
                   )
                 ],
@@ -649,15 +437,8 @@ class ProfileScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: JoviTheme.red),
-                    foregroundColor: JoviTheme.red,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
-                  },
+                  style: OutlinedButton.styleFrom(side: const BorderSide(color: JoviTheme.red), foregroundColor: JoviTheme.red),
+                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const AuthScreen())),
                   child: const Text("Cerrar Sesión"),
                 ),
               )
@@ -667,21 +448,12 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _statCard(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: JoviTheme.gray,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: JoviTheme.blue)),
-        ],
-      ),
-    );
-  }
+  Widget _statCard(String label, String value) => Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(color: JoviTheme.gray, borderRadius: BorderRadius.circular(16)),
+    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
+      Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: JoviTheme.blue)),
+    ]),
+  );
 }
