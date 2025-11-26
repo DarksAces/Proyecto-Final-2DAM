@@ -8,10 +8,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:permission_handler/permission_handler.dart';
 
+// 🔑 NUEVOS IMPORTS DE FIREBASE Y SERVICIOS (Asumiendo que has completado la configuración)
+// import 'package:firebase_core/firebase_core.dart'; 
+// import 'firebase_options.dart'; 
+// import 'api_service.dart'; 
+// import 'package:image_picker/image_picker.dart'; 
+// import 'dart:io'; 
+
 // ==========================================
 // 1. CONFIGURACIÓN
 // ==========================================
-const String MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWVpdXozMzAydTgzZXIxdWVyYjN1NDAifQ.DlQ0hO6UMGSde4aLxTPKSg";
+// Nota: He usado el token de la última sesión para evitar errores de Mapbox, si no funciona usa uno nuevo y válido.
+const String MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWZxNmwxczA5dDAzZXIwMmsyMWgyYTkifQ.aauKhXogwH_1ZA6EDGYJCA";
 
 class JoviTheme {
   static const Color yellow = Color(0xFFF8C41E);
@@ -56,6 +64,16 @@ List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 🚀 Asumiendo que has inicializado Firebase si es necesario:
+  // try {
+  //   await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,
+  //   );
+  // } catch (e) {
+  //   print("Error al inicializar Firebase: $e");
+  // }
+  
   await Permission.location.request();
   await Permission.camera.request();
   try { cameras = await availableCameras(); } catch (e) { print("Error camara: $e"); }
@@ -125,6 +143,7 @@ class MapGameScreen extends StatefulWidget {
 }
 
 class _MapGameScreenState extends State<MapGameScreen> {
+  // ✅ VARIABLES DECLARADAS CORRECTAMENTE AL PRINCIPIO
   MapboxMap? mapboxMap;
   CircleAnnotationManager? circleAnnotationManager;
   geo.Position? currentPosition;
@@ -139,19 +158,17 @@ class _MapGameScreenState extends State<MapGameScreen> {
     _initLocation();
   }
 
-_initLocation() async {
+  _initLocation() async {
     geo.Geolocator.getPositionStream(
       locationSettings: const geo.LocationSettings(
         accuracy: geo.LocationAccuracy.high, 
         distanceFilter: 2
       )
     ).listen((pos) {
-      // 1. Guardamos la posición para la lógica del juego
       currentPosition = pos;
       userLat = pos.latitude;
       userLng = pos.longitude;
       
-      // 2. Solo la primera vez que detecta ubicación, quitamos la carga y centramos cámara
       if(mounted && isLoading) {
         setState(() => isLoading = false);
         mapboxMap?.setCamera(CameraOptions(
@@ -161,20 +178,23 @@ _initLocation() async {
           bearing: 0.0
         ));
       }
-
-      // ⚠️ HE BORRADO EL 'updateSettings' DE AQUÍ.
-      // La configuración del avatar ya se hizo en _onMapCreated y no hay que tocarla más.
     });
   }
 
-  _onMapCreated(MapboxMap map) async {
-    mapboxMap = map;
+  // ✅ FUNCIÓN ASÍNCRONA ÚNICA Y CORRECTAMENTE CERRADA
+// En lib/main.dart, alrededor de la línea 197
+_onMapCreated(MapboxMap map) async {
+  mapboxMap = map;
 
-    // 1. Estilo Outdoors (Verde)
-    try { await mapboxMap!.loadStyleURI("mapbox://styles/mapbox/outdoors-v12"); } catch (e) {}
+  // 1. Estilo Outdoors (Verde)
+  try { 
+    await mapboxMap!.loadStyleURI("mapbox://styles/mapbox/outdoors-v12"); 
+  } catch (e) {
+    print("ERROR: Mapbox style load failed: $e"); 
+  }
 
-    // 2. Avatar 3D
-    try {
+  // 2. Avatar 3D
+try {
       await mapboxMap?.location.updateSettings(LocationComponentSettings(
         enabled: true,
         pulsingEnabled: false,
@@ -187,26 +207,29 @@ _initLocation() async {
           )
         )
       ));
-    } catch(e) {}
+      print("DEBUG: Avatar settings applied."); 
+    } catch(e) {
+      print("ERROR: Avatar settings failed: $e"); 
+    }
+  // 3. Puntos Rojos
+  circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
+  await _drawPoints(); 
 
-    // 3. Puntos Rojos
-    circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
-    await _drawPoints(); 
+  // 4. Clics (Solo debe estar este bloque)
+  circleAnnotationManager?.addOnCircleAnnotationClickListener(
+    MyAnnotationClickListener(onTap: (annotation) {
+      try {
+        final stop = MOCK_STOPS.firstWhere((s) => 
+          (s['lat'] - annotation.geometry.coordinates.lat).abs() < 0.0001 &&
+          (s['lng'] - annotation.geometry.coordinates.lng).abs() < 0.0001
+        );
+        setState(() => selectedStop = stop); 
+      } catch (e) {}
+    })
+  );
+} // <-- ¡Asegúrate de que la función _onMapCreated termina aquí!
 
-    // 4. Clics
-    circleAnnotationManager?.addOnCircleAnnotationClickListener(
-      MyAnnotationClickListener(onTap: (annotation) {
-        try {
-          final stop = MOCK_STOPS.firstWhere((s) => 
-            (s['lat'] - annotation.geometry.coordinates.lat).abs() < 0.0001 &&
-            (s['lng'] - annotation.geometry.coordinates.lng).abs() < 0.0001
-          );
-          setState(() => selectedStop = stop);
-        } catch (e) {}
-      })
-    );
-  }
-
+  // ✅ FUNCIÓN ASÍNCRONA ÚNICA Y CORRECTAMENTE CERRADA
   _drawPoints() async {
     await circleAnnotationManager?.deleteAll();
     for (var stop in MOCK_STOPS) {
@@ -220,31 +243,38 @@ _initLocation() async {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        MapWidget(
-          key: const ValueKey("mapWidget"),
-          // 👇 FORZAMOS EL TOKEN AQUÍ PARA QUE NO FALLE
-          //resourceOptions: ResourceOptions(accessToken: MAPBOX_ACCESS_TOKEN),
-          styleUri: "mapbox://styles/mapbox/outdoors-v12",
-          textureView: true, // IMPORTANTE PARA SAMSUNG
-          cameraOptions: CameraOptions(
-            center: Point(coordinates: Position(userLng, userLat)),
-            zoom: 15.0,
-            pitch: 0.0
-          ), 
-          onMapCreated: _onMapCreated,
-        ),
+// En _MapGameScreenState.build (alrededor de la línea 253)
+
+@override
+// En lib/main.dart, alrededor de la línea 240
+Widget build(BuildContext context) {
+  return Stack(
+    children: [
+      MapWidget(
+        key: const ValueKey("mapWidget"),
+        // ❌ ELIMINA ESTA LÍNEA QUE CAUSA EL ERROR DE COMPILACIÓN:
+        // resourceOptions: ResourceOptions(accessToken: MAPBOX_ACCESS_TOKEN), 
         
-        if (isLoading)
+        styleUri: "mapbox://styles/mapbox/outdoors-v12",
+        textureView: true, 
+        cameraOptions: CameraOptions(
+          center: Point(coordinates: Position(userLng, userLat)), 
+          zoom: 15.0,
+          pitch: 0.0
+        ), 
+        onMapCreated: _onMapCreated, 
+      ),
+      
+      if (isLoading) 
+      // ... (El resto del build sigue)
+
           Container(
             color: Colors.black54,
             child: const Center(child: CircularProgressIndicator(color: JoviTheme.yellow)),
           ),
 
-        if (selectedStop != null)
+        if (selectedStop != null) 
+          // ... (Widget de información de parada)
           Positioned(
             bottom: 20, left: 20, right: 20,
             child: Card(
