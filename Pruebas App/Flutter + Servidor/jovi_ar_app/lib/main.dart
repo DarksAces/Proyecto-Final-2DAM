@@ -35,18 +35,6 @@ class JoviTheme {
 
 // DATOS MOCK - ESPAÑA Y BARCELONA EXPANDIDA
 final List<Map<String, dynamic>> MOCK_STOPS = [
-  { "id": 1, "title": "Torre Glòries", "lat": 41.403629, "lng": 2.187406, "author": "Jean Nouvel", "type": "Arquitectura", "image": "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&q=80&w=500" },
-  { "id": 2, "title": "Disseny Hub", "lat": 41.402465, "lng": 2.188835, "author": "Museo", "type": "Diseño", "image": "https://images.unsplash.com/photo-1580666836703-65e796b93417?auto=format&fit=crop&q=80&w=500" },
-  { "id": 3, "title": "Westfield Glòries", "lat": 41.4065, "lng": 2.1915, "author": "Centro", "type": "Ocio", "image": "https://images.unsplash.com/photo-1519567241046-7f570eee3c9e?auto=format&fit=crop&q=80&w=500" },
-  { "id": 4, "title": "Els Encants", "lat": 41.4010, "lng": 2.1860, "author": "Mercado", "type": "Cultura", "image": "https://images.unsplash.com/photo-1561344640-2453889cde5b?auto=format&fit=crop&q=80&w=500" },
-  { "id": 20, "title": "Sagrada Família", "lat": 41.4036, "lng": 2.1744, "author": "Gaudí", "type": "Monumento", "image": "https://images.unsplash.com/photo-1545443761-1a8698a56f18?auto=format&fit=crop&q=80&w=500" },
-  { "id": 21, "title": "Casa Batlló", "lat": 41.3917, "lng": 2.1649, "author": "Gaudí", "type": "Modernismo", "image": "https://images.unsplash.com/photo-1513374200575-4e647896530e?auto=format&fit=crop&q=80&w=500" },
-  { "id": 22, "title": "Arc de Triomf", "lat": 41.3910, "lng": 2.1806, "author": "Vilaseca", "type": "Historia", "image": "https://images.unsplash.com/photo-1564663427023-422448627773?auto=format&fit=crop&q=80&w=500" },
-  { "id": 23, "title": "Catedral de Barcelona", "lat": 41.3839, "lng": 2.1762, "author": "Gótico", "type": "Religión", "image": "https://images.unsplash.com/photo-1565067692138-348295249c0c?auto=format&fit=crop&q=80&w=500" },
-  { "id": 30, "title": "Puerta del Sol", "lat": 40.4168, "lng": -3.7038, "author": "Madrid", "type": "Plaza", "image": "https://images.unsplash.com/photo-1549309019-a1d77ae910fc?auto=format&fit=crop&q=80&w=500" },
-  { "id": 31, "title": "Museo del Prado", "lat": 40.4138, "lng": -3.6921, "author": "Villanueva", "type": "Museo", "image": "https://images.unsplash.com/photo-1559563665-c9500072a02b?auto=format&fit=crop&q=80&w=500" },
-  { "id": 40, "title": "Ciudad de las Artes", "lat": 39.4549, "lng": -0.3505, "author": "Calatrava", "type": "Ciencia", "image": "https://images.unsplash.com/photo-1532596733622-f63555624e0a?auto=format&fit=crop&q=80&w=500" },
-  { "id": 50, "title": "Plaza de España", "lat": 37.3772, "lng": -5.9869, "author": "A. González", "type": "Historia", "image": "https://images.unsplash.com/photo-1555881400-74d7acaacd81?auto=format&fit=crop&q=80&w=500" },
   { "id": 60, "title": "Museo Guggenheim", "lat": 43.2687, "lng": -2.9340, "author": "Gehry", "type": "Arte", "image": "https://images.unsplash.com/photo-1526524806212-477e51c7a43a?auto=format&fit=crop&q=80&w=500" },
 ];
 
