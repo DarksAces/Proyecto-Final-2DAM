@@ -12,17 +12,22 @@ dependencies:
     sdk: flutter
   
   # =======================================================
-  # 🔑 FIREBASE & CLOUD SERVICES (NUEVAS DEPENDENCIAS)
+  # 🔑 FIREBASE & CLOUD SERVICES (VERSIONES COMPATIBLES)
   # =======================================================
-  firebase_core: ^2.27.0    # 1. Base: Necesario para inicializar Firebase
-  cloud_firestore: ^4.17.5   # 2. Base de datos: Para guardar metadatos (lat/lng, título)
-  firebase_storage: ^11.7.5   # 3. Almacenamiento: Para subir fotos (.jpg) y modelos (.glb)
-  image_picker: ^1.1.2        # 4. Utilidad: Para seleccionar fotos de la galería
+  # NOTA: Se actualizan las versiones a las series más recientes para resolver el conflicto de la interfaz.
+  firebase_core: ^4.0.0      
+  cloud_firestore: ^6.1.0
+  firebase_storage: ^13.0.4
+  image_picker: ^1.1.2       
+  firebase_auth: ^6.0.0
+  connectivity_plus: ^7.0.0  # Para detectar el estado de la red
+  shared_preferences: ^2.2.3 # Para guardar las preferencias del usuario (Wifi/Datos)
   
   # Librerías para el Mapa y GPS (EXISTENTES)
   mapbox_maps_flutter: 2.12.0
-  geolocator: ^12.0.0
+  geolocator: ^14.0.2
   permission_handler: ^12.0.1
+  # ... (resto de dependencias se mantienen)
 
   # Librería para la Cámara (AR)
   camera: ^0.11.3
