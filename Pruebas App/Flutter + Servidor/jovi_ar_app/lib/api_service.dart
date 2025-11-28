@@ -13,7 +13,7 @@ class NewStopData {
   final double lat;
   final double lng;
   final File imageFile;
-  final String authorId; // <--- Debe estar aquí
+  final String authorId; // UID del creador
 
   NewStopData({
     required this.title,
@@ -22,7 +22,7 @@ class NewStopData {
     required this.lat,
     required this.lng,
     required this.imageFile,
-    required this.authorId, // <--- Debe estar aquí
+    required this.authorId,
   });
 }
 
@@ -98,7 +98,7 @@ class ApiService {
       await _firestore.collection('sitios').add({
         'title': stopData.title,
         'author': stopData.author,
-        'authorId': stopData.authorId, // 💡 UID para seguridad
+        'authorId': stopData.authorId, // UID para seguridad
         'type': stopData.type,
         'lat': stopData.lat,
         'lng': stopData.lng,
@@ -111,7 +111,6 @@ class ApiService {
 
     } on FirebaseException catch (e) {
       print('🚨 ERROR DE FIREBASE: ${e.message}');
-      // Las subidas fallidas se reanudarán automáticamente si la red se recupera.
       return false;
       
     } catch (e) {
@@ -120,7 +119,7 @@ class ApiService {
     }
   }
 
-  // 💡 NUEVO MÉTODO: Eliminar Sitio (Documento y Archivo de Storage)
+  // Eliminar Sitio (Documento y Archivo de Storage)
   Future<String?> deleteStop(String sitioId, String authorId, String imageUrl) async {
     final user = _auth.currentUser;
     if (user == null) return "Usuario no autenticado.";
@@ -128,7 +127,6 @@ class ApiService {
     final sitioRef = _firestore.collection('sitios').doc(sitioId);
 
     try {
-      // La regla de seguridad de Firestore debe asegurar que user.uid == authorId
       if (user.uid != authorId) {
         return "No tienes permiso para eliminar este sitio.";
       }

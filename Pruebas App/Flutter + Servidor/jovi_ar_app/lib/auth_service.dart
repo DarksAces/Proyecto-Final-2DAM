@@ -93,7 +93,7 @@ class AuthService {
     return null; // Éxito
   }
 
-  // 5. ELIMINAR CUENTA (NUEVO MÉTODO)
+  // 5. ELIMINAR CUENTA
   Future<String?> deleteAccount(String nickname) async {
     final user = _auth.currentUser;
     if (user == null) return "Usuario no autenticado.";

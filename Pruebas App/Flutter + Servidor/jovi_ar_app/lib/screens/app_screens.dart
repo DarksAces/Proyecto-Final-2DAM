@@ -11,14 +11,14 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart' as ip;
 import 'package:firebase_auth/firebase_auth.dart'; 
-import 'package:connectivity_plus/connectivity_plus.dart'; // 💡 NUEVO: Para chequear la conexión
+import 'package:connectivity_plus/connectivity_plus.dart'; 
 
-import '../main.dart'; // Para JoviTheme, MOCK_STOPS, cameras
-import '../api_service.dart'; // Para ApiService, NewStopData
-import '../auth_service.dart'; // Para AuthService
-import '../settings_service.dart'; // 💡 NUEVO: Para leer las preferencias
-import '../widgets/util_widgets.dart'; // Para FullScreenImageScreen, MyAnnotationClickListener
-import 'settings_screen.dart'; // 💡 ASUMIDO: Pantalla de configuración
+import '../main.dart'; 
+import '../api_service.dart'; 
+import '../auth_service.dart'; 
+import '../settings_service.dart'; 
+import '../widgets/util_widgets.dart'; 
+import 'settings_screen.dart';
 
 
 // ==========================================
@@ -39,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _errorMessage;
   bool _isEditing = false;
   bool _isDeleting = false;
-  bool _isLoading = false; // Usado para actualizar el nickname
+  bool _isLoading = false; 
 
   @override
   void initState() {
@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(content: Text('❌ Error al eliminar: $error')),
       );
     } else {
-      // Éxito: El StreamBuilder en JoviApp lo detectará y navegará a AuthScreen.
+      // Éxito: Navegación por StreamBuilder
     }
   }
 
@@ -201,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 15),
             
-            // 💡 BOTÓN DE CONFIGURACIÓN DE SUBIDA (NUEVO)
+            // BOTÓN DE CONFIGURACIÓN DE SUBIDA (NUEVO)
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -630,7 +630,7 @@ class _AddStopScreenState extends State<AddStopScreen> {
     }
   }
 
-  // 💡 Lógica para verificar si se permite la subida en el estado actual de la red
+  // Lógica para verificar si se permite la subida en el estado actual de la red
   Future<bool> _isUploadAllowed() async {
     final preference = await _settingsService.getUploadPreference();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -641,8 +641,6 @@ class _AddStopScreenState extends State<AddStopScreen> {
     
     return false;
   }
-
-// lib/screens/app_screens.dart (dentro de _AddStopScreenState._submitData)
 
   Future<void> _submitData() async {
     if (_formKey.currentState!.validate() && _imageFile != null) {
@@ -661,13 +659,18 @@ class _AddStopScreenState extends State<AddStopScreen> {
         lat: widget.currentPosition.latitude,
         lng: widget.currentPosition.longitude,
         imageFile: _imageFile!,
-        // 💡 CORRECCIÓN: PROPORCIONAR EL authorId
-        authorId: authorId, 
+        authorId: authorId, // PROPORCIONAR EL authorId
       );
       
       if (!isAllowed) {
-          // ... (lógica offline, se mantiene)
-          // ...
+          // Opción OFF-LINE: Notificamos al usuario y salimos
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Guardado localmente. Se subirá al cumplir las preferencias de red.'),
+              backgroundColor: JoviTheme.blue,
+            ),
+          );
+          Navigator.pop(context); 
           return; 
       }
       
@@ -675,7 +678,6 @@ class _AddStopScreenState extends State<AddStopScreen> {
       setState(() => _isUploading = true);
 
       final success = await apiService.uploadNewStop(newStop);
-      // ... (resto de la lógica)
 
       setState(() => _isUploading = false);
 
