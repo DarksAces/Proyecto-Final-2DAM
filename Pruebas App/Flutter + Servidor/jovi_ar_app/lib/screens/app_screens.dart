@@ -369,22 +369,25 @@ class _MapGameScreenState extends State<MapGameScreen> {
     );
   }
 
-  _drawPoints() async {
+ // lib/screens/app_screens.dart (Fragmento de _MapGameScreenState)
+
+_drawPoints() async {
     if (circleAnnotationManager == null) return;
 
     await circleAnnotationManager?.deleteAll();
     for (var stop in liveStops) {
       await circleAnnotationManager?.create(CircleAnnotationOptions(
         geometry: Point(coordinates: Position(stop['lng'], stop['lat'])),
-        circleColor: JoviTheme.red.value,
-        circleRadius: 15.0,
-        circleStrokeWidth: 4.0,
-        circleStrokeColor: Colors.white.value,
+        
+        // 💡 CAMBIOS CLAVE PARA HACERLOS PEQUEÑOS Y DISCRETOS
+        circleColor: JoviTheme.yellow.value, // Cambiamos a amarillo (JoviTheme)
+        circleRadius: 6.0,                   // Reducido drásticamente (antes 15.0)
+        circleStrokeWidth: 1.5,              // Borde más fino (antes 4.0)
+        circleStrokeColor: JoviTheme.blue.value, // Color de borde a azul (JoviTheme)
       ));
     }
     print("✅ ${liveStops.length} puntos dibujados en el mapa");
-  }
-
+}
   @override
   Widget build(BuildContext context) {
     return Stack(
