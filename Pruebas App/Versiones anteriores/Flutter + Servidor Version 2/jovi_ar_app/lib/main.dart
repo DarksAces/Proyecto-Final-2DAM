@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:camera/camera.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 import 'package:permission_handler/permission_handler.dart';
 
 // 🔒 IMPORTS DE FIREBASE Y SERVICIOS MODULARIZADOS
@@ -14,7 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'auth_service.dart';
 
-// 📂 IMPORTS DE LAS PANTALLAS
+// 📂 IMPORTS DE LAS NUEVAS PANTALLAS MODULARIZADAS
 import 'screens/auth_screens.dart';
 import 'screens/app_screens.dart';
 
@@ -35,11 +36,14 @@ class JoviTheme {
   static TextStyle get fontPoppins => GoogleFonts.poppins();
 }
 
+// DATOS GLOBALES (MOCK y Cámaras)
+final List<Map<String, dynamic>> MOCK_STOPS = [];
 List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 🚀 INICIALIZACIÓN DE FIREBASE
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -48,6 +52,7 @@ Future<void> main() async {
     print("❌ Error al inicializar Firebase: $e");
   }
 
+  // 🔒 SOLICITUD DE PERMISOS Y CÁMARAS
   await Permission.location.request();
   await Permission.camera.request();
   try {
@@ -69,14 +74,11 @@ class JoviApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // StreamBuilder escucha si el usuario está logueado o no
     return MaterialApp(
       title: 'Jovi AR',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: JoviTheme.gray,
-        colorScheme: ColorScheme.fromSeed(seedColor: JoviTheme.blue),
-      ),
+      theme: ThemeData(useMaterial3: true),
       home: StreamBuilder<User?>(
         stream: AuthService().user,
         builder: (context, snapshot) {
@@ -89,8 +91,10 @@ class JoviApp extends StatelessWidget {
           final user = snapshot.data;
 
           if (user != null) {
+            // Usuario logueado, ir al contenido principal
             return MainLayout(username: user.email ?? "Usuario");
           } else {
+            // Usuario no logueado, ir a la pantalla de autenticación
             return const AuthScreen();
           }
         },
@@ -105,57 +109,27 @@ class MainLayout extends StatefulWidget {
   @override State<MainLayout> createState() => _MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _MainLayoutState extends State<MainLayout> {
+  int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // 5 Pestañas: Inicio, Social, Mapa, Galería, Perfil
-    _tabController = TabController(length: 5, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  final List<Widget> _pages = [
+    const MapGameScreen(),
+    const ARScannerScreen(),
+    ProfileScreen(onSignOut: () => AuthService().signOut()),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: TabBarView(
-        controller: _tabController,
-        physics: const NeverScrollableScrollPhysics(), // Desactivar swipe para evitar conflictos con mapas
-        children: [
-          HomeScreen(tabController: _tabController), // 0: Inicio Dashboard
-          const SocialScreen(),                      // 1: Configuración / Social
-          const MapGameScreen(),                     // 2: Mapa con Filtros
-          const GalleryScreen(),                     // 3: Galería (Max 5)
-          ProfileScreen(onSignOut: () => AuthService().signOut()), // 4: Perfil (+ Añadir Amigos)
+      body: IndexedStack(index: _currentIndex, children: _pages),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(LucideIcons.map), label: "Mapa"),
+          NavigationDestination(icon: Icon(LucideIcons.scanLine), label: "AR"),
+          NavigationDestination(icon: Icon(LucideIcons.user), label: "Perfil"),
         ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))]
-        ),
-        child: SafeArea(
-          child: TabBar(
-            controller: _tabController,
-            labelColor: JoviTheme.blue,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: JoviTheme.yellow,
-            indicatorWeight: 3,
-            tabs: const [
-              Tab(icon: Icon(LucideIcons.home), text: "Inicio"),
-              Tab(icon: Icon(LucideIcons.users), text: "Social"), // Era "Configuración"
-              Tab(icon: Icon(LucideIcons.map), text: "Mapa"),
-              Tab(icon: Icon(LucideIcons.image), text: "Galería"),
-              Tab(icon: Icon(LucideIcons.user), text: "Perfil"),
-            ],
-          ),
-        ),
       ),
     );
   }

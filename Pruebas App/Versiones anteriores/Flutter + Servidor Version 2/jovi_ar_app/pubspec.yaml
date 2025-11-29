@@ -1,0 +1,53 @@
+name: jovi_app
+description: "A new Flutter project for Jovi AR World."
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # =======================================================
+  # 🔑 FIREBASE & CLOUD SERVICES (VERSIONES COMPATIBLES)
+  # =======================================================
+  # NOTA: Se actualizan las versiones a las series más recientes para resolver el conflicto de la interfaz.
+  firebase_core: ^4.0.0      
+  cloud_firestore: ^6.1.0
+  firebase_storage: ^13.0.4
+  image_picker: ^1.1.2       
+  firebase_auth: ^6.0.0
+  connectivity_plus: ^7.0.0  # Para detectar el estado de la red
+  shared_preferences: ^2.2.3 # Para guardar las preferencias del usuario (Wifi/Datos)
+  
+  # Librerías para el Mapa y GPS (EXISTENTES)
+  mapbox_maps_flutter: 2.12.0
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
+  # ... (resto de dependencias se mantienen)
+
+  # Librería para la Cámara (AR)
+  camera: ^0.11.3
+
+  # Estilos e Iconos (EXISTENTES)
+  google_fonts: ^6.1.0
+  lucide_icons: ^0.257.0
+  
+  # Utilidades (EXISTENTES)
+  cached_network_image: ^3.3.0
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # 🖼️ ASSETS (Incluimos el directorio completo para el avatar)
+  assets:
+    - assets/

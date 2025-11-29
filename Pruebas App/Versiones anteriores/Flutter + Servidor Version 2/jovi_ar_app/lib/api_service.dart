@@ -32,60 +32,9 @@ class ApiService {
   final _storage = FirebaseStorage.instance;
   final _auth = FirebaseAuth.instance;
 
-  // ==========================================
-  // 1. GESTIÓN DE AMIGOS
-  // ==========================================
-
-  // Añadir amigo buscando por nickname
-  Future<String?> addFriend(String friendNickname) async {
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) return "No estás autenticado";
-
-    final normalizedNick = friendNickname.toLowerCase().trim();
-    
-    try {
-      // 1. Buscar el UID del amigo a partir del nickname
-      final usernameDoc = await _firestore.collection('usernames').doc(normalizedNick).get();
-      
-      if (!usernameDoc.exists) {
-        return "El usuario '$friendNickname' no existe.";
-      }
-
-      final friendUid = usernameDoc.data()?['userId'];
-
-      if (friendUid == currentUser.uid) {
-        return "No puedes añadirte a ti mismo como amigo.";
-      }
-
-      // 2. Añadir el UID a la lista de amigos del usuario actual
-      await _firestore.collection('users').doc(currentUser.uid).set({
-        'friends': FieldValue.arrayUnion([friendUid])
-      }, SetOptions(merge: true));
-
-      return null; // Éxito
-    } catch (e) {
-      return "Error al añadir amigo: $e";
-    }
-  }
-
-  // Obtener la lista de UIDs de amigos
-  Future<List<String>> getFriendList() async {
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) return [];
-
-    final doc = await _firestore.collection('users').doc(currentUser.uid).get();
-    if (doc.exists && doc.data() != null && doc.data()!.containsKey('friends')) {
-      return List<String>.from(doc.data()!['friends']);
-    }
-    return [];
-  }
-
-
-  // ==========================================
-  // 2. GESTIÓN DEL NICKNAME ÚNICO (TRANSACCIONAL)
-  // ==========================================
+  // 1. GESTIÓN DEL NICKNAME ÚNICO (TRANSACCIONAL)
   
-  // Verifica y reserva un nickname de forma atómica.
+  // Verifica y reserva un nickname de forma atómica. Devuelve un mensaje de error si falla, o null si tiene éxito.
   Future<String?> checkAndRegisterNickname(String nickname, String userId, {bool isUpdate = false}) async {
     final normalizedNickname = nickname.toLowerCase();
     final nicknameRef = _firestore.collection('usernames').doc(normalizedNickname);
@@ -123,30 +72,15 @@ class ApiService {
     }
   }
 
+  // Elimina el registro del nickname de la colección 'usernames'
   Future<void> deleteNicknameRegistration(String nickname) async {
     final normalizedNickname = nickname.toLowerCase();
     await _firestore.collection('usernames').doc(normalizedNickname).delete();
   }
   
-  // ==========================================
-  // 3. GESTIÓN DEL CONTENIDO (SITIOS)
-  // ==========================================
+  // 2. GESTIÓN DEL CONTENIDO (SITIOS)
 
-  // Obtener conteo de sitios del usuario actual (Para límite de Galería)
-  Future<int> getUserStopCount() async {
-    final user = _auth.currentUser;
-    if (user == null) return 0;
-
-    final query = await _firestore
-        .collection('sitios')
-        .where('authorId', isEqualTo: user.uid)
-        .count()
-        .get();
-    
-    return query.count ?? 0;
-  }
-
-  // Sube el sitio
+  // Sube el sitio (imagen a Storage y metadatos a Firestore)
   Future<bool> uploadNewStop(NewStopData stopData) async {
     try {
       if (!await stopData.imageFile.exists()) {
@@ -185,7 +119,7 @@ class ApiService {
     }
   }
 
-  // Eliminar Sitio
+  // Eliminar Sitio (Documento y Archivo de Storage)
   Future<String?> deleteStop(String sitioId, String authorId, String imageUrl) async {
     final user = _auth.currentUser;
     if (user == null) return "Usuario no autenticado.";
@@ -198,12 +132,9 @@ class ApiService {
       }
       
       // Eliminar la imagen de Firebase Storage
-      try {
-         final storageRef = _storage.refFromURL(imageUrl);
-         await storageRef.delete();
-      } catch(e) {
-        print("Imagen posiblemente ya borrada o url invalida: $e");
-      }
+      final storageRef = _storage.refFromURL(imageUrl);
+      await storageRef.delete();
+      print('✅ Imagen eliminada de Storage.');
 
       // Eliminar el documento de Firestore
       await sitioRef.delete();
