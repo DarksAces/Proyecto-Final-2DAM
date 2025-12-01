@@ -12,7 +12,7 @@ class AuthService {
     return _auth.authStateChanges();
   }
 
-  // 1. INICIAR SESIÓN (Se mantiene)
+  // 1. INICIAR SESIÓN
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
       final UserCredential result = await _auth.signInWithEmailAndPassword(
@@ -28,11 +28,11 @@ class AuthService {
     }
   }
 
-  // 2. REGISTRARSE (CON VERIFICACIÓN DE UNICIDAD)
+  // 2. REGISTRARSE (CORREGIDO: AHORA GUARDA EL PERFIL PÚBLICO)
   Future<String?> registerWithEmailAndPassword(String email, String password, String nickname) async {
     UserCredential? result;
     
-    // Paso 1: Intentar crear la cuenta de Auth
+    // Paso 1: Crear usuario en Auth
     try {
       result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
@@ -43,32 +43,45 @@ class AuthService {
     final user = result!.user;
     if (user == null) return "Error inesperado al crear usuario.";
 
-    // Paso 2: Verificar si el nickname está disponible y registrarlo en Firestore
+    // Paso 2: Verificar nickname único
     final nicknameError = await _apiService.checkAndRegisterNickname(nickname, user.uid);
 
     if (nicknameError != null) {
-        // Si el nickname está tomado, borramos la cuenta de Firebase Auth recién creada
+        // Si falla, borramos la cuenta creada para no dejar basura
         await user.delete(); 
         await _auth.signOut(); 
         return nicknameError; 
     }
 
-    // Paso 3: Si tiene éxito, actualizar el displayName en Firebase Auth
+    // Paso 3: Actualizar nombre en Auth (Interno)
     await user.updateDisplayName(nickname);
-    print("✅ Registro exitoso y nickname único guardado: $nickname");
+
+    // ✅ PASO 4 (NUEVO): Guardar ficha pública en Firestore
+    // Esto es lo que faltaba para que la lista de seguidores vea el nombre
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      'nickname': nickname,
+      'email': email,
+      'createdAt': FieldValue.serverTimestamp(),
+      'followers': [], // Inicializamos listas vacías
+      'following': [],
+    }, SetOptions(merge: true));
+
+    print("✅ Registro exitoso y perfil público creado: $nickname");
     
-    return null; // Null significa éxito
+    return null; // Null = Éxito
   }
 
-  // 3. CERRAR SESIÓN (Se mantiene)
+  // 3. CERRAR SESIÓN
   Future<void> signOut() async {
     try {
       await _auth.signOut();
-      print("🚪 Sesión cerrada correctamente.");
     } catch (e) {
       print("❌ Error al cerrar sesión: $e");
     }
-  }
+  
+
+  // ... (Puedes dejar el resto de funciones como updateNickname igual)
+}
 
   // 4. ACTUALIZAR NICKNAME
   Future<String?> updateNickname(String newNickname) async {

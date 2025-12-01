@@ -7,7 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Size; // FIX: Ocultamos Size para evitar conflictos
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart' as ip;
 import 'package:firebase_auth/firebase_auth.dart'; 
@@ -22,7 +22,7 @@ import 'settings_screen.dart';
 
 
 // ==========================================
-// 1. PANTALLA INICIO (CORREGIDA PARA EVITAR RAYAS AMARILLAS)
+// 1. PANTALLA INICIO
 // ==========================================
 
 class HomeScreen extends StatelessWidget {
@@ -45,7 +45,6 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Tarjeta Grande
             SizedBox(
               height: 160, 
               child: _DashboardCard(
@@ -56,8 +55,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Fila 1
             Row(
               children: [
                 Expanded(
@@ -67,9 +64,7 @@ class HomeScreen extends StatelessWidget {
                       title: "Escanear AR",
                       icon: LucideIcons.scanLine,
                       color: const Color(0xFFFFD6E0), 
-                      onTap: () {
-                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ARScannerScreen()));
-                      },
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ARScannerScreen())),
                     ),
                   ),
                 ),
@@ -78,7 +73,7 @@ class HomeScreen extends StatelessWidget {
                   child: SizedBox(
                     height: 130,
                     child: _DashboardCard(
-                      title: "Actividad Amigos",
+                      title: "Feed Social",
                       icon: LucideIcons.users,
                       color: const Color(0xFFC3F3F7), 
                       onTap: () => tabController.animateTo(1), 
@@ -88,8 +83,6 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Fila 2
             Row(
               children: [
                 Expanded(
@@ -145,10 +138,9 @@ class _DashboardCard extends StatelessWidget {
             BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
           ],
         ),
-        // FIX: Usamos LayoutBuilder o un Center simple con SingleChildScrollView para evitar overflow
         child: Center(
           child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(), // Evita scroll manual, solo es para layout
+            physics: const NeverScrollableScrollPhysics(),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -172,7 +164,7 @@ class _DashboardCard extends StatelessWidget {
 }
 
 // ==========================================
-// 2. PANTALLA SOCIAL
+// 2. PANTALLA SOCIAL (CON FOLLOWERS)
 // ==========================================
 
 class SocialScreen extends StatelessWidget {
@@ -182,9 +174,7 @@ class SocialScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
 
-    if (currentUser == null) {
-      return const Center(child: Text("Debes iniciar sesión."));
-    }
+    if (currentUser == null) return const Center(child: Text("Debes iniciar sesión."));
 
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance.collection('users').doc(currentUser.uid).snapshots(),
@@ -194,29 +184,27 @@ class SocialScreen extends StatelessWidget {
            return const Center(child: CircularProgressIndicator(color: JoviTheme.yellow));
         }
 
-        List<dynamic> rawFriends = [];
+        List<dynamic> rawFollowing = [];
         if (userSnapshot.hasData && userSnapshot.data!.exists) {
           final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
-          if (userData != null && userData.containsKey('friends')) {
-            rawFriends = userData['friends'];
+          if (userData != null && userData.containsKey('following')) {
+            rawFollowing = userData['following'];
           }
         }
 
-        final List<String> friendIds = List<String>.from(rawFriends);
+        final List<String> followingIds = List<String>.from(rawFollowing);
 
-        if (friendIds.isEmpty) {
+        if (followingIds.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(LucideIcons.users, size: 60, color: Colors.grey),
                 const SizedBox(height: 20),
-                const Text("No tienes amigos añadidos aún.", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                const Text("No sigues a nadie aún.", style: TextStyle(fontSize: 16, color: Colors.grey)),
                 TextButton(
-                  onPressed: () {
-                    DefaultTabController.of(context)?.animateTo(4);
-                  }, 
-                  child: const Text("Ir a Perfil para añadir", style: TextStyle(color: JoviTheme.blue))
+                  onPressed: () => DefaultTabController.of(context)?.animateTo(4),
+                  child: const Text("Buscar gente para seguir", style: TextStyle(color: JoviTheme.blue))
                 )
               ],
             ),
@@ -225,40 +213,26 @@ class SocialScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Actividad de Amigos"), 
+            title: const Text("Tus Seguidos"), 
             backgroundColor: JoviTheme.gray, 
             elevation: 0
           ),
           body: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('sitios')
-                .where('authorId', whereIn: friendIds)
+                .where('authorId', whereIn: followingIds)
                 .orderBy('createdAt', descending: true)
                 .limit(20)
                 .snapshots(),
             builder: (context, sitiosSnapshot) {
               if (sitiosSnapshot.hasError) {
-                 // Mostramos el error completo para depuración si es necesario
-                 print("ERROR FIRESTORE: ${sitiosSnapshot.error}");
-                 return Center(child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.warning_amber_rounded, size: 40, color: Colors.orange),
-                      const SizedBox(height: 10),
-                      const Text("Falta el Índice de Base de Datos", style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 5),
-                      const Text("Revisa la terminal de comandos (consola) y haz clic en el enlace HTTPS para crearlo.", textAlign: TextAlign.center),
-                    ],
-                  ),
-                ));
+                 return const Center(child: Text("Error cargando el feed. Revisa índices."));
               }
               if (sitiosSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator(color: JoviTheme.yellow));
               }
               if (!sitiosSnapshot.hasData || sitiosSnapshot.data!.docs.isEmpty) {
-                return const Center(child: Text("Tus amigos no han subido nada aún."));
+                return const Center(child: Text("Tus seguidos no han subido nada reciente."));
               }
 
               final docs = sitiosSnapshot.data!.docs;
@@ -280,7 +254,7 @@ class SocialScreen extends StatelessWidget {
                             child: Text(data['author']?[0].toUpperCase() ?? '?')
                           ),
                           title: Text(data['author'] ?? 'Desconocido', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text("Ha descubierto: ${data['title']}"),
+                          subtitle: Text("Descubrió: ${data['title']}"),
                         ),
                         ClipRRect(
                           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
@@ -329,7 +303,7 @@ class _MapGameScreenState extends State<MapGameScreen> {
   final ApiService _apiService = ApiService();
 
   String _filter = 'all'; 
-  List<String> _myFriendIds = [];
+  List<String> _myFollowingIds = [];
   String? _myUid;
 
   @override
@@ -337,11 +311,12 @@ class _MapGameScreenState extends State<MapGameScreen> {
     super.initState();
     _myUid = FirebaseAuth.instance.currentUser?.uid;
     _initLocation();
-    _loadFriendsAndListen();
+    _loadFollowingAndListen();
   }
 
-  Future<void> _loadFriendsAndListen() async {
-    _myFriendIds = await _apiService.getFriendList();
+  Future<void> _loadFollowingAndListen() async {
+    // FIX: Usamos getFollowingList (nuevo) en vez de getFriendList (viejo)
+    _myFollowingIds = await _apiService.getFollowingList();
     _listenToFirestore();
   }
 
@@ -352,10 +327,7 @@ class _MapGameScreenState extends State<MapGameScreen> {
   }
 
   void _listenToFirestore() {
-    _firestoreSubscription = FirebaseFirestore.instance
-        .collection('sitios')
-        .snapshots()
-        .listen((snapshot) {
+    _firestoreSubscription = FirebaseFirestore.instance.collection('sitios').snapshots().listen((snapshot) {
       if (mounted) {
         final List<Map<String, dynamic>> fetchedStops = snapshot.docs.map((doc) {
           final data = doc.data();
@@ -389,27 +361,14 @@ class _MapGameScreenState extends State<MapGameScreen> {
 
       if(mounted && isLoading) {
         setState(() => isLoading = false);
-        mapboxMap?.setCamera(CameraOptions(
-          center: Point(coordinates: Position(pos.longitude, pos.latitude)),
-          zoom: 17.0,
-          pitch: 60.0
-        ));
+        mapboxMap?.setCamera(CameraOptions(center: Point(coordinates: Position(pos.longitude, pos.latitude)), zoom: 17.0));
       }
     });
   }
 
   _onMapCreated(MapboxMap map) async {
     mapboxMap = map;
-    try { await mapboxMap!.loadStyleURI("mapbox://styles/mapbox/outdoors-v12"); } catch (e) { print("Map style error: $e"); }
-    
-    try {
-      await mapboxMap?.location.updateSettings(LocationComponentSettings(
-        enabled: true,
-        pulsingEnabled: false,
-        locationPuck: LocationPuck(locationPuck3D: LocationPuck3D(modelUri: "asset://assets/avatar.glb", modelScale: [50.0, 50.0, 50.0]))
-      ));
-    } catch(e) {}
-
+    try { await mapboxMap!.loadStyleURI("mapbox://styles/mapbox/outdoors-v12"); } catch (e) { print("Error mapa: $e"); }
     circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
     await _drawPoints();
 
@@ -435,10 +394,10 @@ class _MapGameScreenState extends State<MapGameScreen> {
 
       if (_filter == 'all') {
         shouldShow = true;
-        if (_myFriendIds.contains(stop['authorId'])) color = Colors.blue.value;
+        if (_myFollowingIds.contains(stop['authorId'])) color = Colors.blue.value;
         if (stop['authorId'] == _myUid) color = Colors.green.value;
-      } else if (_filter == 'friends') {
-        if (_myFriendIds.contains(stop['authorId'])) {
+      } else if (_filter == 'following') { // Filtro por Seguidos
+        if (_myFollowingIds.contains(stop['authorId'])) {
           shouldShow = true;
           color = Colors.blue.value;
         }
@@ -468,7 +427,6 @@ class _MapGameScreenState extends State<MapGameScreen> {
         MapWidget(
           key: const ValueKey("mapWidget"),
           styleUri: "mapbox://styles/mapbox/outdoors-v12",
-          textureView: true,
           cameraOptions: CameraOptions(center: Point(coordinates: Position(userLng, userLat)), zoom: 15.0),
           onMapCreated: _onMapCreated,
         ),
@@ -481,7 +439,7 @@ class _MapGameScreenState extends State<MapGameScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _FilterChip(label: "Todos", isSelected: _filter == 'all', onTap: () => setState(() { _filter = 'all'; _drawPoints(); })),
-                _FilterChip(label: "Amigos", isSelected: _filter == 'friends', onTap: () => setState(() { _filter = 'friends'; _drawPoints(); })),
+                _FilterChip(label: "Seguidos", isSelected: _filter == 'following', onTap: () => setState(() { _filter = 'following'; _drawPoints(); })),
                 _FilterChip(label: "Yo", isSelected: _filter == 'me', onTap: () => setState(() { _filter = 'me'; _drawPoints(); })),
               ],
             ),
@@ -498,7 +456,7 @@ class _MapGameScreenState extends State<MapGameScreen> {
               if (currentPosition != null) {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => AddStopScreen(currentPosition: currentPosition!)));
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Esperando ubicación GPS...')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Esperando GPS...')));
               }
             },
             child: const Icon(LucideIcons.plus),
@@ -542,10 +500,7 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? JoviTheme.blue : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: BoxDecoration(color: isSelected ? JoviTheme.blue : Colors.transparent, borderRadius: BorderRadius.circular(20)),
         child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
       ),
     );
@@ -583,9 +538,7 @@ class GalleryScreen extends StatelessWidget {
                   children: [
                     Icon(count >= 5 ? LucideIcons.alertTriangle : LucideIcons.checkCircle, color: count >= 5 ? Colors.red : Colors.green),
                     const SizedBox(width: 10),
-                    Expanded(child: Text("Has usado $count/5 espacios gratuitos.", style: const TextStyle(fontWeight: FontWeight.bold))),
-                    if (count >= 5)
-                      TextButton(onPressed: (){ /* Pagar logic */ }, child: const Text("Ampliar"))
+                    Expanded(child: Text("Has usado $count/5 espacios.", style: const TextStyle(fontWeight: FontWeight.bold))),
                   ],
                 ),
               ),
@@ -599,10 +552,7 @@ class GalleryScreen extends StatelessWidget {
                     return Stack(
                       fit: StackFit.expand,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: CachedNetworkImage(imageUrl: data['imageUrl'], fit: BoxFit.cover),
-                        ),
+                        ClipRRect(borderRadius: BorderRadius.circular(10), child: CachedNetworkImage(imageUrl: data['imageUrl'], fit: BoxFit.cover)),
                         Positioned(
                           top: 5, right: 5,
                           child: IconButton(
@@ -624,53 +574,97 @@ class GalleryScreen extends StatelessWidget {
 }
 
 // ==========================================
-// 5. PERFIL (CORREGIDO: CONTEXT SAFETY)
+// 5. NUEVA PANTALLA: LISTA DE USUARIOS (SEGUIDORES/SEGUIDOS)
+// ==========================================
+class UsersListScreen extends StatelessWidget {
+  final String title;
+  final List<String> userIds;
+
+  const UsersListScreen({super.key, required this.title, required this.userIds});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: JoviTheme.yellow,
+        foregroundColor: JoviTheme.blue,
+      ),
+      body: userIds.isEmpty
+          ? const Center(child: Text("La lista está vacía."))
+          : ListView.builder(
+              itemCount: userIds.length,
+              itemBuilder: (context, index) {
+                final uid = userIds[index];
+                // Buscamos info de cada usuario por UID
+                return FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance.collection('users').doc(uid).get(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const ListTile(title: Text("Cargando..."));
+                    
+                    final data = snapshot.data!.data() as Map<String, dynamic>?;
+                    // Mostramos nickname si existe, sino email, sino "Desconocido"
+                    final nickname = data?['nickname'] ?? data?['email'] ?? "Usuario Desconocido";
+
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: JoviTheme.blue,
+                        child: Text(nickname.isNotEmpty ? nickname[0].toUpperCase() : '?', style: const TextStyle(color: Colors.white)),
+                      ),
+                      title: Text(nickname, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(data?['email'] ?? ""),
+                    );
+                  },
+                );
+              },
+            ),
+    );
+  }
+}
+
+// ==========================================
+// 6. PERFIL (CON CLICS EN NÚMEROS)
 // ==========================================
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onSignOut;
   const ProfileScreen({super.key, required this.onSignOut});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  @override State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final ApiService _apiService = ApiService();
-  final TextEditingController _friendController = TextEditingController();
-  
-  void _addFriendDialog() {
+  final TextEditingController _followController = TextEditingController();
+  final String myUid = FirebaseAuth.instance.currentUser!.uid;
+
+  void _followUserDialog() {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog( // Usamos un nombre distinto para el context del dialogo
-        title: const Text("Añadir Amigo"),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Seguir Usuario"),
         content: TextField(
-          controller: _friendController,
-          decoration: const InputDecoration(labelText: "Nickname del amigo", hintText: "Ej: viajero123"),
+          controller: _followController,
+          decoration: const InputDecoration(labelText: "Nickname", hintText: "Ej: explorador99", prefixIcon: Icon(LucideIcons.search)),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text("Cancelar")),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: JoviTheme.blue, foregroundColor: Colors.white),
             onPressed: () async {
-              // 1. Capturar referencias ANTES del await
               final navigator = Navigator.of(dialogContext);
-              final messenger = ScaffoldMessenger.of(context); // context del State, no del dialogo
-              
-              // 2. Cerrar el diálogo
-              navigator.pop();
+              final messenger = ScaffoldMessenger.of(context);
+              navigator.pop(); 
 
-              // 3. Operación asíncrona
-              final error = await _apiService.addFriend(_friendController.text);
-              
-              // 4. Usar el messenger capturado (es seguro aunque el widget se desmonte)
-              messenger.showSnackBar(SnackBar(
-                content: Text(error == null ? "✅ Amigo añadido!" : "❌ $error"),
-                backgroundColor: error == null ? Colors.green : Colors.red,
-              ));
-              
-              _friendController.clear();
+              if (_followController.text.isNotEmpty) {
+                final error = await _apiService.followUser(_followController.text);
+                messenger.showSnackBar(SnackBar(
+                  content: Text(error == null ? "✅ Siguiendo a ${_followController.text}" : "❌ $error"),
+                  backgroundColor: error == null ? Colors.green : Colors.red,
+                ));
+                _followController.clear();
+              }
             },
-            child: const Text("Añadir"),
+            child: const Text("Seguir"),
           )
         ],
       ),
@@ -680,42 +674,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    return Scaffold(
-      appBar: AppBar(title: const Text("Perfil"), actions: [
-        IconButton(icon: const Icon(LucideIcons.settings), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())))
-      ]),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const CircleAvatar(radius: 50, backgroundColor: JoviTheme.blue, child: Icon(LucideIcons.user, size: 50, color: Colors.white)),
-            const SizedBox(height: 10),
-            Text(user?.displayName ?? "Sin Nickname", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            Text(user?.email ?? "", style: const TextStyle(color: Colors.grey)),
-            const SizedBox(height: 30),
-            
-            ListTile(
-              leading: const Icon(LucideIcons.userPlus, color: JoviTheme.blue),
-              title: const Text("Añadir Amigo"),
-              subtitle: const Text("Busca por nickname para conectar"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: _addFriendDialog,
+    
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').doc(myUid).snapshots(),
+      builder: (context, snapshot) {
+        
+        List<String> followers = [];
+        List<String> following = [];
+
+        if (snapshot.hasData && snapshot.data!.exists) {
+          final data = snapshot.data!.data() as Map<String, dynamic>;
+          followers = List<String>.from(data['followers'] ?? []);
+          following = List<String>.from(data['following'] ?? []);
+        }
+
+        return Scaffold(
+          appBar: AppBar(title: const Text("Mi Perfil"), actions: [
+            IconButton(icon: const Icon(LucideIcons.settings), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())))
+          ]),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const CircleAvatar(radius: 50, backgroundColor: JoviTheme.blue, child: Icon(LucideIcons.user, size: 50, color: Colors.white)),
+                const SizedBox(height: 10),
+                Text(user?.displayName ?? "Usuario", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text(user?.email ?? "", style: const TextStyle(color: Colors.grey)),
+                const SizedBox(height: 30),
+                
+                // Estadísticas CLICABLES
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildStatItem("Seguidores", followers, context),
+                    Container(width: 1, height: 40, color: Colors.grey.withOpacity(0.5)),
+                    _buildStatItem("Seguidos", following, context),
+                  ],
+                ),
+                const SizedBox(height: 30),
+
+                ElevatedButton.icon(
+                  onPressed: _followUserDialog,
+                  icon: const Icon(LucideIcons.userPlus),
+                  label: const Text("Buscar y Seguir"),
+                  style: ElevatedButton.styleFrom(backgroundColor: JoviTheme.yellow, foregroundColor: JoviTheme.blue, minimumSize: const Size(double.infinity, 50)),
+                ),
+                const SizedBox(height: 15),
+                ListTile(
+                  leading: const Icon(LucideIcons.logOut, color: Colors.red),
+                  title: const Text("Cerrar Sesión"),
+                  onTap: widget.onSignOut,
+                ),
+              ],
             ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(LucideIcons.logOut, color: Colors.red),
-              title: const Text("Cerrar Sesión"),
-              onTap: widget.onSignOut,
-            ),
-          ],
-        ),
+          ),
+        );
+      }
+    );
+  }
+
+  // Ahora recibe la LISTA completa para poder pasarla a la otra pantalla
+  Widget _buildStatItem(String label, List<String> list, BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => UsersListScreen(title: label, userIds: list))
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(children: [
+          Text(list.length.toString(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: JoviTheme.blue)),
+          Text(label, style: const TextStyle(color: Colors.grey, decoration: TextDecoration.underline)),
+        ]),
       ),
     );
   }
 }
 
 // ==========================================
-// AR SCANNER
+// 7. AR SCANNER
 // ==========================================
 
 class ARScannerScreen extends StatefulWidget {
@@ -734,10 +774,7 @@ class _ARScannerScreenState extends State<ARScannerScreen> {
     }
   }
   @override
-  void dispose() {
-    controller?.dispose();
-    super.dispose();
-  }
+  void dispose() { controller?.dispose(); super.dispose(); }
   @override
   Widget build(BuildContext context) {
     if (controller == null || !controller!.value.isInitialized) return const Scaffold(backgroundColor: Colors.black);
@@ -746,7 +783,7 @@ class _ARScannerScreenState extends State<ARScannerScreen> {
 }
 
 // ==========================================
-// 6. AÑADIR SITIO
+// 8. AÑADIR SITIO
 // ==========================================
 
 class AddStopScreen extends StatefulWidget {
@@ -759,221 +796,66 @@ class _AddStopScreenState extends State<AddStopScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _typeController = TextEditingController();
-
   File? _imageFile;
   bool _isUploading = false;
-
   final apiService = ApiService();
   final SettingsService _settingsService = SettingsService();
 
   Future<void> _pickImage() async {
-    final source = await showModalBottomSheet<ip.ImageSource>(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(LucideIcons.camera),
-                title: const Text('Tomar Foto'),
-                onTap: () => Navigator.pop(context, ip.ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(LucideIcons.image),
-                title: const Text('Galería'),
-                onTap: () => Navigator.pop(context, ip.ImageSource.gallery),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (source != null) {
-      final picker = ip.ImagePicker();
-      final pickedFile = await picker.pickImage(
-        source: source,
-        imageQuality: 70
-      );
-
-      if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
-        });
-      }
-    }
-  }
-
-  Future<bool> _isUploadAllowed() async {
-    final preference = await _settingsService.getUploadPreference();
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    
-    if (connectivityResult == ConnectivityResult.none) return false;
-    
-    if (preference == 'both') return true;
-    if (preference == 'wifi') return connectivityResult == ConnectivityResult.wifi;
-    if (preference == 'cellular') return connectivityResult == ConnectivityResult.mobile;
-    
-    return false;
+    final picker = ip.ImagePicker();
+    final pickedFile = await picker.pickImage(source: ip.ImageSource.camera, imageQuality: 70);
+    if (pickedFile != null) setState(() => _imageFile = File(pickedFile.path));
   }
 
   Future<void> _submitData() async {
-    final count = await apiService.getUserStopCount();
-    if (count >= 5) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⚠️ Límite de 5 sitios alcanzado. Borra alguno o paga."), backgroundColor: Colors.red));
-      }
+    if (!_formKey.currentState!.validate() || _imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Falta foto o datos.')));
       return;
     }
 
-    if (_formKey.currentState!.validate() && _imageFile != null) {
-      
-      final isAllowed = await _isUploadAllowed();
-      
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final authorNickname = currentUser?.displayName ?? "Anónimo"; 
-      final authorId = currentUser?.uid ?? 'anonimo_offline'; 
-      
-      final newStop = NewStopData(
-        title: _titleController.text,
-        author: authorNickname,
-        type: _typeController.text,
-        lat: widget.currentPosition.latitude,
-        lng: widget.currentPosition.longitude,
-        imageFile: _imageFile!,
-        authorId: authorId,
-      );
-      
-      if (!isAllowed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Guardado localmente. Se subirá al cumplir las preferencias de red.'),
-              backgroundColor: JoviTheme.blue,
-            ),
-          );
-          Navigator.pop(context); 
-          return; 
-      }
-      
-      setState(() => _isUploading = true);
+    setState(() => _isUploading = true);
+    
+    // AQUÍ ASEGURAMOS EL AUTHOR ID
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final authorId = currentUser?.uid ?? 'anonimo_offline'; 
 
-      final success = await apiService.uploadNewStop(newStop);
+    final newStop = NewStopData(
+      title: _titleController.text,
+      author: currentUser?.displayName ?? "Anónimo",
+      type: _typeController.text,
+      lat: widget.currentPosition.latitude,
+      lng: widget.currentPosition.longitude,
+      imageFile: _imageFile!,
+      authorId: authorId,
+    );
+    
+    final success = await apiService.uploadNewStop(newStop);
+    setState(() => _isUploading = false);
 
-      setState(() => _isUploading = false);
-
-      if (mounted) {
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Sitio añadido con éxito!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('❌ Error de servidor o permisos.'),
-              backgroundColor: JoviTheme.red,
-            ),
-          );
-        }
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Completa todos los campos y añade una foto.')
-        ),
-      );
+    if (mounted && success) {
+       Navigator.pop(context);
+       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Sitio subido.')));
     }
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _typeController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Añadir Nuevo Sitio'),
-        backgroundColor: JoviTheme.yellow,
-        foregroundColor: JoviTheme.blue,
-      ),
+      appBar: AppBar(title: const Text('Nuevo Sitio'), backgroundColor: JoviTheme.yellow),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Autor: ${FirebaseAuth.instance.currentUser?.displayName ?? "Anónimo"}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: JoviTheme.blue),
-              ),
-              Text(
-                'Ubicación: Lat ${widget.currentPosition.latitude.toStringAsFixed(4)}, Lng ${widget.currentPosition.longitude.toStringAsFixed(4)}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: JoviTheme.blue),
-              ),
-              const Divider(height: 30),
-
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Título del Sitio/Monumento', border: OutlineInputBorder()),
-                validator: (v) => v!.isEmpty ? 'Introduce un título' : null,
-              ),
+              TextFormField(controller: _titleController, decoration: const InputDecoration(labelText: 'Título'), validator: (v) => v!.isEmpty ? 'Requerido' : null),
               const SizedBox(height: 15),
-
-              TextFormField(
-                controller: _typeController,
-                decoration: const InputDecoration(labelText: 'Categoría (Ej: Arte, Historia)', border: OutlineInputBorder()),
-                validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
-              ),
-              const SizedBox(height: 30),
-
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: Icon(_imageFile == null ? LucideIcons.camera : LucideIcons.check),
-                label: Text(_imageFile == null ? 'Tomar Foto / Galería' : 'Foto Seleccionada'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: JoviTheme.gray,
-                  foregroundColor: JoviTheme.blue,
-                  padding: const EdgeInsets.all(15)
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              if (_imageFile != null)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(_imageFile!, height: 200, fit: BoxFit.cover),
-                    ),
-                  ),
-                ),
-
-              const SizedBox(height: 30),
-
-              if (_isUploading)
-                const Center(child: CircularProgressIndicator(color: JoviTheme.yellow))
-              else
-                ElevatedButton.icon(
-                  onPressed: _submitData,
-                  icon: const Icon(LucideIcons.upload),
-                  label: const Text('SUBIR SITIO A JOVI AR'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: JoviTheme.yellow,
-                    foregroundColor: JoviTheme.blue,
-                    padding: const EdgeInsets.all(15),
-                    textStyle: JoviTheme.fontBaloo.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+              TextFormField(controller: _typeController, decoration: const InputDecoration(labelText: 'Categoría'), validator: (v) => v!.isEmpty ? 'Requerido' : null),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(onPressed: _pickImage, icon: const Icon(Icons.camera), label: Text(_imageFile == null ? 'Foto' : 'Foto OK')),
+              if (_imageFile != null) Image.file(_imageFile!, height: 150),
+              const SizedBox(height: 20),
+              _isUploading ? const CircularProgressIndicator() : ElevatedButton(onPressed: _submitData, child: const Text("SUBIR"))
             ],
           ),
         ),
