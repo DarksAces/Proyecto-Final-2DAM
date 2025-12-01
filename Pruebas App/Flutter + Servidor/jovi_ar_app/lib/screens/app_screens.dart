@@ -7,7 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Size; // FIX: Ocultamos Size para evitar conflictos
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Size; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart' as ip;
 import 'package:firebase_auth/firebase_auth.dart'; 
@@ -226,7 +226,16 @@ class SocialScreen extends StatelessWidget {
                 .snapshots(),
             builder: (context, sitiosSnapshot) {
               if (sitiosSnapshot.hasError) {
-                 return const Center(child: Text("Error cargando el feed. Revisa índices."));
+                 return Center(
+                   child: SingleChildScrollView(
+                     padding: const EdgeInsets.all(16),
+                     child: SelectableText(
+                       "⚠️ ERROR DE FIREBASE:\n\n${sitiosSnapshot.error}",
+                       style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                       textAlign: TextAlign.center,
+                     ),
+                   ),
+                 );
               }
               if (sitiosSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator(color: JoviTheme.yellow));
@@ -281,7 +290,7 @@ class SocialScreen extends StatelessWidget {
 }
 
 // ==========================================
-// 3. PANTALLA MAPA
+// 3. PANTALLA MAPA (OPTIMIZADA)
 // ==========================================
 
 class MapGameScreen extends StatefulWidget {
@@ -294,12 +303,18 @@ class _MapGameScreenState extends State<MapGameScreen> {
   CircleAnnotationManager? circleAnnotationManager;
   geo.Position? currentPosition;
   Map<String, dynamic>? selectedStop;
+  
   bool isLoading = true;
+  bool _mapInitialized = false; // Flag para evitar reinicios
+  
   double userLat = 41.4036;
   double userLng = 2.1874;
 
   List<Map<String, dynamic>> liveStops = [];
+  
   StreamSubscription? _firestoreSubscription;
+  StreamSubscription? _locationSubscription;
+  
   final ApiService _apiService = ApiService();
 
   String _filter = 'all'; 
@@ -315,7 +330,6 @@ class _MapGameScreenState extends State<MapGameScreen> {
   }
 
   Future<void> _loadFollowingAndListen() async {
-    // FIX: Usamos getFollowingList (nuevo) en vez de getFriendList (viejo)
     _myFollowingIds = await _apiService.getFollowingList();
     _listenToFirestore();
   }
@@ -323,12 +337,62 @@ class _MapGameScreenState extends State<MapGameScreen> {
   @override
   void dispose() {
     _firestoreSubscription?.cancel();
+    _locationSubscription?.cancel();
     super.dispose();
+  }
+
+  _initLocation() async {
+    bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if(mounted) setState(() => isLoading = false);
+      return;
+    }
+
+    geo.LocationPermission permission = await geo.Geolocator.checkPermission();
+    if (permission == geo.LocationPermission.denied) {
+      permission = await geo.Geolocator.requestPermission();
+      if (permission == geo.LocationPermission.denied) {
+        if(mounted) setState(() => isLoading = false);
+        return;
+      }
+    }
+
+    try {
+      final initialPosition = await geo.Geolocator.getCurrentPosition();
+      if (mounted) {
+        setState(() {
+          currentPosition = initialPosition;
+          userLat = initialPosition.latitude;
+          userLng = initialPosition.longitude;
+          isLoading = false;
+        });
+        
+        if (_mapInitialized && mapboxMap != null) {
+          mapboxMap?.setCamera(CameraOptions(
+            center: Point(coordinates: Position(userLng, userLat)), 
+            zoom: 17.0
+          ));
+        }
+      }
+
+      _locationSubscription = geo.Geolocator.getPositionStream(
+        locationSettings: const geo.LocationSettings(accuracy: geo.LocationAccuracy.high, distanceFilter: 10)
+      ).listen((pos) {
+        if (mounted) {
+          currentPosition = pos;
+          userLat = pos.latitude;
+          userLng = pos.longitude;
+          // No llamamos setState aquí para no saturar
+        }
+      });
+    } catch (e) {
+      print("Error GPS: $e");
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   void _listenToFirestore() {
     _firestoreSubscription = FirebaseFirestore.instance.collection('sitios').snapshots().listen((snapshot) {
-      if (mounted) {
         final List<Map<String, dynamic>> fetchedStops = snapshot.docs.map((doc) {
           final data = doc.data();
           return {
@@ -343,35 +407,22 @@ class _MapGameScreenState extends State<MapGameScreen> {
           };
         }).toList();
 
-        setState(() {
-          liveStops = fetchedStops;
+        liveStops = fetchedStops;
+        
+        if (_mapInitialized && circleAnnotationManager != null) {
           _drawPoints();
-        });
-      }
+        }
     });
   }
 
-  _initLocation() async {
-    geo.Geolocator.getPositionStream(
-      locationSettings: const geo.LocationSettings(accuracy: geo.LocationAccuracy.high, distanceFilter: 2)
-    ).listen((pos) {
-      currentPosition = pos;
-      userLat = pos.latitude;
-      userLng = pos.longitude;
-
-      if(mounted && isLoading) {
-        setState(() => isLoading = false);
-        mapboxMap?.setCamera(CameraOptions(center: Point(coordinates: Position(pos.longitude, pos.latitude)), zoom: 17.0));
-      }
-    });
-  }
-
-  _onMapCreated(MapboxMap map) async {
+  Future<void> _onMapCreated(MapboxMap map) async {
     mapboxMap = map;
-    try { await mapboxMap!.loadStyleURI("mapbox://styles/mapbox/outdoors-v12"); } catch (e) { print("Error mapa: $e"); }
+    try { await mapboxMap!.loadStyleURI("mapbox://styles/mapbox/outdoors-v12"); } catch (e) { print("Error estilo mapa: $e"); }
+    
+    mapboxMap?.location.updateSettings(LocationComponentSettings(enabled: true));
+    
     circleAnnotationManager = await map.annotations.createCircleAnnotationManager();
-    await _drawPoints();
-
+    
     circleAnnotationManager?.addOnCircleAnnotationClickListener(
       MyAnnotationClickListener(onTap: (annotation) {
         final stop = liveStops.firstWhere((s) =>
@@ -379,13 +430,23 @@ class _MapGameScreenState extends State<MapGameScreen> {
           (s['lng'] - annotation.geometry.coordinates.lng).abs() < 0.0001,
           orElse: () => {}
         );
-        if (stop.isNotEmpty) setState(() => selectedStop = stop);
+        if (stop.isNotEmpty && mounted) {
+          setState(() => selectedStop = stop);
+        }
       })
     );
+
+    _mapInitialized = true;
+
+    if (currentPosition != null) {
+      mapboxMap?.setCamera(CameraOptions(center: Point(coordinates: Position(userLng, userLat)), zoom: 17.0));
+    }
+    
+    await _drawPoints();
   }
 
-  _drawPoints() async {
-    if (circleAnnotationManager == null) return;
+  Future<void> _drawPoints() async {
+    if (circleAnnotationManager == null || !_mapInitialized) return;
     await circleAnnotationManager?.deleteAll();
 
     for (var stop in liveStops) {
@@ -396,7 +457,7 @@ class _MapGameScreenState extends State<MapGameScreen> {
         shouldShow = true;
         if (_myFollowingIds.contains(stop['authorId'])) color = Colors.blue.value;
         if (stop['authorId'] == _myUid) color = Colors.green.value;
-      } else if (_filter == 'following') { // Filtro por Seguidos
+      } else if (_filter == 'following') {
         if (_myFollowingIds.contains(stop['authorId'])) {
           shouldShow = true;
           color = Colors.blue.value;
@@ -420,6 +481,13 @@ class _MapGameScreenState extends State<MapGameScreen> {
     }
   }
 
+  void _changeFilter(String newFilter) {
+    if (_filter != newFilter) {
+      setState(() => _filter = newFilter);
+      _drawPoints();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -438,9 +506,9 @@ class _MapGameScreenState extends State<MapGameScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _FilterChip(label: "Todos", isSelected: _filter == 'all', onTap: () => setState(() { _filter = 'all'; _drawPoints(); })),
-                _FilterChip(label: "Seguidos", isSelected: _filter == 'following', onTap: () => setState(() { _filter = 'following'; _drawPoints(); })),
-                _FilterChip(label: "Yo", isSelected: _filter == 'me', onTap: () => setState(() { _filter = 'me'; _drawPoints(); })),
+                _FilterChip(label: "Todos", isSelected: _filter == 'all', onTap: () => _changeFilter('all')),
+                _FilterChip(label: "Seguidos", isSelected: _filter == 'following', onTap: () => _changeFilter('following')),
+                _FilterChip(label: "Yo", isSelected: _filter == 'me', onTap: () => _changeFilter('me')),
               ],
             ),
           ),
@@ -596,14 +664,12 @@ class UsersListScreen extends StatelessWidget {
               itemCount: userIds.length,
               itemBuilder: (context, index) {
                 final uid = userIds[index];
-                // Buscamos info de cada usuario por UID
                 return FutureBuilder<DocumentSnapshot>(
                   future: FirebaseFirestore.instance.collection('users').doc(uid).get(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const ListTile(title: Text("Cargando..."));
                     
                     final data = snapshot.data!.data() as Map<String, dynamic>?;
-                    // Mostramos nickname si existe, sino email, sino "Desconocido"
                     final nickname = data?['nickname'] ?? data?['email'] ?? "Usuario Desconocido";
 
                     return ListTile(
@@ -702,7 +768,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(user?.email ?? "", style: const TextStyle(color: Colors.grey)),
                 const SizedBox(height: 30),
                 
-                // Estadísticas CLICABLES
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -733,7 +798,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ahora recibe la LISTA completa para poder pasarla a la otra pantalla
   Widget _buildStatItem(String label, List<String> list, BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(10),
@@ -815,7 +879,6 @@ class _AddStopScreenState extends State<AddStopScreen> {
 
     setState(() => _isUploading = true);
     
-    // AQUÍ ASEGURAMOS EL AUTHOR ID
     final currentUser = FirebaseAuth.instance.currentUser;
     final authorId = currentUser?.uid ?? 'anonimo_offline'; 
 

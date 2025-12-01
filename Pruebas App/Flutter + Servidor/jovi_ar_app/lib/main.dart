@@ -37,26 +37,51 @@ class JoviTheme {
 
 List<CameraDescription> cameras = [];
 
+// Reemplaza la función main() en main.dart
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // 🔥 INICIALIZAR FIREBASE
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    print("✅ Firebase inicializado correctamente");
   } catch (e) {
     print("❌ Error al inicializar Firebase: $e");
   }
 
-  await Permission.location.request();
-  await Permission.camera.request();
-  try {
-    cameras = await availableCameras();
-  } catch (e) {
-    print("Error cámara: $e");
+  // 🔥 SOLICITAR PERMISOS DE UBICACIÓN
+  var locationStatus = await Permission.location.request();
+  if (locationStatus.isDenied) {
+    print("⚠️ Permiso de ubicación denegado");
+  } else if (locationStatus.isGranted) {
+    print("✅ Permiso de ubicación concedido");
+  } else if (locationStatus.isPermanentlyDenied) {
+    print("❌ Permiso de ubicación denegado permanentemente");
+    // Aquí podrías abrir los ajustes con: await openAppSettings();
   }
 
+  // 🔥 SOLICITAR PERMISOS DE CÁMARA
+  var cameraStatus = await Permission.camera.request();
+  if (cameraStatus.isDenied) {
+    print("⚠️ Permiso de cámara denegado");
+  } else if (cameraStatus.isGranted) {
+    print("✅ Permiso de cámara concedido");
+  }
+
+  // 🔥 INICIALIZAR CÁMARAS
+  try {
+    cameras = await availableCameras();
+    print("✅ ${cameras.length} cámaras disponibles");
+  } catch (e) {
+    print("❌ Error al cargar cámaras: $e");
+  }
+
+  // 🔥 CONFIGURAR MAPBOX
   MapboxOptions.setAccessToken(MAPBOX_ACCESS_TOKEN);
+  
   runApp(const JoviApp());
 }
 
