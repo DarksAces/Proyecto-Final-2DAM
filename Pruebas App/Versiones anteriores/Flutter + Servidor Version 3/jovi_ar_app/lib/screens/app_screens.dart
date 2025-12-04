@@ -488,22 +488,6 @@ class _MapGameScreenState extends State<MapGameScreen> {
     }
   }
 
-  void _recenterMap() {
-    if (currentPosition != null && mapboxMap != null) {
-      mapboxMap?.flyTo(
-        CameraOptions(
-          center: Point(coordinates: Position(userLng, userLat)),
-          zoom: 17.0,
-          pitch: 0,
-          bearing: 0,
-        ),
-        MapAnimationOptions(duration: 1000)
-      );
-    } else {
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ubicación no disponible')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -530,8 +514,6 @@ class _MapGameScreenState extends State<MapGameScreen> {
           ),
         ),
         if (isLoading) Container(color: Colors.black54, child: const Center(child: CircularProgressIndicator(color: JoviTheme.yellow))),
-        
-        // BOTÓN AGREGAR (ARRIBA)
         Positioned(
           top: 120, right: 15,
           child: FloatingActionButton(
@@ -548,19 +530,6 @@ class _MapGameScreenState extends State<MapGameScreen> {
             child: const Icon(LucideIcons.plus),
           ),
         ),
-
-        // BOTÓN RECENTRAR (NUEVO)
-        Positioned(
-          bottom: 100, right: 15, 
-          child: FloatingActionButton(
-            heroTag: 'recenter_btn',
-            backgroundColor: Colors.white,
-            foregroundColor: JoviTheme.blue,
-            onPressed: _recenterMap,
-            child: const Icon(LucideIcons.crosshair),
-          ),
-        ),
-
         if (selectedStop != null)
            Positioned(
             bottom: 20, left: 20, right: 20,
