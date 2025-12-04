@@ -13,10 +13,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'auth_service.dart';
+import 'settings_service.dart'; // Importar SettingsService
 
 // 📂 IMPORTS DE LAS PANTALLAS
 import 'screens/auth_screens.dart';
 import 'screens/app_screens.dart';
+import 'screens/tutorial_screen.dart'; // Importar TutorialScreen
 
 
 // ==========================================
@@ -114,7 +116,33 @@ class JoviApp extends StatelessWidget {
           final user = snapshot.data;
 
           if (user != null) {
-            return MainLayout(username: user.email ?? "Usuario");
+            // 🔍 CHECK TUTORIAL STATUS
+            return FutureBuilder<bool>(
+              future: SettingsService().isTutorialShown(user.uid),
+              builder: (context, settingsSnapshot) {
+                 if (!settingsSnapshot.hasData) {
+                    return const Scaffold(body: Center(child: CircularProgressIndicator(color: JoviTheme.yellow)));
+                 }
+                 
+                 final tutorialShown = settingsSnapshot.data ?? false;
+
+                 if (tutorialShown) {
+                   return MainLayout(username: user.email ?? "Usuario");
+                 } else {
+                   // Si no se ha visto, mostrar Tutorial. Al terminar, navegar a MainLayout.
+                   return TutorialScreen(
+                     userId: user.uid,
+                     onDone: () {
+                       // Forzar recarga o navegar directamente
+                       Navigator.pushReplacement(
+                         context, 
+                         MaterialPageRoute(builder: (_) => MainLayout(username: user.email ?? "Usuario"))
+                       );
+                     }
+                   );
+                 }
+              }
+            );
           } else {
             return const AuthScreen();
           }
