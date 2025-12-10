@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Capture 3D Web</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f0f2f5; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1a1a1a; text-align: center; }
+        .step { margin-bottom: 30px; padding: 15px; border-left: 4px solid #6200EE; background: #f8f9fa; }
+        .btn { background: #6200EE; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn:disabled { background: #ccc; }
+        #preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+        #preview img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; }
+        model-viewer { width: 100%; height: 400px; background-color: #eee; border-radius: 8px; margin-top: 20px; }
+        .status { margin-top: 10px; font-weight: bold; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Object Capture 3D</h1>
+        
+        <div class="step">
+            <h3>1. Start Session</h3>
+            <button class="btn" onclick="createSession()">New Session</button>
+            <div id="sessionStatus" class="status"></div>
+        </div>
+
+        <div class="step">
+            <h3>2. Upload Photos</h3>
+            <p>Take photos of an object from different angles (at least 8).</p>
+            <input type="file" id="fileInput" multiple accept="image/*" disabled onchange="handleFileSelect(event)">
+            <div id="preview"></div>
+            <br>
+            <button class="btn" id="uploadBtn" onclick="uploadImages()" disabled>Upload Images</button>
+            <div id="uploadStatus" class="status"></div>
+        </div>
+
+        <div class="step">
+            <h3>3. Process & View</h3>
+            <button class="btn" id="processBtn" onclick="startProcessing()" disabled>Generate 3D Model</button>
+            <div id="processStatus" class="status"></div>
+            <div id="modelContainer" style="display:none;">
+                <model-viewer id="viewer" camera-controls auto-rotate ar></model-viewer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        const API_URL = 'http://localhost:8000';
+
+        async function createSession() {
+            try {
+                const res = await fetch(`${API_URL}/sessions`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name: 'Web Session'})
+                });
+                const data = await res.json();
+                sessionId = data.session_id;
+                document.getElementById('sessionStatus').innerText = `Session Active: ${sessionId}`;
+                document.getElementById('fileInput').disabled = false;
+            } catch (e) {
+                alert('Error creating session: ' + e);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+            document.getElementById('uploadBtn').disabled = false;
+        }
+
+        async function uploadImages() {
+            if (!sessionId) return;
+            const input = document.getElementById('fileInput');
+            const formData = new FormData();
+            for (let file of input.files) {
+                formData.append('files', file);
+            }
+
+            document.getElementById('uploadStatus').innerText = 'Uploading...';
+            try {
+                const res = await fetch(`${API_URL}/sessions/${sessionId}/images`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                document.getElementById('uploadStatus').innerText = `Uploaded ${data.total_images} images.`;
+                document.getElementById('processBtn').disabled = false;
+            } catch (e) {
+                alert('Upload failed: ' + e);
+            }
+        }
+
+        async function startProcessing() {
+            if (!sessionId) return;
+            document.getElementById('processStatus').innerText = 'Processing...';
+            try {
+                await fetch(`${API_URL}/sessions/${sessionId}/process`, { method: 'POST' });
+                pollStatus();
+            } catch (e) {
+                alert('Processing failed: ' + e);
+            }
+        }
+
+        function pollStatus() {
+            const interval = setInterval(async () => {
+                const res = await fetch(`${API_URL}/sessions/${sessionId}`);
+                const data = await res.json();
+                document.getElementById('processStatus').innerText = `Status: ${data.status}`;
+                
+                if (data.status === 'completed') {
+                    clearInterval(interval);
+                    showModel(data.model_url);
+                } else if (data.status === 'failed') {
+                    clearInterval(interval);
+                    alert('Processing failed on server.');
+                }
+            }, 2000);
+        }
+
+        function showModel(url) {
+            const container = document.getElementById('modelContainer');
+            const viewer = document.getElementById('viewer');
+            container.style.display = 'block';
+            // The URL from backend is /static/..., we need to prepend host if needed, 
+            // but since we serve from same origin or CORS is allowed, it should work.
+            // If backend returns relative path, we might need to fix it.
+            // Backend returns "/static/..."
+            viewer.src = API_URL + url;
+        }
+    </script>
+</body>
+</html>
