@@ -114,3 +114,8 @@ async def get_session(session_id: str):
 @app.get("/")
 async def root():
     return {"message": "Object Capture 3D API is running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    # Use host 0.0.0.0 to be accessible from mobile device
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8080, reload=True)
