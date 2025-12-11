@@ -97,6 +97,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 30),
 
+                const SizedBox(height: 30),
+
                 ElevatedButton.icon(
                   onPressed: _followUserDialog,
                   icon: const Icon(LucideIcons.userPlus),
@@ -116,6 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     );
   }
+
+
 
   Widget _buildStatItem(String label, List<String> list, BuildContext context) {
     return InkWell(

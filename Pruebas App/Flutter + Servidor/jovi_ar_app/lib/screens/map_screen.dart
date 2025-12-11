@@ -114,7 +114,9 @@ class _MapGameScreenState extends State<MapGameScreen> {
   }
 
   void _listenToFirestore() {
-    _firestoreSubscription = FirebaseFirestore.instance.collection('sitios').snapshots().listen((snapshot) {
+    _firestoreSubscription = FirebaseFirestore.instance.collection('sitios')
+        .where('status', isEqualTo: 'approved') // SOLO APROBADOS
+        .snapshots().listen((snapshot) {
         final List<Map<String, dynamic>> fetchedStops = snapshot.docs.map((doc) {
           final data = doc.data();
           return {

@@ -8,6 +8,7 @@ import '../main.dart';
 import '../settings_service.dart';
 import '../api_service.dart'; 
 import '../auth_service.dart'; 
+import 'admin_review_screen.dart'; 
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -215,6 +216,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("✅ ¡Listo! $count sitios recuperados.")));
                   }
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orangeAccent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(15),
+                ),
+                icon: const Icon(LucideIcons.listRestart),
+                label: const Text("REPARAR SITIOS ANTIGUOS (SIN STATUS)"),
+                onPressed: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("🛠️ Migrando sitios...")));
+                  final count = await ApiService().repairNullStatusSites();
+                  if (context.mounted) {
+                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("✅ $count sitios antiguos marcados como pendientes.")));
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 15),
+             SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(15),
+                ),
+                icon: const Icon(LucideIcons.shieldCheck),
+                label: const Text("PANEL DE REVISIÓN (ADMIN)"),
+                onPressed: () {
+                   // Aquí iría una comprobación de admin real, pero por ahora lo dejamos abierto o check de Windows
+                   Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReviewScreen()));
                 },
               ),
             ),

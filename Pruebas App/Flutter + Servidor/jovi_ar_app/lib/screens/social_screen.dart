@@ -63,6 +63,7 @@ class SocialScreen extends StatelessWidget {
             stream: FirebaseFirestore.instance
                 .collection('sitios')
                 .where('authorId', whereIn: followingIds)
+                .where('status', isEqualTo: 'approved') // SOLO APROBADOS
                 .orderBy('createdAt', descending: true)
                 .limit(20)
                 .snapshots(),

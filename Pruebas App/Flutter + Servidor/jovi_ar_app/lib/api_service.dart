@@ -144,6 +144,30 @@ class ApiService {
     return count;
   }
 
+  // REPARAR SITIOS SIN ESTATUS (MIGRACIÓN)
+  Future<int> repairNullStatusSites() async {
+    final snapshot = await _firestore.collection('sitios').get();
+    WriteBatch batch = _firestore.batch();
+    int count = 0;
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      // Si no tienen status, les ponemos 'pending_review' por defecto
+      if (data['status'] == null) {
+        batch.update(doc.reference, {
+          'status': 'pending_review',
+          'appealCount': 0 // Inicializamos esto también por si acaso
+        });
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      await batch.commit();
+    }
+    return count;
+  }
+
   // ==========================================
   // 3. GESTIÓN DEL NICKNAME ÚNICO
   // ==========================================
@@ -212,6 +236,8 @@ class ApiService {
         'lng': stopData.lng,
         'imageUrl': imageUrl,
         'createdAt': FieldValue.serverTimestamp(),
+        'status': 'pending_review', // Estados: pending_review, ai_approved, ai_denied, approved, denied, appeal_pending
+        'appealCount': 0,
       });
       return true;
     } catch (e) {
@@ -275,5 +301,79 @@ class ApiService {
     } catch (e) {
       print("❌ Error borrando perfil: $e");
     }
+  }
+
+  // ==========================================
+  // 6. GESTIÓN DE APROBACIONES (ADMIN/AI)
+  // ==========================================
+
+  /// Obtiene sitios que requieren revisión (AI Approved/Denied o Pending)
+  /// En un sistema real, esto estaría más filtrado. Aquí traemos todo lo que no sea 'approved'.
+  Stream<QuerySnapshot> getSitesForReview() {
+     // Traemos los que están en 'pending_review', 'ai_approved', 'ai_denied', 'appeal_pending'
+     // Firestore 'whereIn' soporta hasta 10 valores.
+     return _firestore.collection('sitios')
+        .where('status', whereIn: ['pending_review', 'ai_approved', 'ai_denied', 'appeal_pending'])
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  /// Acción de validar manualmente (Desktop)
+  Future<void> reviewSite(String siteId, String newStatus, {String? denialReason}) async {
+    // newStatus debería ser 'approved' o 'denied'
+    Map<String, dynamic> updateData = {
+      'status': newStatus,
+      'reviewedAt': FieldValue.serverTimestamp(),
+    };
+    
+    if (newStatus == 'denied' && denialReason != null) {
+      updateData['denialReason'] = denialReason;
+    }
+
+    // SI ES DENEGADO Y YA TENÍA APELACIÓN, O SI EL USUARIO YA APELÓ UNA VEZ...
+    // La regla es: "Permite apelar una vez, si ya ha apelado y se ha denegado se borra toda info"
+    if (newStatus == 'denied') {
+       final doc = await _firestore.collection('sitios').doc(siteId).get();
+       final appealCount = doc.data()?['appealCount'] ?? 0;
+       
+       if (appealCount >= 1) {
+         // Ya apeló y se le deniega de nuevo -> BORRAR
+         final imageUrl = doc.data()?['imageUrl'];
+         await deleteStop(siteId, doc.data()?['authorId'], imageUrl);
+         return; 
+       }
+    }
+
+    await _firestore.collection('sitios').doc(siteId).update(updateData);
+  }
+
+  /// Acción del Usuario para Apelar
+  Future<String?> appealSite(String siteId, String reason) async {
+    try {
+      final doc = await _firestore.collection('sitios').doc(siteId).get();
+      final currentAppealCount = doc.data()?['appealCount'] ?? 0;
+
+      if (currentAppealCount >= 1) {
+        return "Ya has agotado tu oportunidad de apelación.";
+      }
+
+      await _firestore.collection('sitios').doc(siteId).update({
+        'status': 'appeal_pending',
+        'appealCount': FieldValue.increment(1),
+        'appealReason': reason,
+        'appealedAt': FieldValue.serverTimestamp(),
+      });
+      return null;
+    } catch (e) {
+      return "Error al apelar: $e";
+    }
+  }
+
+  // Simulación de AI (Para pruebas)
+  Future<void> simulateAIProcess(String siteId, bool approve) async {
+    await _firestore.collection('sitios').doc(siteId).update({
+      'status': approve ? 'ai_approved' : 'ai_denied',
+      'aiProcessedAt': FieldValue.serverTimestamp(),
+    });
   }
 }
