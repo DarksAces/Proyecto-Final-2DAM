@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+        "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+      }
+    }
+    </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { MindARThree } from 'mindar-image-three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const mindarThree = new MindARThree({
+      container: document.querySelector("#container"),
+      imageTargetSrc: './card.mind' // Local file
+    });
+
+    const { renderer, scene, camera } = mindarThree;
+
+    // Add a light so models are visible
+    const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+    scene.add(light);
+
+    const anchor = mindarThree.addAnchor(0);
+
+    // Default: Debug Plane (Cyan) - proves tracking works even if model fails
+    const geometry = new THREE.PlaneGeometry(1, 0.55);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.3 });
+    const plane = new THREE.Mesh(geometry, material);
+    anchor.group.add(plane);
+
+    let currentModel = null;
+
+    const start = async () => {
+      await mindarThree.start();
+      renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+      });
+    }
+
+    // Exposed function for Flutter to call
+    window.loadCustomModel = (url) => {
+      const loader = new GLTFLoader();
+      console.log("Loading model: " + url);
+
+      loader.load(url, (gltf) => {
+        if (currentModel) {
+          anchor.group.remove(currentModel);
+        }
+        currentModel = gltf.scene;
+
+        // Rotate to stand up on the card (MindAR images are flat)
+        currentModel.rotation.set(Math.PI / 2, 0, 0);
+        currentModel.scale.set(0.5, 0.5, 0.5);
+
+        anchor.group.add(currentModel);
+        console.log("Model added");
+      }, undefined, (error) => {
+        console.error("Error loading model", error);
+      });
+    };
+
+    // Auto-start
+    start();
+  </script>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container"></div>
+</body>
+
+</html>

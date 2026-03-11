@@ -1,0 +1,102 @@
+﻿<Window x:Class="Jovi3DReview.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Jovi3DReview.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Jovi 3D Review" Height="768" Width="1366"
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="#F5F5F5"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+    
+    <Grid Background="{StaticResource JoviBackgroundLightBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/> <!-- Sidebar -->
+            <ColumnDefinition Width="*"/>   <!-- Main Content -->
+        </Grid.ColumnDefinitions>
+
+        <!-- SIDEBAR (Left) - Hidden until authenticated -->
+        <Border x:Name="SidebarBorder" Grid.Column="0" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0" Visibility="Collapsed">
+            <Grid Margin="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Logo -->
+                    <RowDefinition Height="Auto"/> <!-- Menu -->
+                    <RowDefinition Height="*"/>    <!-- Spacer -->
+                    <RowDefinition Height="Auto"/> <!-- Bottom Actions -->
+                    <RowDefinition Height="Auto"/> <!-- User Mini -->
+                </Grid.RowDefinitions>
+
+                <!-- Logo -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,40">
+                    <Border Width="32" Height="32" CornerRadius="8" Background="{StaticResource JoviPrimaryBrush}" Margin="0,0,12,0">
+                        <TextBlock Text="J" Foreground="White" FontWeight="Bold" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="JOVI 3D" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+                </StackPanel>
+
+                <!-- Navigation Menu -->
+                <StackPanel Grid.Row="1">
+                    <TextBlock Text="MENU PRINCIPAL" FontSize="11" FontWeight="Bold" Foreground="#94a3b8" Margin="0,0,0,16"/>
+                    
+                    <RadioButton Content="Dashboard" GroupName="SidebarMenu" Style="{StaticResource SidebarRadioButton}" IsChecked="True" Tag="{materialDesign:PackIcon Kind=ViewDashboardOutline}" Checked="Dashboard_Checked"/>
+                    <RadioButton Content="Biblioteca" GroupName="SidebarMenu" Style="{StaticResource SidebarRadioButton}" Tag="{materialDesign:PackIcon Kind=CubeOutline}" Checked="Biblioteca_Checked"/>
+                    <RadioButton Content="Usuarios" GroupName="SidebarMenu" Style="{StaticResource SidebarRadioButton}" Tag="{materialDesign:PackIcon Kind=AccountMultipleOutline}" Checked="Usuarios_Checked"/>
+                    <RadioButton Content="Reportes" GroupName="SidebarMenu" Style="{StaticResource SidebarRadioButton}" Tag="{materialDesign:PackIcon Kind=ChartBar}" Checked="Reportes_Checked"/>
+                </StackPanel>
+
+                <!-- Bottom Config -->
+                <StackPanel Grid.Row="3" Margin="0,0,0,24">
+                    <TextBlock Text="SISTEMA" FontSize="11" FontWeight="Bold" Foreground="#94a3b8" Margin="0,0,0,16"/>
+                    <RadioButton Content="Configuración" GroupName="SidebarMenu" Style="{StaticResource SidebarRadioButton}" Tag="{materialDesign:PackIcon Kind=CogOutline}" Checked="Configuracion_Checked"/>
+                    <RadioButton Content="Ayuda" GroupName="SidebarMenu" Style="{StaticResource SidebarRadioButton}" Tag="{materialDesign:PackIcon Kind=HelpCircleOutline}" Checked="Ayuda_Checked"/>
+                </StackPanel>
+
+                <!-- User Profile Mini -->
+                <Border Grid.Row="4" Background="{StaticResource JoviBackgroundLightBrush}" CornerRadius="12" Padding="12" Cursor="Hand" MouseLeftButtonUp="Profile_Click">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Width="40" Height="40" CornerRadius="20" Background="White">
+                             <materialDesign:PackIcon Kind="Account" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                        </Border>
+                        
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
+                            <TextBlock Text="Jovi Admin" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Supervisor" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                        
+                        <materialDesign:PackIcon Grid.Column="2" Kind="ChevronRight" Foreground="Gray" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT AREA (Right) -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- App Header (if explicit, though Dashboard has its own sticky header) -->
+                <RowDefinition Height="*"/>    <!-- Page Content -->
+            </Grid.RowDefinitions>
+
+            <!-- 
+               Note: The DashboardView has its own sticky header internally.
+               However, if we want a global header, we can put it here.
+               For this design, the Mockup showed the Header as part of the view context (search per view).
+               So we will leave Row 0 empty or removed, and let ActiveContent take full space, 
+               or simple global header.
+               
+               Refining choice: DashboardView.xaml has the "Revisión de Modelos" header.
+               So we just use a ContentControl filling the space.
+            -->
+            
+            <ContentControl Grid.Row="1" x:Name="ActiveContent"/>
+        </Grid>
+    </Grid>
+</Window>
