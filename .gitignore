@@ -1,0 +1,39 @@
+# === GLOBAL ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+
+# === VISUAL STUDIO (C#) ===
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+build.log
+build_*.log
+run_error.log
+
+# === WEB / NODE ===
+node_modules/
+.vscode/
+dist/
+out/
+build/
+
+# === PYTHON ===
+__pycache__/
+.venv/
+venv/
+env/
+*.py[cod]
+
+# === FLUTTER ===
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
