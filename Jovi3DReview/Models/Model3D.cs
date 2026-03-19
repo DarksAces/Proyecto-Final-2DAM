@@ -25,7 +25,7 @@ namespace Jovi3DReview.Models
         public string StatusDisplay => Status switch 
         {
             "pending_review" => "Pendiente",
-            "approved" => "Aprobado",
+            "accepted" => "Aprobado",
             "denied" => "Rechazado",
             _ => Status ?? "Desconocido"
         };
