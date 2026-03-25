@@ -1,6 +1,6 @@
 using System;
 
-namespace Jovi3DReview.Models
+namespace Aura3DReview.Models
 {
     public class User
     {

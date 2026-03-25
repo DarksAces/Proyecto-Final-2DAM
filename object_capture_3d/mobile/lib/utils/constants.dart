@@ -9,7 +9,7 @@ class AppColors {
 }
 
 class AppConstants {
-  static const String appName = 'Object Capture 3D';
+  static const String appName = 'Aura AR';
   static const double captureRotationAngle = 45.0;
   static const int requiredPhotos = 8;
 }
