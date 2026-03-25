@@ -6,9 +6,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using Jovi3DReview.Models;
+using Aura3DReview.Models;
 
-namespace Jovi3DReview.Services
+namespace Aura3DReview.Services
 {
     public class FirebaseService : IFirebaseService
     {

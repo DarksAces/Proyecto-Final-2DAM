@@ -1,8 +1,8 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Input;
-using Jovi3DReview.Models;
+using Aura3DReview.Models;
 
-namespace Jovi3DReview.Views
+namespace Aura3DReview.Views
 {
     public partial class MainWindow : Window
     {

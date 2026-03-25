@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using Jovi3DReview.Models;
-using Jovi3DReview.Services;
+using Aura3DReview.Models;
+using Aura3DReview.Services;
 
-namespace Jovi3DReview.Views
+namespace Aura3DReview.Views
 {
     public partial class UsersView : UserControl
     {

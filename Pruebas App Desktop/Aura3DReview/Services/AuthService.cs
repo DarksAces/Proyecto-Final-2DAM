@@ -9,7 +9,7 @@ namespace Jovi3DReview.Services
     {
         // TODO: Replace with your actual Firebase Web API Key from the Firebase Console -> Project Settings
         // API Key from user provided configuration (DefaultFirebaseOptions.windows/web)
-        private const string ApiKey = "***REMOVED***"; 
+        private const string ApiKey = "AIzaSyBNnSU-b7UgScNSyOb9dTezuHEoJ36z_9I"; 
         
         private readonly FirebaseAuthClient _authClient;
         private UserCredential? _userCredential;

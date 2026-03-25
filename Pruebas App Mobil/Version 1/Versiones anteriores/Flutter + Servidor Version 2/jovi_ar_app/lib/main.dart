@@ -23,7 +23,7 @@ import 'screens/app_screens.dart';
 // ==========================================
 // 1. CONFIGURACIÓN GLOBAL
 // ==========================================
-const String MAPBOX_ACCESS_TOKEN = "***REMOVED***";
+const String MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWZxNmwxczA5dDAzZXIwMmsyMWgyYTkifQ.aauKhXogwH_1ZA6EDGYJCA";
 
 class JoviTheme {
   static const Color yellow = Color(0xFFF8C41E);
