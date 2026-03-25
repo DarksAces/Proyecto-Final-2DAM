@@ -1,0 +1,44 @@
+# --- Visual Studio / C# ---
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.patch
+*.diff
+
+# --- Flutter / Dart ---
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# --- Web / Node ---
+node_modules/
+.npm
+package-lock.json
+
+# --- Secrets & Config ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+secrets.json
+appsettings.Development.json
+appsettings.Local.json
+
+# --- OS ---
+Thumbs.db
+.DS_Store
+*.swp
+*.bak
+*.tmp
+*.log

@@ -3,13 +3,12 @@ using System.Threading.Tasks;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
 
-namespace Jovi3DReview.Services
+namespace Aura3DReview.Services
 {
     public class AuthService : IAuthService
     {
-        // TODO: Replace with your actual Firebase Web API Key from the Firebase Console -> Project Settings
-        // API Key from user provided configuration (DefaultFirebaseOptions.windows/web)
-        private const string ApiKey = "AIzaSyBNnSU-b7UgScNSyOb9dTezuHEoJ36z_9I"; 
+        // Security: Key moved to Environment Variables or Secrets.json
+        private static readonly string ApiKey = Environment.GetEnvironmentVariable("FIREBASE_API_KEY") ?? "REPLACE_WITH_YOUR_KEY"; 
         
         private readonly FirebaseAuthClient _authClient;
         private UserCredential? _userCredential;
