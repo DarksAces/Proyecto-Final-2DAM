@@ -189,10 +189,17 @@ class _MapScreenState extends State<MapScreen> {
             'id': doc.id,
             'title': d['title'] ?? 'Sitio sin nombre',
             'description': d['description'] ?? 'Sin descripción',
+<<<<<<< HEAD
             'latitude': (d['latitude'] as num).toDouble(),
             'longitude': (d['longitude'] as num).toDouble(),
             'username': d['username'] ?? 'Explorador',
             'userId': authorId,
+=======
+            'lat': (d['latitude'] as num).toDouble(),
+            'lng': (d['longitude'] as num).toDouble(),
+            'author': d['username'] ?? 'Explorador',
+            'authorId': authorId,
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             'image': d['imageUrl'] ?? d['image'] ?? '',
           });
         }
@@ -210,8 +217,13 @@ class _MapScreenState extends State<MapScreen> {
       final geo = circle.options.geometry;
       if (geo == null) return;
       for (final s in _stops) {
+<<<<<<< HEAD
         if ((s['latitude'] - geo.latitude).abs() < 0.0001 &&
             (s['longitude'] - geo.longitude).abs() < 0.0001) {
+=======
+        if ((s['lat'] - geo.latitude).abs() < 0.0001 &&
+            (s['lng'] - geo.longitude).abs() < 0.0001) {
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
           setState(() => _selected = s);
           _mapController?.animateCamera(CameraUpdate.newLatLng(geo));
           return;
@@ -276,7 +288,11 @@ class _MapScreenState extends State<MapScreen> {
       if (!show || !mounted) continue;
 
       final c = await _mapController!.addCircle(CircleOptions(
+<<<<<<< HEAD
         geometry: LatLng(s['latitude'], s['longitude']),
+=======
+        geometry: LatLng(s['lat'], s['lng']),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         circleColor: color,
         circleRadius: 11,
         circleStrokeWidth: 3,
@@ -291,7 +307,11 @@ class _MapScreenState extends State<MapScreen> {
     setState(() => _selected = stop);
     _mapController?.animateCamera(CameraUpdate.newCameraPosition(
       CameraPosition(
+<<<<<<< HEAD
           target: LatLng(stop['latitude'], stop['longitude']), zoom: 17.5, tilt: 30),
+=======
+          target: LatLng(stop['lat'], stop['lng']), zoom: 17.5, tilt: 30),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
     ));
   }
 
@@ -659,12 +679,20 @@ class _StopCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
+<<<<<<< HEAD
                     if (stop['userId'] != null) {
+=======
+                    if (stop['authorId'] != null) {
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
+<<<<<<< HEAD
                               ProfileScreen(userId: stop['userId']),
+=======
+                              ProfileScreen(userId: stop['authorId']),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                         ),
                       );
                     }
@@ -690,7 +718,11 @@ class _StopCard extends StatelessWidget {
                               color: Colors.grey.shade700, fontSize: 13),
                         ),
                         Text(
+<<<<<<< HEAD
                           stop['username'],
+=======
+                          stop['author'],
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                           style: const TextStyle(
                             color: AppTheme.joviRed,
                             fontSize: 13,

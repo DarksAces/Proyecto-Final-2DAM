@@ -36,10 +36,22 @@ class CustomBottomNavBar extends StatelessWidget {
               onTap: () => onTap(1)),
           const SizedBox(width: 60), // hueco del FAB
           _NavItem(
+<<<<<<< HEAD
               icon: Icons.person_rounded,
               label: 'Perfil',
               isSelected: currentIndex == 3,
               onTap: () => onTap(3)),
+=======
+              icon: Icons.shopping_bag_rounded,
+              label: 'Tienda',
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3)),
+          _NavItem(
+              icon: Icons.person_rounded,
+              label: 'Perfil',
+              isSelected: currentIndex == 4,
+              onTap: () => onTap(4)),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         ],
       ),
     );

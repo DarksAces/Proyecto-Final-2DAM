@@ -43,8 +43,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _userData = data;
         _userContent = content;
+<<<<<<< HEAD
         _userData = data;
         _userContent = content;
+=======
+        if (data != null) {
+          _medals = _userService.calculateMedals(data, content.length);
+        }
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         _isLoading = false;
       });
     }
@@ -62,6 +68,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         widget.userId == null || widget.userId == _userService.currentUserId;
     final String username =
         _userData?['displayName'] ?? _userData?['username'] ?? 'Explorador';
+<<<<<<< HEAD
+=======
+    final String bio =
+        _userData?['bio'] ?? '¡Hola! Estoy explorando el mundo AR.';
+    final int points = _userData?['points'] ?? 0;
+    final String level = _userService.getLevelName(points);
+    final String subtitle = _userData?['userTitle'] ?? 'CREADOR AR';
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
     final int avatarColor = _userData?['avatarColor'] ?? 0xFFE30613;
     final int followers = _userData?['followers'] ?? 0;
     final int following = _userData?['following'] ?? 0;
@@ -166,8 +180,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
               "@${username.replaceAll(' ', '_').toLowerCase()}",
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
             ),
+<<<<<<< HEAD
             const SizedBox(height: 8),
             const SizedBox(height: 16),
+=======
+            const SizedBox(height: 4),
+            Text(
+              subtitle.toUpperCase(),
+              style: const TextStyle(
+                  color: AppTheme.joviRed,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 1.2),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              bio,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.grey.shade600, fontSize: 14, height: 1.4),
+            ),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             if (!isMyProfile) ...[
               const SizedBox(height: 20),
               Row(
@@ -203,9 +236,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
             const SizedBox(height: 24),
+<<<<<<< HEAD
             // Stats Card removed as per cleanup
             const SizedBox(height: 30),
             // Medals and stats removed as per cleanup
+=======
+            // Stats Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    )
+                  ]),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStat("PUNTOS", "$points"),
+                      _buildStat("NIVEL", level),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStat("SEGUIDORES", "$followers"),
+                      _buildStat("SIGUIENDO", "$following"),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Progress Bar for Level
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("PROGRESO NIVEL",
+                              style: TextStyle(
+                                  color: Colors.grey.shade400,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10)),
+                          Text("${points % 500}/500 XP",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 10)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: (points % 500) / 500,
+                          backgroundColor: Colors.grey.shade100,
+                          color: AppTheme.joviRed,
+                          minHeight: 6,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            // Medals Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Medallas",
+                    style:
+                        TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+                TextButton(
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const RankingScreen())),
+                  child: const Text("Ver Ranking",
+                      style: TextStyle(
+                          color: AppTheme.joviRed,
+                          fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _medals.isEmpty
+                    ? [
+                        Text("Explora para ganar medallas",
+                            style: TextStyle(
+                                color: Colors.grey.shade400, fontSize: 12))
+                      ]
+                    : _medals
+                        .map((medal) => Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: _MedalItem(
+                                icon: medal['icon'],
+                                label: medal['label'],
+                                color: medal['color'],
+                                isSelected: medal['isUnlocked'],
+                                requirement: medal['requirement'] ?? '',
+                              ),
+                            ))
+                        .toList(),
+              ),
+            ),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             const SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

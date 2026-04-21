@@ -1,0 +1,251 @@
+<UserControl x:Class="Jovi3DReview.Views.ModelDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Jovi3DReview.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1000" Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="40" Background="Transparent">
+        <Grid MaxWidth="1440" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Breadcrumbs & Title -->
+                <RowDefinition Height="*"/>    <!-- Main Layout -->
+            </Grid.RowDefinitions>
+
+            <!-- HEADER SECTION -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,24">
+                <!-- Breadcrumbs -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Modelos" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14" FontWeight="Medium"/>
+                    <TextBlock Text=" / " Foreground="{StaticResource TextSecondaryBrush}" Margin="4,0"/>
+                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14" FontWeight="Medium"/>
+                </StackPanel>
+
+                <!-- Title & Top Actions -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel>
+                        <TextBlock Text="{Binding Title}" FontSize="36" FontWeight="Black" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Fill="{StaticResource JoviYellowBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Text="Estado: Pendiente de Revisión" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Height="44" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrush}" Margin="0,0,12,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Fullscreen" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Pantalla Completa" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource MaterialDesignFlatButton}" Height="44" Background="#1AF31621" Foreground="{StaticResource TextPrimaryBrush}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Download" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Descargar .OBJ" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!-- MAIN CONTENT GRID -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/> <!-- Viewer Area -->
+                    <ColumnDefinition Width="380"/> <!-- Sidebar -->
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT COLUMN: VIEWER & ACTIONS -->
+                <StackPanel Grid.Column="0" Margin="0,0,24,0">
+                    <!-- 3D Viewer Container -->
+                    <Border Height="480" Background="#f0f0f0" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,0,24" ClipToBounds="True">
+                        <Grid>
+                            <!-- Placeholder Image -->
+                            <Image Source="{Binding ImageUrl}" Stretch="UniformToFill" Opacity="0.5"/>
+                            
+                            <!-- Play Overlay -->
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button Width="64" Height="64" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Background="{StaticResource JoviPrimaryBrush}" BorderBrush="{StaticResource JoviPrimaryBrush}">
+                                    <materialDesign:PackIcon Kind="Play"/>
+                                </Button>
+                                <Border Background="#33000000" CornerRadius="16" Margin="0,16,0,0" Padding="12,4">
+                                    <TextBlock Text="Cargar Previsualización 3D" Foreground="White" FontSize="14" FontWeight="Medium"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Viewport HUD Controls -->
+                            <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16" Background="White" CornerRadius="8" Padding="4" Effect="{StaticResource MaterialDesignShadowDepth1}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32"><materialDesign:PackIcon Kind="RotateRight"/></Button>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32"><materialDesign:PackIcon Kind="MagnifyPlus"/></Button>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32"><materialDesign:PackIcon Kind="MagnifyMinus"/></Button>
+                                    <Rectangle Width="1" Height="20" Fill="{StaticResource BorderBrush}" Margin="4,0"/>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32" Foreground="{StaticResource JoviPrimaryBrush}"><materialDesign:PackIcon Kind="TextureBox"/></Button>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32"><materialDesign:PackIcon Kind="Grid"/></Button>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Verification Action Bar -->
+                    <Border Background="White" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Background="#33FFEB3B" CornerRadius="12" Padding="12,4" Margin="0,0,12,0">
+                                    <TextBlock Text="CONTROL DE CALIDAD" FontSize="11" FontWeight="Bold" Foreground="#F57F17"/>
+                                </Border>
+                                <TextBlock Text="¿El modelo cumple con los estándares de textura y geometría?" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="Rechazar" Style="{StaticResource MaterialDesignOutlinedButton}" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource TextPrimaryBrush}" Height="48" Margin="0,0,16,0" Click="Reject_Click"/>
+                                <Button Content="Aceptar Modelo" Background="{StaticResource JoviPrimaryBrush}" BorderBrush="{StaticResource JoviPrimaryBrush}" Height="48" Padding="32,0" Click="Accept_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- RIGHT SIDEBAR -->
+                <StackPanel Grid.Column="1">
+                    <!-- Creator Card -->
+                    <Border Background="White" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="CREADOR" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="64" Height="64" CornerRadius="12" Background="#f0f0f0" Margin="0,0,16,0">
+                                    <materialDesign:PackIcon Kind="Account" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Carlos Ruiz" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="Artista 3D Senior" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <materialDesign:PackIcon Kind="Star" Width="14" Height="14" Foreground="{StaticResource JoviPrimaryBrush}"/>
+                                        <TextBlock Text="4.9 Creator Score" FontSize="12" FontWeight="Bold" Foreground="{StaticResource JoviPrimaryBrush}" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                            <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,16"/>
+                            <TextBlock Text="Especialista en fotogrametría de materiales escolares. Ha colaborado en 15 proyectos previos de Jovi." FontSize="14" Foreground="#64748b" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Technical Specs -->
+                    <Border Background="White" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="METADATOS DEL MODELO" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource JoviBackgroundLightBrush}" CornerRadius="8" Padding="12" Margin="0,0,8,8">
+                                    <StackPanel>
+                                        <TextBlock Text="VÉRTICES" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="45.2k" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource JoviBackgroundLightBrush}" CornerRadius="8" Padding="12" Margin="8,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="TAMAÑO" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="12.4 MB" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource JoviBackgroundLightBrush}" CornerRadius="8" Padding="12" Margin="0,8,8,0">
+                                    <StackPanel>
+                                        <TextBlock Text="FORMATO" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text=".OBJ / .MTL" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource JoviBackgroundLightBrush}" CornerRadius="8" Padding="12" Margin="8,8,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="SUBIDO" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="12 Oct 2024" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Feedback -->
+                    <Border Background="White" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" MinHeight="200" ClipToBounds="True">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Header -->
+                            <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="20">
+                                <DockPanel>
+                                    <TextBlock Text="FEEDBACK INTERNO" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <Border Background="#1AF31621" CornerRadius="10" Padding="8,2" HorizontalAlignment="Right">
+                                        <TextBlock Text="3 Mensajes" FontSize="10" FontWeight="Bold" Foreground="{StaticResource JoviPrimaryBrush}"/>
+                                    </Border>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Messages (Placeholder List) -->
+                            <StackPanel Grid.Row="1" Margin="20">
+                                <!-- Income Message -->
+                                <StackPanel Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBlock Text="Dpto. Calidad" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="Hace 2h" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Border Background="{StaticResource JoviBackgroundLightBrush}" CornerRadius="0,8,8,8" Padding="12">
+                                        <TextBlock Text="La iluminación en el mapa de texturas parece un poco saturada en las zonas de sombra." FontSize="13" Foreground="#1c0d0e" FontStyle="Italic" TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Outgoing Message -->
+                                <StackPanel HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,4">
+                                        <TextBlock Text="Hace 1h" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Tú" FontSize="12" FontWeight="Bold" Foreground="{StaticResource JoviPrimaryBrush}"/>
+                                    </StackPanel>
+                                    <Border Background="{StaticResource JoviPrimaryBrush}" CornerRadius="8,0,8,8" Padding="12">
+                                        <TextBlock Text="Revisaré la malla de alambre ahora mismo." FontSize="13" Foreground="White" TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <!-- Input -->
+                            <Border Grid.Row="2" Background="{StaticResource JoviBackgroundLightBrush}" Padding="16">
+                                <Grid>
+                                    <TextBox Height="60" VerticalContentAlignment="Top" BorderThickness="0" Background="White" materialDesign:HintAssist.Hint="Escribe un comentario..." Padding="12" FontSize="13" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                    <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8" Width="32" Height="32" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Background="{StaticResource JoviPrimaryBrush}" BorderBrush="{StaticResource JoviPrimaryBrush}">
+                                        <materialDesign:PackIcon Kind="Send" Width="16" Height="16"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

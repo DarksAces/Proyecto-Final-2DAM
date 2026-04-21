@@ -7,6 +7,10 @@ import '../features/notifications_screen.dart';
 import '../features/gallery_screen.dart';
 import '../features/ar_scanner_screen.dart';
 import '../main_wrapper.dart';
+<<<<<<< HEAD
+=======
+import '../../services/simulation_service.dart';
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -140,6 +144,13 @@ class HomeScreen extends StatelessWidget {
                     childAspectRatio: 0.9,
                     children: const [
                       _DashboardItem(
+<<<<<<< HEAD
+=======
+                          icon: Icons.store,
+                          color: AppTheme.joviBlue,
+                          label: "Tienda Jovi"),
+                      _DashboardItem(
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                           icon: Icons.emoji_events,
                           color: AppTheme.joviYellow,
                           label: "Concurso"),
@@ -357,8 +368,13 @@ class HomeScreen extends StatelessWidget {
                         mainWrapper.switchTab(2); // Switch to Map
                       }
 
+<<<<<<< HEAD
                       // Trigger search event (simulation disabled)
                       // SimulationService().triggerSearch(selectedCategory);
+=======
+                      // Trigger search event
+                      SimulationService().triggerSearch(selectedCategory);
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.joviRed,
@@ -427,6 +443,12 @@ class _DashboardItem extends StatelessWidget {
         final mainWrapper = MainWrapper.of(context);
 
         switch (label) {
+<<<<<<< HEAD
+=======
+          case "Tienda Jovi":
+            mainWrapper?.switchTab(3); // Store Tab
+            break;
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
           case "Concurso":
             Navigator.push(
               context,
@@ -449,7 +471,11 @@ class _DashboardItem extends StatelessWidget {
             );
             break;
           case "Mi Perfil":
+<<<<<<< HEAD
             mainWrapper?.switchTab(3); // Profile Tab
+=======
+            mainWrapper?.switchTab(4); // Profile Tab
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             break;
         }
       },
