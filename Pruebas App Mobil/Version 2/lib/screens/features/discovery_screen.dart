@@ -119,6 +119,9 @@ class DiscoveryScreen extends StatelessWidget {
                     ),
                   ),
 
+<<<<<<< HEAD
+                  // Points Badge removed
+=======
                   // Points Badge
                   Positioned(
                     bottom: -20,
@@ -165,6 +168,7 @@ class DiscoveryScreen extends StatelessWidget {
                       ),
                     ),
                   )
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                 ],
               ),
               const Spacer(),

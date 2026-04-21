@@ -276,8 +276,13 @@ class UserService {
 
       // In-memory sort by timestamp descending
       allContent.sort((a, b) {
+<<<<<<< HEAD
+        final Timestamp? tA = a['timestamp'] as Timestamp?;
+        final Timestamp? tB = b['timestamp'] as Timestamp?;
+=======
         final Timestamp? tA = a['timestamp'] ?? a['createdAt'] as Timestamp?;
         final Timestamp? tB = b['timestamp'] ?? b['createdAt'] as Timestamp?;
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         if (tA == null) return 1;
         if (tB == null) return -1;
         return tB.compareTo(tA);
@@ -290,6 +295,9 @@ class UserService {
     }
   }
 
+<<<<<<< HEAD
+  // Gamification logic removed as per production cleanup
+=======
   // Calculate medals based on user data and content count
   List<Map<String, dynamic>> calculateMedals(
       Map<String, dynamic> userData, int contentCount) {
@@ -347,4 +355,5 @@ class UserService {
     if (points >= 100) return 'Explorador Activo';
     return 'Novato';
   }
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 }

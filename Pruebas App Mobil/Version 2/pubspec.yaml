@@ -13,12 +13,21 @@ dependencies:
   # latlong2: ^0.9.0
   maplibre_gl: ^0.25.0
   cupertino_icons: ^1.0.2
+<<<<<<< HEAD
+  geolocator: ^14.0.2 # Warning: Downgrading might be safer if 14 has issues, but keeping high for now
+  google_fonts: ^8.0.2
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  cloud_firestore: ^6.3.0
+  firebase_storage: ^13.3.0
+=======
   geolocator: ^13.0.0 # Warning: Downgrading might be safer if 14 has issues, but keeping high for now
   google_fonts: ^6.1.0
   firebase_core: ^3.8.1
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.5.2
   firebase_storage: ^12.4.10
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
   image_picker: ^1.1.2
   intl: ^0.20.2
   http: ^1.6.0
@@ -30,8 +39,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+<<<<<<< HEAD
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+=======
   flutter_lints: ^2.0.0
   flutter_launcher_icons: ^0.13.1
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
   flutter_native_splash: ^2.4.0
 
 flutter:

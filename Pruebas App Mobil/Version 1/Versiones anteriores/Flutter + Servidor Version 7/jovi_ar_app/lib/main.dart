@@ -26,7 +26,11 @@ import 'screens/map_screen.dart'; // Importar MapGameScreen explícitamente si a
 // ==========================================
 // 1. CONFIGURACIÓN GLOBAL
 // ==========================================
+<<<<<<< HEAD
+const String MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiZGFuaWVsZ2FyYnJ1IiwiYSI6ImNtaWZxNmwxczA5dDAzZXIwMmsyMWgyYTkifQ.aauKhXogwH_1ZA6EDGYJCA";
+=======
 const String MAPBOX_ACCESS_TOKEN = "REPLACE_WITH_YOUR_MAPBOX_TOKEN";
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 const String MAPBOX_STYLE_URI = "mapbox://styles/mapbox/outdoors-v12";
 
 class JoviTheme {
