@@ -62,7 +62,7 @@ namespace Jovi3DReview {
             
             #line default
             #line hidden
-            System.Uri resourceLocater = new System.Uri("/Jovi3DReview;V1.0.0.0;component/app.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Jovi3DReview;component/app.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\App.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
