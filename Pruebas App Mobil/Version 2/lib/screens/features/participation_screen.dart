@@ -133,7 +133,7 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
             const Text(
               "ZONA DE CARGA",
               style: TextStyle(
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                   letterSpacing: 1.2),
@@ -146,7 +146,7 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                    color: AppTheme.joviRed.withValues(alpha: 0.3),
+                    color: AppTheme.arteRed.withValues(alpha: 0.3),
                     width: 2,
                     style: BorderStyle
                         .solid), // Should be dashed but solid for simplicity
@@ -158,10 +158,10 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
                   Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                          color: AppTheme.joviRed.withValues(alpha: 0.1),
+                          color: AppTheme.arteRed.withValues(alpha: 0.1),
                           shape: BoxShape.circle),
                       child: const Icon(Icons.cloud_upload_outlined,
-                          color: AppTheme.joviRed, size: 32)),
+                          color: AppTheme.arteRed, size: 32)),
                   const SizedBox(height: 16),
                   const Text("Sube tu creación",
                       style:
@@ -176,15 +176,15 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
                       _UploadButton(
                         icon: Icons.photo_library_outlined,
                         label: "Galería",
-                        color: AppTheme.joviRed.withValues(alpha: 0.1),
-                        textColor: AppTheme.joviRed,
+                        color: AppTheme.arteRed.withValues(alpha: 0.1),
+                        textColor: AppTheme.arteRed,
                         onTap: () {},
                       ),
                       const SizedBox(width: 16),
                       _UploadButton(
                         icon: Icons.camera_alt_outlined,
                         label: "Cámara AR",
-                        color: AppTheme.joviRed,
+                        color: AppTheme.arteRed,
                         textColor: Colors.white,
                         onTap: () {},
                       ),
@@ -281,7 +281,7 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _selectedScope == 'Global'
-                                ? AppTheme.joviRed
+                                ? AppTheme.arteRed
                                 : Colors.grey,
                           ),
                         ),
@@ -314,7 +314,7 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _selectedScope == 'Mi Colegio'
-                                ? AppTheme.joviRed
+                                ? AppTheme.arteRed
                                 : Colors.grey,
                           ),
                         ),
@@ -333,12 +333,12 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitEntry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.joviRed,
+                  backgroundColor: AppTheme.arteRed,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 5,
-                  shadowColor: AppTheme.joviRed.withValues(alpha: 0.4),
+                  shadowColor: AppTheme.arteRed.withValues(alpha: 0.4),
                 ),
                 child: _isSubmitting
                     ? const CircularProgressIndicator(color: Colors.white)

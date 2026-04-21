@@ -65,15 +65,19 @@ class AuthService {
           'level': 'Aprendiz de AR',
           'followers': 0,
           'following': 0,
+<<<<<<< HEAD
+          'bio': 'Nuevo en ARte',
+=======
           'bio': 'Nuevo en Jovi AR',
 >>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
         });
 
         // Create welcome notification
         await _firestore.collection('notifications').add({
           'userId': result.user!.uid,
           'type': 'welcome',
-          'message': '¡Bienvenido a Jovi AR! Comienza tu aventura creativa.',
+          'message': '¡Bienvenido a ARte! Comienza tu aventura creativa.',
           'fromUser': 'system',
           'timestamp': FieldValue.serverTimestamp(),
           'read': false,

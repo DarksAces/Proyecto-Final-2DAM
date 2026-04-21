@@ -39,11 +39,5 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(selectedIndex, 1);
-
-    // Tap on Tienda
-    await tester.tap(find.text('Tienda'));
-    await tester.pumpAndSettle();
-
-    expect(selectedIndex, 3);
   });
 }

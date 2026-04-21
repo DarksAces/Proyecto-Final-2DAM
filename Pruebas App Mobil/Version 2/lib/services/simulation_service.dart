@@ -80,7 +80,7 @@ class SimulationService {
 
   // Fake post contents
   final List<String> _postContents = [
-    '¡Acabo de dejar una escultura increíble en el parque central! 🌳✨ #JoviAR',
+    '¡Acabo de dejar una escultura increíble en el parque central! 🌳✨ #ARte',
     'Creando nuevos filtros para el concurso de esta semana. ¿Qué opinan? 🤔',
     '¡Encontré un easter egg oculto en el mapa! 🥚🗺️',
     'Mi galería está creciendo. ¡Gracias por el apoyo! ❤️',
@@ -120,13 +120,13 @@ class SimulationService {
         await _seedDemoContent();
       }
 
-      // Check 'products' - Seed if empty or few products (ensuring our new Jovi list is there)
+      // Check 'products' - Seed if empty or few products (ensuring our new ARte list is there)
       final prodSnapshot = await _firestore
           .collection('products')
           .limit(10)
           .get();
       if (prodSnapshot.docs.length < 5) {
-        debugPrint('🤖 Simulation: Seeding shop products (Jovi Catalog)...');
+        debugPrint('🤖 Simulation: Seeding shop products (ARte Catalog)...');
         await _seedProducts();
       }
 
@@ -235,7 +235,7 @@ class SimulationService {
         'userAvatarColor': 0xFF2196F3,
         'userDegree': '2º',
         'content':
-            'Encontré un portal interdimensional en el museo. 🌌🌀 #JoviAR #Mystery',
+            'Encontré un portal interdimensional en el museo. 🌌🌀 #ARte #Mystery',
         'imageUrl':
             'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000&auto=format&fit=crop',
         'isVideo': false,
@@ -321,7 +321,7 @@ class SimulationService {
   Future<void> _seedProducts() async {
     final List<Map<String, dynamic>> products = [
       {
-        'title': 'Plastilina Jovi - Pack 10 Pastillas Surtidas (50g)',
+        'title': 'Plastilina ARte - Pack 10 Pastillas Surtidas (50g)',
         'rating': 4.9,
         'reviews': 3200,
         'price': '5,45€',
@@ -337,7 +337,7 @@ class SimulationService {
             'Plastilina vegetal de gran plasticidad. No endurece al aire, es reutilizable y muy fácil de moldear. Ideal para el desarrollo de la motricidad fina.',
       },
       {
-        'title': 'Pintura de Dedos Jovi - Pack 5 Botes Fluorescentes',
+        'title': 'Pintura de Dedos ARte - Pack 5 Botes Fluorescentes',
         'rating': 4.7,
         'reviews': 1200,
         'price': '12,99€',
@@ -353,7 +353,7 @@ class SimulationService {
             'Pintura de dedos ideal para los más pequeños. Colores vivos y mezclables. Se lava fácilmente de manos y ropa.',
       },
       {
-        'title': 'Témpera Líquida Jovi - Set 6 Botellas Brillantes',
+        'title': 'Témpera Líquida ARte - Set 6 Botellas Brillantes',
         'rating': 4.8,
         'reviews': 850,
         'price': '8,90€',
@@ -369,7 +369,7 @@ class SimulationService {
             'Témpera lista para usar. Gran cobertura y secado rápido. Perfecta para papel, cartón, madera y tela.',
       },
       {
-        'title': 'Pasta de Modelar Jovi Air Dry - Blanco 1kg',
+        'title': 'Pasta de Modelar ARte Air Dry - Blanco 1kg',
         'rating': 5.0,
         'reviews': 2100,
         'price': '4,20€',
@@ -385,7 +385,7 @@ class SimulationService {
             'Pasta de modelar que se endurece al aire sin necesidad de cocción. Tacto fresco y agradable. Una vez seca se puede pintar.',
       },
       {
-        'title': 'Ceras Oso Jovi - 12 Colores Triangulares',
+        'title': 'Ceras Oso ARte - 12 Colores Triangulares',
         'rating': 4.6,
         'reviews': 450,
         'price': '3,75€',
@@ -401,7 +401,7 @@ class SimulationService {
             'Ceras de colores con forma de oso, diseñadas para las manos más pequeñas. Colores intensos y resistentes.',
       },
       {
-        'title': 'Acuarelas Jovi - Estuche 24 Pastillas con Pincel',
+        'title': 'Acuarelas ARte - Estuche 24 Pastillas con Pincel',
         'rating': 4.9,
         'reviews': 980,
         'price': '7,50€',

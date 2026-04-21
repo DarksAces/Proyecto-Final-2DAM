@@ -114,7 +114,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
             ListTile(
               leading: const Icon(
                 Icons.camera_alt_rounded,
-                color: AppTheme.joviRed,
+                color: AppTheme.arteRed,
               ),
               title: const Text('Cámara'),
               onTap: () {
@@ -125,7 +125,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
             ListTile(
               leading: const Icon(
                 Icons.photo_library_rounded,
-                color: AppTheme.joviRed,
+                color: AppTheme.arteRed,
               ),
               title: const Text('Galería'),
               onTap: () {
@@ -241,7 +241,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
               child: const Text(
                 'Publicar',
                 style: TextStyle(
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
@@ -255,7 +255,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                 ),
               ),
             ),
@@ -319,7 +319,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.joviRed),
+                  borderSide: const BorderSide(color: AppTheme.arteRed),
                 ),
               ),
               validator: (v) => (v == null || v.trim().isEmpty)
@@ -342,7 +342,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.joviRed),
+                  borderSide: const BorderSide(color: AppTheme.arteRed),
                 ),
               ),
             ),
@@ -437,7 +437,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.joviRed,
+                  backgroundColor: AppTheme.arteRed,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

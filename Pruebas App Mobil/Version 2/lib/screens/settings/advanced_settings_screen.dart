@@ -246,7 +246,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
 
               const SizedBox(height: 20),
               Text(
-                "Jovi AR v2.4.0 (Build 892) • jovi.es",
+                "ARte v2.4.0 (Build 892) • arte.es",
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
               ),
               const SizedBox(height: 40),

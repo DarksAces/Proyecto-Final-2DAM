@@ -6,9 +6,13 @@ import '../screens/features/feed_social_screen.dart';
 import 'map/map_screen.dart';
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
 import '../screens/features/store_screen.dart';
 >>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
 import '../screens/features/profile_screen.dart';
+import '../screens/features/ar_scanner_screen.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -36,9 +40,12 @@ class MainWrapperState extends State<MainWrapper> {
       case 3:
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
         return const StoreScreen();
       case 4:
 >>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
         return const ProfileScreen();
       default:
         return const HomeScreen();
@@ -61,8 +68,12 @@ class MainWrapperState extends State<MainWrapper> {
 <<<<<<< HEAD
         children: List.generate(4, (index) {
 =======
+<<<<<<< HEAD
+        children: List.generate(4, (index) {
+=======
         children: List.generate(5, (index) {
 >>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
           final bool visited = _visitedTabs.contains(index);
           final bool active = _currentIndex == index;
           return Offstage(
@@ -71,16 +82,6 @@ class MainWrapperState extends State<MainWrapper> {
           );
         }),
       ),
-      // FAB centrado en la muesca del BottomAppBar
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'map_fab',
-        shape: const CircleBorder(),
-        backgroundColor: AppTheme.joviRed,
-        elevation: 6,
-        onPressed: () => switchTab(2),
-        child: const Icon(Icons.map_rounded, color: Colors.white, size: 28),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
