@@ -167,6 +167,11 @@ class _SocialPostCardState extends State<SocialPostCard> {
   Widget build(BuildContext context) {
     // Data extraction
     final String username = widget.data['username'] ?? 'Usuario';
+<<<<<<< HEAD
+    final String? imageUrl = widget.data['imageUrl'];
+    final String content = widget.data['content'] ?? '';
+    final String location = widget.data['location'] ?? '';
+=======
     final String userTitle = widget.data['userTitle'] ?? 'Creator';
     final String userDegree = widget.data['userDegree'] ?? '• 2º';
     final int userAvatarColor = widget.data['userAvatarColor'] ?? 0xFFEEEEEE;
@@ -176,6 +181,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
     final String? videoDuration = widget.data['videoDuration'];
     final String? reproCount = widget.data['reproCount'];
     final String? badge = widget.data['badge'];
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -192,6 +198,16 @@ class _SocialPostCardState extends State<SocialPostCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
+<<<<<<< HEAD
+                  radius: 20,
+                  backgroundColor: AppTheme.joviRed.withValues(alpha: 0.1),
+                  child: Text(
+                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                    style: const TextStyle(
+                        color: AppTheme.joviRed,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
+=======
                   radius: 24,
                   backgroundColor: Color(userAvatarColor),
                   child: Text(
@@ -200,6 +216,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 18),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -207,6 +224,14 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+<<<<<<< HEAD
+                      Text(
+                        username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.black87,
+=======
                       Row(
                         children: [
                           Flexible(
@@ -244,10 +269,24 @@ class _SocialPostCardState extends State<SocialPostCard> {
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 12,
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+<<<<<<< HEAD
+                      if (location.isNotEmpty)
+                        Text(
+                          location,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+=======
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                       Row(
                         children: [
                           Text(
@@ -264,6 +303,21 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     ],
                   ),
                 ),
+<<<<<<< HEAD
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text("Seguir"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.joviRed,
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+=======
                 if (badge == null) ...[
                   const SizedBox(width: 8),
                   TextButton.icon(
@@ -279,6 +333,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     ),
                   ),
                 ],
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
               ],
             ),
           ),
@@ -292,6 +347,19 @@ class _SocialPostCardState extends State<SocialPostCard> {
 
           // Media Section (Image or Video)
           if (imageUrl != null)
+<<<<<<< HEAD
+            Image.network(
+              imageUrl,
+              height: 350,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 350,
+                color: Colors.grey.shade200,
+                child: const Center(
+                    child: Icon(Icons.broken_image, color: Colors.grey)),
+              ),
+=======
             Stack(
               alignment: Alignment.center,
               children: [
@@ -404,6 +472,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     ),
                   ),
               ],
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             ),
 
           // Counts Row
@@ -432,9 +501,13 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
                 Text(
+<<<<<<< HEAD
+                  "${widget.data['shares'] ?? 0} veces compartido",
+=======
                   isVideo
                       ? "$reproCount reproducciones"
                       : "${widget.data['shares'] ?? 0} veces compartido",
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],

@@ -33,6 +33,7 @@ class CustomBottomNavBar extends StatelessWidget {
               isSelected: currentIndex == 1,
               onTap: () => onTap(1)),
           _NavItem(
+<<<<<<< HEAD
               icon: Icons.map_rounded,
               label: 'Mapa',
               isSelected: currentIndex == 2,
@@ -42,6 +43,24 @@ class CustomBottomNavBar extends StatelessWidget {
               label: 'Perfil',
               isSelected: currentIndex == 3,
               onTap: () => onTap(3)),
+=======
+<<<<<<< HEAD
+              icon: Icons.person_rounded,
+              label: 'Perfil',
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3)),
+=======
+              icon: Icons.shopping_bag_rounded,
+              label: 'Tienda',
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3)),
+          _NavItem(
+              icon: Icons.person_rounded,
+              label: 'Perfil',
+              isSelected: currentIndex == 4,
+              onTap: () => onTap(4)),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
         ],
       ),
     );
