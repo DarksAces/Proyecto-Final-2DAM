@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
-import '../services/simulation_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -61,10 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
       ).timeout(const Duration(seconds: 15));
       debugPrint('🔥 SplashScreen: Firebase ready!');
 
-      // Initialize demo data in background
-      SimulationService()
-          .initSimulation()
-          .catchError((e) => debugPrint("Error seeding: $e"));
+      // Initialization logic complete
     } catch (e) {
       debugPrint('⚠️ SplashScreen: Firebase init error: $e');
     } finally {

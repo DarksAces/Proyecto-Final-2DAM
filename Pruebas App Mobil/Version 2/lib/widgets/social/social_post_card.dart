@@ -167,15 +167,9 @@ class _SocialPostCardState extends State<SocialPostCard> {
   Widget build(BuildContext context) {
     // Data extraction
     final String username = widget.data['username'] ?? 'Usuario';
-    final String userTitle = widget.data['userTitle'] ?? 'Creator';
-    final String userDegree = widget.data['userDegree'] ?? '• 2º';
-    final int userAvatarColor = widget.data['userAvatarColor'] ?? 0xFFEEEEEE;
     final String? imageUrl = widget.data['imageUrl'];
     final String content = widget.data['content'] ?? '';
-    final bool isVideo = widget.data['isVideo'] ?? false;
-    final String? videoDuration = widget.data['videoDuration'];
-    final String? reproCount = widget.data['reproCount'];
-    final String? badge = widget.data['badge'];
+    final String location = widget.data['location'] ?? '';
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -192,14 +186,14 @@ class _SocialPostCardState extends State<SocialPostCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Color(userAvatarColor),
+                  radius: 20,
+                  backgroundColor: AppTheme.joviRed.withValues(alpha: 0.1),
                   child: Text(
-                    username[0].toUpperCase(),
+                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
                     style: const TextStyle(
-                        color: Colors.white,
+                        color: AppTheme.joviRed,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18),
+                        fontSize: 14),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -207,47 +201,26 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              username,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            userDegree,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (badge == null)
-                            const Icon(Icons.add,
-                                color: AppTheme.joviRed, size: 20),
-                          if (badge != null)
-                            const Icon(Icons.more_horiz,
-                                color: Colors.grey, size: 20),
-                        ],
-                      ),
                       Text(
-                        userTitle,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
+                        username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.black87,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (location.isNotEmpty)
+                        Text(
+                          location,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       Row(
                         children: [
                           Text(
@@ -264,21 +237,19 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     ],
                   ),
                 ),
-                if (badge == null) ...[
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text("Seguir"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.joviRed,
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text("Seguir"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.joviRed,
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -292,118 +263,17 @@ class _SocialPostCardState extends State<SocialPostCard> {
 
           // Media Section (Image or Video)
           if (imageUrl != null)
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.network(
-                  imageUrl,
-                  height: 350,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 350,
-                    color: Colors.grey.shade200,
-                    child: const Center(
-                        child: Icon(Icons.broken_image, color: Colors.grey)),
-                  ),
-                ),
-                // Video Play Overlay
-                if (isVideo)
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.play_arrow,
-                        color: Colors.white, size: 45),
-                  ),
-                // AR Badge
-                if (!isVideo)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.visibility,
-                              color: Colors.white, size: 14),
-                          const SizedBox(width: 6),
-                          const Text(
-                            "VISTA AR ACTIVA",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                // EN VIVO tag
-                if (isVideo)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade700,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Text(
-                            "EN VIVO",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                // Duration Badge
-                if (isVideo && videoDuration != null)
-                  Positioned(
-                    bottom: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        videoDuration,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-              ],
+            Image.network(
+              imageUrl,
+              height: 350,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 350,
+                color: Colors.grey.shade200,
+                child: const Center(
+                    child: Icon(Icons.broken_image, color: Colors.grey)),
+              ),
             ),
 
           // Counts Row
@@ -432,9 +302,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
                 Text(
-                  isVideo
-                      ? "$reproCount reproducciones"
-                      : "${widget.data['shares'] ?? 0} veces compartido",
+                  "${widget.data['shares'] ?? 0} veces compartido",
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],

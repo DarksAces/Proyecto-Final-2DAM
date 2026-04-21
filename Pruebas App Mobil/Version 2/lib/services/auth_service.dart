@@ -56,11 +56,9 @@ class AuthService {
           'displayName': displayName,
           'email': email.trim(),
           'createdAt': FieldValue.serverTimestamp(),
-          'points': 0,
-          'level': 'Aprendiz de AR',
           'followers': 0,
           'following': 0,
-          'bio': 'Nuevo en Jovi AR',
+          'role': 0,
         });
 
         // Create welcome notification

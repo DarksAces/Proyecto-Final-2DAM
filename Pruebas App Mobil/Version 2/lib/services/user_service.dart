@@ -276,8 +276,8 @@ class UserService {
 
       // In-memory sort by timestamp descending
       allContent.sort((a, b) {
-        final Timestamp? tA = a['timestamp'] ?? a['createdAt'] as Timestamp?;
-        final Timestamp? tB = b['timestamp'] ?? b['createdAt'] as Timestamp?;
+        final Timestamp? tA = a['timestamp'] as Timestamp?;
+        final Timestamp? tB = b['timestamp'] as Timestamp?;
         if (tA == null) return 1;
         if (tB == null) return -1;
         return tB.compareTo(tA);
@@ -290,61 +290,5 @@ class UserService {
     }
   }
 
-  // Calculate medals based on user data and content count
-  List<Map<String, dynamic>> calculateMedals(
-      Map<String, dynamic> userData, int contentCount) {
-    final int points = userData['points'] ?? 0;
-    final int followers = userData['followers'] ?? 0;
-
-    return [
-      {
-        'id': 'pioneer',
-        'label': 'PIONERO',
-        'icon': Icons.auto_awesome,
-        'color': const Color(0xFFFFD700), // Jovi Yellow
-        'isUnlocked': contentCount >= 1,
-        'requirement': 'Crea tu primera obra o sitio',
-      },
-      {
-        'id': 'explorer',
-        'label': 'CAZADOR AR',
-        'icon': Icons.explore_rounded,
-        'color': const Color(0xFF4CAF50), // Green
-        'isUnlocked': contentCount >= 3,
-        'requirement': 'Registra 3 sitios en el mapa',
-      },
-      {
-        'id': 'master',
-        'label': 'MAESTRO AR',
-        'icon': Icons.psychology_rounded,
-        'color': const Color(0xFF00BFFF), // Jovi Blue
-        'isUnlocked': contentCount >= 10,
-        'requirement': 'Crea 10 obras o sitios',
-      },
-      {
-        'id': 'influencer',
-        'label': 'JOVI STAR',
-        'icon': Icons.star_rounded,
-        'color': const Color(0xFFFF69B4), // Pink
-        'isUnlocked': followers >= 5,
-        'requirement': 'Consigue 5 seguidores',
-      },
-      {
-        'id': 'critic',
-        'label': 'LEYENDA',
-        'icon': Icons.shield_rounded,
-        'color': const Color(0xFFE30613), // Jovi Red
-        'isUnlocked': points >= 1000,
-        'requirement': 'Alcanza los 1000 puntos',
-      },
-    ];
-  }
-
-  // Get Level Name from points
-  String getLevelName(int points) {
-    if (points >= 1500) return 'Leyenda Jovi';
-    if (points >= 500) return 'Explorador Experto';
-    if (points >= 100) return 'Explorador Activo';
-    return 'Novato';
-  }
+  // Gamification logic removed as per production cleanup
 }

@@ -192,8 +192,6 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
         'timestamp': FieldValue.serverTimestamp(),
         'type': 'site',
         'status': 'accepted',
-        'likes': 0,
-        'comments': 0,
       });
 
       if (mounted) {

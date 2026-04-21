@@ -7,7 +7,6 @@ import '../features/notifications_screen.dart';
 import '../features/gallery_screen.dart';
 import '../features/ar_scanner_screen.dart';
 import '../main_wrapper.dart';
-import '../../services/simulation_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -140,10 +139,6 @@ class HomeScreen extends StatelessWidget {
                     crossAxisSpacing: 10,
                     childAspectRatio: 0.9,
                     children: const [
-                      _DashboardItem(
-                          icon: Icons.store,
-                          color: AppTheme.joviBlue,
-                          label: "Tienda Jovi"),
                       _DashboardItem(
                           icon: Icons.emoji_events,
                           color: AppTheme.joviYellow,
@@ -362,8 +357,8 @@ class HomeScreen extends StatelessWidget {
                         mainWrapper.switchTab(2); // Switch to Map
                       }
 
-                      // Trigger search event
-                      SimulationService().triggerSearch(selectedCategory);
+                      // Trigger search event (simulation disabled)
+                      // SimulationService().triggerSearch(selectedCategory);
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.joviRed,
@@ -432,9 +427,6 @@ class _DashboardItem extends StatelessWidget {
         final mainWrapper = MainWrapper.of(context);
 
         switch (label) {
-          case "Tienda Jovi":
-            mainWrapper?.switchTab(3); // Store Tab
-            break;
           case "Concurso":
             Navigator.push(
               context,
@@ -457,7 +449,7 @@ class _DashboardItem extends StatelessWidget {
             );
             break;
           case "Mi Perfil":
-            mainWrapper?.switchTab(4); // Profile Tab
+            mainWrapper?.switchTab(3); // Profile Tab
             break;
         }
       },

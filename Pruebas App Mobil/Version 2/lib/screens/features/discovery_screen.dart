@@ -119,52 +119,7 @@ class DiscoveryScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Points Badge
-                  Positioned(
-                    bottom: -20,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withAlpha(20),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4))
-                          ]),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                                color: AppTheme.joviYellow,
-                                shape: BoxShape.circle),
-                            child: const Icon(Icons.star,
-                                color: Colors.white, size: 14),
-                          ),
-                          const SizedBox(width: 8),
-                          RichText(
-                              text: const TextSpan(children: [
-                            TextSpan(
-                                text: "+50 ",
-                                style: TextStyle(
-                                    color: AppTheme.joviRed,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900)),
-                            TextSpan(
-                                text: "Puntos",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
-                          ]))
-                        ],
-                      ),
-                    ),
-                  )
+                  // Points Badge removed
                 ],
               ),
               const Spacer(),

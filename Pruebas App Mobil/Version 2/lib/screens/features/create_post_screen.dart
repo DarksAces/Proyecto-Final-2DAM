@@ -91,8 +91,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       await FirebaseFirestore.instance.collection('sitios').add({
         'userId': user.uid,
         'username': _userData?['displayName'] ?? 'Usuario',
-        'userTitle': 'Creator',
-        'userAvatarColor': 0xFFE30613,
         'content': content,
         'imageUrl': _selectedImage, // Use selected or work image
         'videoUrl': _selectedVideo,
@@ -100,11 +98,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'latitude': 40.4168,
         'longitude': -3.7038,
         'status': 'pending_review',
-        'badge': _selectedWorkId != null ? 'WORK UPDATE' : 'NEW',
         'referenceWorkId': _selectedWorkId,
-        'likes': 0,
-        'comments': 0,
-        'shares': 0,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
