@@ -21,14 +21,25 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="pokemon_go_map">
+  <meta name="apple-mobile-web-app-title" content="ARte">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>pokemon_go_map</title>
+  <title>ARte</title>
   <link rel="manifest" href="manifest.json">
+  
+  
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+  
+  
+  
+  
+  
+  
+  
+  
   <style id="splash-screen-style">
     html {
       height: 100%
@@ -37,7 +48,7 @@
     body {
       margin: 0;
       min-height: 100%;
-      background-color: #ffffff;
+      background-color: #000000;
           background-size: 100% 100%;
     }
 
@@ -94,7 +105,6 @@
       document.body.style.background = "transparent";
     }
   </script>
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 <body>
   <picture id="splash">
@@ -102,7 +112,99 @@
       <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
       <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
   </picture>
+  
+  
+  
+  
+  
   <script src="flutter_bootstrap.js" async=""></script>
 
+  <!-- Firebase Cleanup Tool -->
+  <style>
+    #db-cleanup-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background-color: #ff3b30;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-family: sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #db-cleanup-btn:hover {
+      background-color: #d70015;
+    }
+    #db-cleanup-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
 
+  <button id="db-cleanup-btn" onclick="deleteProductsCollection()">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+    Borrar Productos
+  </button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyBNnSU-b7UgScNSyOb9dTezuHEoJ36z_9I',
+      appId: '1:30632730598:web:cc8e398899095bc6628027',
+      messagingSenderId: '30632730598',
+      projectId: 'jovi-45c79',
+      authDomain: 'jovi-45c79.firebaseapp.com',
+      storageBucket: 'jovi-45c79.firebasestorage.app',
+      measurementId: 'G-6Y1KRN56PT',
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.deleteProductsCollection = async function() {
+      const btn = document.getElementById('db-cleanup-btn');
+      if (!confirm("⚠️ ¿Estás SEGURO de que quieres borrar TODA la colección 'products' en Firebase?\nEsta acción no se puede deshacer.")) return;
+      
+      try {
+        btn.disabled = true;
+        btn.innerText = "Borrando...";
+        
+        const querySnapshot = await getDocs(collection(db, "products"));
+        const total = querySnapshot.docs.length;
+        
+        if (total === 0) {
+          alert("La colección ya está vacía.");
+          btn.disabled = false;
+          btn.innerHTML = `Borrar Productos`;
+          return;
+        }
+
+        let deleted = 0;
+        const promises = querySnapshot.docs.map(document => {
+          return deleteDoc(doc(db, "products", document.id)).then(() => {
+            deleted++;
+          });
+        });
+
+        await Promise.all(promises);
+        
+        alert(`¡Completado! Se han borrado ${deleted} documentos de 'products'.`);
+      } catch (error) {
+        console.error("Error al borrar la colección:", error);
+        alert("Error al borrar la colección. Revisa la consola.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Borrar Productos`;
+      }
+    };
+  </script>
 </body></html>

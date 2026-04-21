@@ -231,7 +231,7 @@ class _MapScreenState extends State<MapScreen> {
     try {
       final ByteData bytes = await rootBundle.load('assets/images/logo.png');
       final Uint8List list = bytes.buffer.asUint8List();
-      await _mapController?.addImage('jovi-marker', list);
+      await _mapController?.addImage('arte-marker', list);
     } catch (e) {
       debugPrint('Error loading marker image: $e');
     }
@@ -385,7 +385,7 @@ class _MapScreenState extends State<MapScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const CircularProgressIndicator(
-                color: AppTheme.joviRed, strokeWidth: 3),
+                color: AppTheme.arteRed, strokeWidth: 3),
             const SizedBox(height: 20),
             Text(
               'Sincronizando con el mundo real...',
@@ -420,7 +420,7 @@ class _MapScreenState extends State<MapScreen> {
                 _loadData(); // Force refresh
               }
             },
-            backgroundColor: AppTheme.joviRed,
+            backgroundColor: AppTheme.arteRed,
             elevation: 8,
             icon:
                 const Icon(Icons.add_location_alt_rounded, color: Colors.white),
@@ -524,7 +524,7 @@ class _Chip extends StatelessWidget {
           duration: const Duration(milliseconds: 250),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSel ? AppTheme.joviRed : Colors.transparent,
+            color: isSel ? AppTheme.arteRed : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
           ),
           alignment: Alignment.center,
@@ -565,7 +565,7 @@ class _MapFab extends StatelessWidget {
           ],
           border: Border.all(color: Colors.grey.shade100),
         ),
-        child: Icon(icon, color: AppTheme.joviRed, size: 28),
+        child: Icon(icon, color: AppTheme.arteRed, size: 28),
       ),
     );
   }
@@ -673,16 +673,16 @@ class _StopCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.joviRed.withValues(alpha: 0.05),
+                      color: AppTheme.arteRed.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: AppTheme.joviRed.withValues(alpha: 0.1)),
+                          color: AppTheme.arteRed.withValues(alpha: 0.1)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.person_pin,
-                            size: 16, color: AppTheme.joviRed),
+                            size: 16, color: AppTheme.arteRed),
                         const SizedBox(width: 6),
                         Text(
                           "Creado por: ",
@@ -692,7 +692,7 @@ class _StopCard extends StatelessWidget {
                         Text(
                           stop['author'],
                           style: const TextStyle(
-                            color: AppTheme.joviRed,
+                            color: AppTheme.arteRed,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                           ),

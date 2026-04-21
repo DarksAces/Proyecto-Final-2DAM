@@ -145,7 +145,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.joviRed,
+                              backgroundColor: AppTheme.arteRed,
                               foregroundColor: Colors.white,
                             ),
                             child: const Text("Enviar"),
@@ -233,7 +233,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                           const Spacer(),
                           if (badge == null)
                             const Icon(Icons.add,
-                                color: AppTheme.joviRed, size: 20),
+                                color: AppTheme.arteRed, size: 20),
                           if (badge != null)
                             const Icon(Icons.more_horiz,
                                 color: Colors.grey, size: 20),
@@ -271,7 +271,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     icon: const Icon(Icons.add, size: 16),
                     label: const Text("Seguir"),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.joviRed,
+                      foregroundColor: AppTheme.arteRed,
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -452,7 +452,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   child: _ActionBarItem(
                     icon: _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                     label: "Recomendar",
-                    color: _isLiked ? AppTheme.joviRed : Colors.grey.shade700,
+                    color: _isLiked ? AppTheme.arteRed : Colors.grey.shade700,
                     onTap: _toggleLike,
                   ),
                 ),
@@ -493,7 +493,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
           return TextSpan(
             text: '$word ',
             style: TextStyle(
-              color: isHashtag ? AppTheme.joviRed : Colors.black87,
+              color: isHashtag ? AppTheme.arteRed : Colors.black87,
               fontWeight: isHashtag ? FontWeight.bold : FontWeight.normal,
               fontSize: 14,
               height: 1.4,

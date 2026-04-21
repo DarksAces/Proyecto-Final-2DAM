@@ -52,7 +52,7 @@ class _ContestScreenState extends State<ContestScreen>
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: AppTheme.joviRed.withValues(alpha: 0.1),
+            backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
             backgroundImage: _userData?['avatarUrl'] != null
                 ? NetworkImage(_userData!['avatarUrl'])
                 : null,
@@ -60,7 +60,7 @@ class _ContestScreenState extends State<ContestScreen>
                 ? Text(
                     (_userData?['name'] ?? 'U')[0].toUpperCase(),
                     style: const TextStyle(
-                        color: AppTheme.joviRed, fontWeight: FontWeight.bold),
+                        color: AppTheme.arteRed, fontWeight: FontWeight.bold),
                   )
                 : null,
           ),
@@ -68,9 +68,9 @@ class _ContestScreenState extends State<ContestScreen>
         title: const Text("Concurso de Arte"),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppTheme.joviRed,
+          labelColor: AppTheme.arteRed,
           unselectedLabelColor: Colors.grey,
-          indicatorColor: AppTheme.joviRed,
+          indicatorColor: AppTheme.arteRed,
           tabs: const [
             Tab(text: "Global"),
             Tab(text: "Mi Colegio"),
@@ -78,7 +78,7 @@ class _ContestScreenState extends State<ContestScreen>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.emoji_events, color: AppTheme.joviYellow),
+            icon: const Icon(Icons.emoji_events, color: AppTheme.arteYellow),
             tooltip: 'Ver Ranking',
             onPressed: () {
               Navigator.push(
@@ -132,7 +132,7 @@ class _ContestScreenState extends State<ContestScreen>
         label: const Text("PARTICIPAR",
             style: TextStyle(fontWeight: FontWeight.bold)),
         icon: const Icon(Icons.add),
-        backgroundColor: AppTheme.joviRed,
+        backgroundColor: AppTheme.arteRed,
       ),
     );
   }
@@ -234,7 +234,7 @@ class _ArtworkGrid extends StatelessWidget {
                           ),
                           Icon(
                             isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: AppTheme.joviRed,
+                            color: AppTheme.arteRed,
                             size: 16,
                           )
                         ],
