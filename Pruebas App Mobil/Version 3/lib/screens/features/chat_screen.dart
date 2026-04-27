@@ -92,7 +92,7 @@ class ChatScreen extends StatelessWidget {
                 const _MessageBubble(
                   isMe: false,
                   message:
-                      "¡Oye! Tienes que ver lo que acabo de encontrar con el escáner Aura AR en el centro. 🎨",
+                      "¡Oye! Tienes que ver lo que acabo de encontrar con el escáner ARte en el centro. 🎨",
                   time: "10:42 AM",
                 ),
 
@@ -180,7 +180,7 @@ class ChatScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: const BoxDecoration(
-                        color: AppTheme.auraRed,
+                        color: AppTheme.arteRed,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
@@ -229,7 +229,7 @@ class _MessageBubble extends StatelessWidget {
                 maxWidth: MediaQuery.of(context).size.width * 0.75),
             decoration: BoxDecoration(
                 color: isMe
-                    ? AppTheme.auraRed
+                    ? AppTheme.arteRed
                     : Colors.white, // White for received
                 border: isMe ? null : Border.all(color: Colors.grey.shade100),
                 borderRadius: BorderRadius.only(
@@ -241,7 +241,7 @@ class _MessageBubble extends StatelessWidget {
                 boxShadow: isMe
                     ? [
                         BoxShadow(
-                            color: AppTheme.auraRed.withAlpha(50),
+                            color: AppTheme.arteRed.withAlpha(50),
                             blurRadius: 10,
                             offset: const Offset(0, 4))
                       ]
@@ -266,7 +266,7 @@ class _MessageBubble extends StatelessWidget {
                   if (isMe && isRead) ...[
                     const SizedBox(width: 4),
                     const Icon(Icons.done_all,
-                        size: 12, color: AppTheme.auraRed)
+                        size: 12, color: AppTheme.arteRed)
                   ]
                 ],
               ),
@@ -324,14 +324,14 @@ class _ImageBubble extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: AppTheme.auraRed,
+                        color: AppTheme.arteRed,
                         borderRadius: BorderRadius.circular(20)),
                     child: const Row(
                       children: [
                         Icon(Icons.center_focus_strong,
                             color: Colors.white, size: 12),
                         SizedBox(width: 4),
-                        Text("AURA AR",
+                        Text("ARte",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,

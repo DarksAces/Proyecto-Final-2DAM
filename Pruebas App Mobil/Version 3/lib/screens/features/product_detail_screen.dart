@@ -116,13 +116,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.view_in_ar_rounded,
-                                              color: AppTheme.auraRed,
+                                              color: AppTheme.arteRed,
                                               size: 16),
                                           SizedBox(width: 4),
                                           Text(
                                             "COMPATIBLE AR",
                                             style: TextStyle(
-                                              color: AppTheme.auraRed,
+                                              color: AppTheme.arteRed,
                                               fontWeight: FontWeight.bold,
                                               fontSize: 10,
                                             ),
@@ -174,7 +174,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       .toUpperCase() ??
                                   "MANUALIDADES AR",
                               style: const TextStyle(
-                                color: AppTheme.auraRed,
+                                color: AppTheme.arteRed,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                                 letterSpacing: 1.0,
@@ -184,13 +184,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: AppTheme.auraRed.withAlpha(25),
+                                color: AppTheme.arteRed.withAlpha(25),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 widget.productData?['price'] ?? "18.50€",
                                 style: const TextStyle(
-                                  color: AppTheme.auraRed,
+                                  color: AppTheme.arteRed,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
                                 ),
@@ -202,7 +202,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         // Title
                         Text(
                           widget.productData?['title'] ??
-                              "Plastilina Aura – Set Creativo AR",
+                              "Plastilina ARte – Set Creativo AR",
                           style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
@@ -216,7 +216,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ...List.generate(
                                 5,
                                 (index) => const Icon(Icons.star_rounded,
-                                    color: AppTheme.auraYellow, size: 20)),
+                                    color: AppTheme.arteYellow, size: 20)),
                             const SizedBox(width: 8),
                             const Text(
                               "4.8",
@@ -237,7 +237,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         const Row(
                           children: [
                             Icon(Icons.auto_awesome_rounded, // Rounded icon
-                                color: AppTheme.auraBlue,
+                                color: AppTheme.arteBlue,
                                 size: 24),
                             SizedBox(width: 8),
                             Text(
@@ -250,7 +250,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         const SizedBox(height: 12),
                         Text(
                           widget.productData?['description'] ??
-                              "Descubre una nueva dimensión del arte. Nuestra plastilina vegetal no solo es perfecta para modelar, sino que ahora cobra vida. Escanea tus creaciones con la app Aura AR y observa cómo tus personajes interactúan con el entorno.",
+                              "Descubre una nueva dimensión del arte. Nuestra plastilina vegetal no solo es perfecta para modelar, sino que ahora cobra vida. Escanea tus creaciones con la app ARte y observa cómo tus personajes interactúan con el entorno.",
                           style: TextStyle(
                               color: Colors.grey.shade600,
                               height: 1.5,
@@ -278,17 +278,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 icon: Icons.palette,
                                 title: "COLORES",
                                 subtitle: "12 Pastillas",
-                                color: AppTheme.auraRed),
+                                color: AppTheme.arteRed),
                             _IncludeItem(
                                 icon: Icons.build,
                                 title: "HERRAMIENTAS",
                                 subtitle: "3 Estecas",
-                                color: AppTheme.auraYellow),
+                                color: AppTheme.arteYellow),
                             _IncludeItem(
                                 icon: Icons.qr_code_scanner,
                                 title: "ACCESO",
                                 subtitle: "Código AR",
-                                color: AppTheme.auraBlue),
+                                color: AppTheme.arteBlue),
                             _IncludeItem(
                                 icon: Icons.grass,
                                 title: "ECO",
@@ -312,7 +312,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               onPressed: () {},
                               child: const Text(
                                 "Ver todas",
-                                style: TextStyle(color: AppTheme.auraRed),
+                                style: TextStyle(color: AppTheme.arteRed),
                               ),
                             ),
                           ],
@@ -449,7 +449,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.auraRed,
+                    backgroundColor: AppTheme.arteRed,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -563,7 +563,7 @@ class _RatingBar extends StatelessWidget {
             widthFactor: percentage,
             child: Container(
               decoration: BoxDecoration(
-                color: AppTheme.auraRed,
+                color: AppTheme.arteRed,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -635,7 +635,7 @@ class _RelatedProductCard extends StatelessWidget {
                     Text(price,
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.auraRed,
+                            color: AppTheme.arteRed,
                             fontSize: 14)),
                     Icon(Icons.add_circle,
                         color: Colors.grey.shade400, size: 20),

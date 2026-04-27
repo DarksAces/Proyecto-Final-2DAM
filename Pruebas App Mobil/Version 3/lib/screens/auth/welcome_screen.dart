@@ -27,7 +27,7 @@ class WelcomeScreen extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppTheme.auraYellow,
+                    color: AppTheme.arteYellow,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -40,14 +40,14 @@ class WelcomeScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.palette_rounded,
-                          color: AppTheme.auraRed, size: 16),
+                          color: AppTheme.arteRed, size: 16),
                       SizedBox(width: 5),
                       Text(
                         "CREATIVITY FIRST",
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.auraRed),
+                            color: AppTheme.arteRed),
                       ),
                     ],
                   ),
@@ -73,11 +73,11 @@ class WelcomeScreen extends StatelessWidget {
               Column(
                 children: [
                   const Text(
-                    "AURA AR",
+                    "ARte",
                     style: TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.auraBlue,
+                      color: AppTheme.arteBlue,
                       letterSpacing: 1.5,
                     ),
                   ),
@@ -118,7 +118,7 @@ class WelcomeScreen extends StatelessWidget {
                         Navigator.pushNamed(context, '/register');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.auraRed,
+                        backgroundColor: AppTheme.arteRed,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -149,13 +149,13 @@ class WelcomeScreen extends StatelessWidget {
                           horizontal: 20, vertical: 8),
                       decoration: BoxDecoration(
                           border: Border.all(
-                              color: AppTheme.auraBlue.withValues(alpha: 0.3)),
+                              color: AppTheme.arteBlue.withValues(alpha: 0.3)),
                           borderRadius: BorderRadius.circular(20),
                           color: Colors.white.withValues(alpha: 0.8)),
                       child: const Text(
                         "Entrar ahora",
                         style: TextStyle(
-                            color: AppTheme.auraBlue,
+                            color: AppTheme.arteBlue,
                             fontWeight: FontWeight.bold),
                       ),
                     ),

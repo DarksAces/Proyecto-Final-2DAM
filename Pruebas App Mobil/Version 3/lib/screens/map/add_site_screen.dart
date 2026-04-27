@@ -114,7 +114,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
             ListTile(
               leading: const Icon(
                 Icons.camera_alt_rounded,
-                color: AppTheme.auraRed,
+                color: AppTheme.arteRed,
               ),
               title: const Text('Cámara'),
               onTap: () {
@@ -125,7 +125,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
             ListTile(
               leading: const Icon(
                 Icons.photo_library_rounded,
-                color: AppTheme.auraRed,
+                color: AppTheme.arteRed,
               ),
               title: const Text('Galería'),
               onTap: () {
@@ -160,7 +160,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       // Subir imagen si la hay
       if (_imageFile != null) {
         final storage = FirebaseStorage.instanceFor(
-          bucket: 'gs://aura-45c79.firebasestorage.app',
+          bucket: 'gs://ARte-45c79.firebasestorage.app',
         );
         final ref = storage.ref().child(
           'stop_photos/${user!.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg',
@@ -238,7 +238,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
               child: const Text(
                 'Publicar',
                 style: TextStyle(
-                  color: AppTheme.auraRed,
+                  color: AppTheme.arteRed,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
@@ -252,7 +252,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppTheme.auraRed,
+                  color: AppTheme.arteRed,
                 ),
               ),
             ),
@@ -316,7 +316,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.auraRed),
+                  borderSide: const BorderSide(color: AppTheme.arteRed),
                 ),
               ),
               validator: (v) => (v == null || v.trim().isEmpty)
@@ -339,7 +339,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.auraRed),
+                  borderSide: const BorderSide(color: AppTheme.arteRed),
                 ),
               ),
             ),
@@ -434,7 +434,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.auraRed,
+                  backgroundColor: AppTheme.arteRed,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

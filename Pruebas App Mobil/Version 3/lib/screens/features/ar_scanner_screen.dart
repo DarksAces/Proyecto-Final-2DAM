@@ -190,7 +190,7 @@ class _ArScannerScreenState extends State<ArScannerScreen>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("ENTENDIDO",
-                style: TextStyle(color: AppTheme.auraRed)),
+                style: TextStyle(color: AppTheme.arteRed)),
           ),
         ],
       ),
@@ -261,9 +261,9 @@ class _ArScannerScreenState extends State<ArScannerScreen>
                         width: 260,
                         height: 2,
                         decoration:
-                            BoxDecoration(color: AppTheme.auraRed, boxShadow: [
+                            BoxDecoration(color: AppTheme.arteRed, boxShadow: [
                           BoxShadow(
-                              color: AppTheme.auraRed.withValues(alpha: 0.6),
+                              color: AppTheme.arteRed.withValues(alpha: 0.6),
                               blurRadius: 10,
                               spreadRadius: 2)
                         ]),
@@ -321,7 +321,7 @@ class _ArScannerScreenState extends State<ArScannerScreen>
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                             color:
-                                _showSuccess ? Colors.green : AppTheme.auraRed),
+                                _showSuccess ? Colors.green : AppTheme.arteRed),
                       ),
                       child: Text(
                         _statusMessage!,
@@ -351,7 +351,7 @@ class _ArScannerScreenState extends State<ArScannerScreen>
                             width: 70,
                             height: 70,
                             decoration: const BoxDecoration(
-                              color: AppTheme.auraRed,
+                              color: AppTheme.arteRed,
                               shape: BoxShape.circle,
                             ),
                             child: _isGenerating
@@ -391,16 +391,16 @@ class _ArScannerScreenState extends State<ArScannerScreen>
         decoration: BoxDecoration(
           border: Border(
             top: alignment.y == -1
-                ? const BorderSide(color: AppTheme.auraRed, width: 4)
+                ? const BorderSide(color: AppTheme.arteRed, width: 4)
                 : BorderSide.none,
             bottom: alignment.y == 1
-                ? const BorderSide(color: AppTheme.auraRed, width: 4)
+                ? const BorderSide(color: AppTheme.arteRed, width: 4)
                 : BorderSide.none,
             left: alignment.x == -1
-                ? const BorderSide(color: AppTheme.auraRed, width: 4)
+                ? const BorderSide(color: AppTheme.arteRed, width: 4)
                 : BorderSide.none,
             right: alignment.x == 1
-                ? const BorderSide(color: AppTheme.auraRed, width: 4)
+                ? const BorderSide(color: AppTheme.arteRed, width: 4)
                 : BorderSide.none,
           ),
         ),

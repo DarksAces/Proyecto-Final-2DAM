@@ -114,19 +114,19 @@ class _NotificationTile extends StatelessWidget {
     switch (type) {
       case 'welcome':
         icon = Icons.star;
-        iconColor = AppTheme.auraYellow;
+        iconColor = AppTheme.arteYellow;
         break;
       case 'like':
         icon = Icons.favorite;
-        iconColor = AppTheme.auraRed;
+        iconColor = AppTheme.arteRed;
         break;
       case 'comment':
         icon = Icons.chat_bubble;
-        iconColor = AppTheme.auraBlue;
+        iconColor = AppTheme.arteBlue;
         break;
       default:
         icon = Icons.notifications;
-        iconColor = AppTheme.auraRed;
+        iconColor = AppTheme.arteRed;
     }
 
     return InkWell(
@@ -135,7 +135,7 @@ class _NotificationTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         color: read
             ? Colors.transparent
-            : AppTheme.auraRed.withValues(alpha: 0.03),
+            : AppTheme.arteRed.withValues(alpha: 0.03),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -175,7 +175,7 @@ class _NotificationTile extends StatelessWidget {
                 height: 8,
                 margin: const EdgeInsets.only(top: 4),
                 decoration: const BoxDecoration(
-                  color: AppTheme.auraRed,
+                  color: AppTheme.arteRed,
                   shape: BoxShape.circle,
                 ),
               ),

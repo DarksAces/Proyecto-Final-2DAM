@@ -62,11 +62,11 @@ class _DotPatternPainter extends CustomPainter {
         // Randomly pick color (mostly yellow, some blue, rare red)
         double r = random.nextDouble();
         if (r < 0.7) {
-          paint.color = AppTheme.auraYellow.withValues(alpha: 0.4);
+          paint.color = AppTheme.arteYellow.withValues(alpha: 0.4);
         } else if (r < 0.9) {
-          paint.color = AppTheme.auraBlue.withValues(alpha: 0.3);
+          paint.color = AppTheme.arteBlue.withValues(alpha: 0.3);
         } else {
-          paint.color = AppTheme.auraRed.withValues(alpha: 0.2);
+          paint.color = AppTheme.arteRed.withValues(alpha: 0.2);
         }
 
         // Draw small circle

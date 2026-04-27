@@ -22,7 +22,7 @@ class MoreScreen extends StatelessWidget {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: AppTheme.auraRed.withValues(alpha: 0.05),
+                color: AppTheme.arteRed.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             ),
@@ -61,7 +61,7 @@ class MoreScreen extends StatelessWidget {
                       _MenuButton(
                         icon: Icons.person_rounded,
                         label: "Perfil",
-                        color: AppTheme.auraBlue,
+                        color: AppTheme.arteBlue,
                         onTap: () {
                           MainWrapper.of(context)
                               ?.switchTab(4); // Switch to Profile tab
@@ -70,7 +70,7 @@ class MoreScreen extends StatelessWidget {
                       _MenuButton(
                         icon: Icons.event_available_rounded,
                         label: "Eventos",
-                        color: AppTheme.auraYellow,
+                        color: AppTheme.arteYellow,
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -133,7 +133,7 @@ class MoreScreen extends StatelessWidget {
                       _MenuButton(
                         icon: Icons.auto_awesome_rounded,
                         label: "Generar AR",
-                        color: AppTheme.auraRed,
+                        color: AppTheme.arteRed,
                         onTap: () {
                           Navigator.push(
                               context,
@@ -148,7 +148,7 @@ class MoreScreen extends StatelessWidget {
                 // Version info
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Text("Versión 1.0.0 (Aura Beta)",
+                  child: Text("Versión 1.0.0 (ARte Beta)",
                       style:
                           TextStyle(color: Colors.grey.shade400, fontSize: 12)),
                 )

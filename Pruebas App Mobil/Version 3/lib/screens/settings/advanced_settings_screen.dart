@@ -246,7 +246,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
 
               const SizedBox(height: 20),
               Text(
-                "Aura AR v2.4.0 (Build 892) • aura.es",
+                "ARte v2.4.0 (Build 892) • ARte.es",
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
               ),
               const SizedBox(height: 40),

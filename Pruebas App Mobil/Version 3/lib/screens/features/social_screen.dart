@@ -55,7 +55,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
-                      color: AppTheme.auraRed,
+                      color: AppTheme.arteRed,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.hub, color: Colors.white, size: 24),
@@ -143,7 +143,7 @@ class _SocialScreenState extends State<SocialScreen> {
                               );
                             },
                             child: const Text("Iniciar un chat",
-                                style: TextStyle(color: AppTheme.auraRed)),
+                                style: TextStyle(color: AppTheme.arteRed)),
                           )
                         ],
                       ),
@@ -264,11 +264,11 @@ class _ChatTile extends StatelessWidget {
                   radius: 28,
                   backgroundImage:
                       avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                  backgroundColor: AppTheme.auraRed.withValues(alpha: 0.1),
+                  backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
                   child: avatarUrl == null
                       ? Text(name[0].toUpperCase(),
                           style: const TextStyle(
-                              color: AppTheme.auraRed,
+                              color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                               fontSize: 20))
                       : null,
@@ -309,7 +309,7 @@ class _ChatTile extends StatelessWidget {
                         timeStr, // Mock time
                         style: TextStyle(
                           color: lastMessage.contains('rincón')
-                              ? AppTheme.auraRed
+                              ? AppTheme.arteRed
                               : Colors.grey, // Highlight example
                           fontSize: 12,
                           fontWeight: FontWeight.bold,

@@ -90,15 +90,15 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.auraRed.withValues(alpha: 0.05),
+                color: AppTheme.arteRed.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
                 border:
-                    Border.all(color: AppTheme.auraRed.withValues(alpha: 0.1)),
+                    Border.all(color: AppTheme.arteRed.withValues(alpha: 0.1)),
               ),
               child: Column(
                 children: [
                   const Icon(Icons.auto_awesome,
-                      color: AppTheme.auraRed, size: 40),
+                      color: AppTheme.arteRed, size: 40),
                   const SizedBox(height: 12),
                   const Text(
                     "Conversor 2D a 3D",
@@ -125,7 +125,7 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: _selectedImage != null
-                        ? AppTheme.auraRed
+                        ? AppTheme.arteRed
                         : Colors.grey.shade300,
                     width: 2,
                     style: _selectedImage != null
@@ -183,14 +183,14 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
                 decoration: BoxDecoration(
                   color: _showSuccess
                       ? Colors.green.withValues(alpha: 0.1)
-                      : AppTheme.auraYellow.withValues(alpha: 0.1),
+                      : AppTheme.arteYellow.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       _showSuccess ? Icons.check_circle : Icons.info_outline,
-                      color: _showSuccess ? Colors.green : AppTheme.auraYellow,
+                      color: _showSuccess ? Colors.green : AppTheme.arteYellow,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -214,7 +214,7 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
                   ? null
                   : _generate3D,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.auraRed,
+                backgroundColor: AppTheme.arteRed,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
@@ -248,8 +248,8 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
                 icon: const Icon(Icons.view_in_ar),
                 label: const Text("PROBAR EN SCANNER AR"),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.auraRed,
-                  side: const BorderSide(color: AppTheme.auraRed),
+                  foregroundColor: AppTheme.arteRed,
+                  side: const BorderSide(color: AppTheme.arteRed),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),

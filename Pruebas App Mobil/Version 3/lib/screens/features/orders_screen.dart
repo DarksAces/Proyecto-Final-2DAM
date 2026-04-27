@@ -31,7 +31,7 @@ class OrdersScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-                color: AppTheme.auraRed,
+                color: AppTheme.arteRed,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: const [
                   BoxShadow(
@@ -52,7 +52,7 @@ class OrdersScreen extends StatelessWidget {
                             style:
                                 TextStyle(color: Colors.white, fontSize: 14)),
                         SizedBox(height: 4),
-                        Text("1,250 Puntos Aura",
+                        Text("1,250 Puntos ARte",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -198,7 +198,7 @@ class OrdersScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: const BoxDecoration(
-                                color: AppTheme.auraRed,
+                                color: AppTheme.arteRed,
                                 shape: BoxShape.circle),
                             child: const Text("2",
                                 style: TextStyle(
@@ -214,7 +214,7 @@ class OrdersScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Pack Explorador AR + Merch Aura",
+                          const Text("Pack Explorador AR + Merch ARte",
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
                           Text("Llega hoy antes de las 20:00",
@@ -255,7 +255,7 @@ class OrdersScreen extends StatelessWidget {
                     children: [
                       const Text("NUEVA FUNCIÓN",
                           style: TextStyle(
-                              color: AppTheme.auraRed,
+                              color: AppTheme.arteRed,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.0)),
@@ -287,13 +287,13 @@ class OrdersScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               Text("Ver todo",
                   style: TextStyle(
-                      color: AppTheme.auraRed, fontWeight: FontWeight.bold)),
+                      color: AppTheme.arteRed, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
 
           const _OrderHistoryItem(
-              title: "Aura Cap & Stickers",
+              title: "ARte Cap & Stickers",
               date: "Entregado el 15 de Sept",
               price: "24,90€"),
           const SizedBox(height: 12),
@@ -324,7 +324,7 @@ class _StepIcon extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.auraRed : Colors.grey.shade100,
+            color: isActive ? AppTheme.arteRed : Colors.grey.shade100,
             shape: BoxShape.circle,
           ),
           child: Icon(icon,
@@ -351,7 +351,7 @@ class _StepLine extends StatelessWidget {
       child: Container(
         height: 2,
         margin: const EdgeInsets.only(bottom: 20, left: 4, right: 4),
-        color: isActive ? AppTheme.auraRed : Colors.grey.shade200,
+        color: isActive ? AppTheme.arteRed : Colors.grey.shade200,
       ),
     );
   }

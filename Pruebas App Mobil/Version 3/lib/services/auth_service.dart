@@ -60,14 +60,14 @@ class AuthService {
           'level': 'Aprendiz de AR',
           'followers': 0,
           'following': 0,
-          'bio': 'Nuevo en Aura AR',
+          'bio': 'Nuevo en ARte',
         });
 
         // Create welcome notification
         await _firestore.collection('notifications').add({
           'userId': result.user!.uid,
           'type': 'welcome',
-          'message': '¡Bienvenido a Aura AR! Comienza tu aventura creativa.',
+          'message': '¡Bienvenido a ARte! Comienza tu aventura creativa.',
           'fromUser': 'system',
           'timestamp': FieldValue.serverTimestamp(),
           'read': false,

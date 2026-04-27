@@ -35,7 +35,7 @@ class UnlockModal extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: AppTheme.auraRed,
+                    color: AppTheme.arteRed,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -49,7 +49,7 @@ class UnlockModal extends StatelessWidget {
                       TextSpan(
                         text: "Totem de la Creatividad",
                         style: TextStyle(
-                          color: AppTheme.auraBlue,
+                          color: AppTheme.arteBlue,
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
@@ -64,7 +64,7 @@ class UnlockModal extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.auraBlue,
+                      backgroundColor: AppTheme.arteBlue,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -97,7 +97,7 @@ class UnlockModal extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.auraYellow.withAlpha(100),
+                    color: AppTheme.arteYellow.withAlpha(100),
                     blurRadius: 20,
                     offset: const Offset(0, 5),
                   )
@@ -106,7 +106,7 @@ class UnlockModal extends StatelessWidget {
               child: const Icon(
                 Icons.emoji_events_rounded,
                 size: 50,
-                color: AppTheme.auraYellow,
+                color: AppTheme.arteYellow,
               ),
             ),
           ),

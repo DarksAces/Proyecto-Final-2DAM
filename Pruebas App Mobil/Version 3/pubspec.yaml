@@ -11,14 +11,14 @@ dependencies:
     sdk: flutter
   # flutter_map: ^6.1.0
   # latlong2: ^0.9.0
-  maplibre_gl: ^0.25.0
+  maplibre_gl: ^0.26.0
   cupertino_icons: ^1.0.2
-  geolocator: ^13.0.0 # Warning: Downgrading might be safer if 14 has issues, but keeping high for now
-  google_fonts: ^6.1.0
-  firebase_core: ^3.8.1
-  firebase_auth: ^5.3.4
-  cloud_firestore: ^5.5.2
-  firebase_storage: ^12.4.10
+  geolocator: ^14.0.2 # Warning: Downgrading might be safer if 14 has issues, but keeping high for now
+  google_fonts: ^8.0.2
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  cloud_firestore: ^6.3.0
+  firebase_storage: ^13.3.0
   image_picker: ^1.1.2
   intl: ^0.20.2
   http: ^1.6.0
@@ -30,22 +30,22 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/user_avatar.png
-    - assets/images/profile_marker.png
     - assets/images/logo.png
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
   image_path: "assets/images/logo.png"
-  min_sdk_android: 21 # android min sdk min:16, default:21
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/logo.png"
+  min_sdk_android: 21
 
 flutter_native_splash:
   color: "#ffffff"

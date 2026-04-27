@@ -40,9 +40,9 @@
     </queries>
 
     <application
-        android:label="Aura AR"
+        android:label="ARte"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
+        android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         
         <!-- Mapbox Token -->

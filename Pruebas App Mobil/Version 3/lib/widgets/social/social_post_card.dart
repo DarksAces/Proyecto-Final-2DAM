@@ -145,7 +145,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.auraRed,
+                              backgroundColor: AppTheme.arteRed,
                               foregroundColor: Colors.white,
                             ),
                             child: const Text("Enviar"),
@@ -233,7 +233,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                           const Spacer(),
                           if (badge == null)
                             const Icon(Icons.add,
-                                color: AppTheme.auraRed, size: 20),
+                                color: AppTheme.arteRed, size: 20),
                           if (badge != null)
                             const Icon(Icons.more_horiz,
                                 color: Colors.grey, size: 20),
@@ -271,7 +271,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     icon: const Icon(Icons.add, size: 16),
                     label: const Text("Seguir"),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.auraRed,
+                      foregroundColor: AppTheme.arteRed,
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -422,20 +422,23 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   ],
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  "Alejandro y $_likeCount más",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "Alejandro y $_likeCount más",
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Spacer(),
-                Text(
-                  "${widget.data['comments'] ?? 0} comentarios • ",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-                Text(
-                  isVideo
-                      ? "$reproCount reproducciones"
-                      : "${widget.data['shares'] ?? 0} veces compartido",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                const SizedBox(width: 4),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "${widget.data['comments'] ?? 0} com. • ${isVideo ? reproCount : widget.data['shares'] ?? 0} ${isVideo ? 'repro.' : 'veces'}",
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -452,7 +455,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   child: _ActionBarItem(
                     icon: _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                     label: "Recomendar",
-                    color: _isLiked ? AppTheme.auraRed : Colors.grey.shade700,
+                    color: _isLiked ? AppTheme.arteRed : Colors.grey.shade700,
                     onTap: _toggleLike,
                   ),
                 ),
@@ -493,7 +496,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
           return TextSpan(
             text: '$word ',
             style: TextStyle(
-              color: isHashtag ? AppTheme.auraRed : Colors.black87,
+              color: isHashtag ? AppTheme.arteRed : Colors.black87,
               fontWeight: isHashtag ? FontWeight.bold : FontWeight.normal,
               fontSize: 14,
               height: 1.4,
