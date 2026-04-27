@@ -21,12 +21,12 @@ class CreatePostCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: AppTheme.joviRed.withValues(alpha: 0.1),
+                  backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
                   backgroundImage:
                       avatarUrl != null ? NetworkImage(avatarUrl!) : null,
                   child: avatarUrl == null
                       ? const Icon(Icons.person,
-                          color: AppTheme.joviRed, size: 24)
+                          color: AppTheme.arteRed, size: 24)
                       : null,
                 ),
                 const SizedBox(width: 12),

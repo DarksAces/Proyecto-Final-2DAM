@@ -43,9 +43,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _userData = data;
         _userContent = content;
+<<<<<<< HEAD
+        _userData = data;
+        _userContent = content;
+=======
         if (data != null) {
           _medals = _userService.calculateMedals(data, content.length);
         }
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         _isLoading = false;
       });
     }
@@ -56,18 +61,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isLoading) {
       return const Scaffold(
           body: Center(
-              child: CircularProgressIndicator(color: AppTheme.joviRed)));
+              child: CircularProgressIndicator(color: AppTheme.arteRed)));
     }
 
     final bool isMyProfile =
         widget.userId == null || widget.userId == _userService.currentUserId;
     final String username =
         _userData?['displayName'] ?? _userData?['username'] ?? 'Explorador';
+<<<<<<< HEAD
+=======
     final String bio =
         _userData?['bio'] ?? '¡Hola! Estoy explorando el mundo AR.';
     final int points = _userData?['points'] ?? 0;
     final String level = _userService.getLevelName(points);
     final String subtitle = _userData?['userTitle'] ?? 'CREADOR AR';
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
     final int avatarColor = _userData?['avatarColor'] ?? 0xFFE30613;
     final int followers = _userData?['followers'] ?? 0;
     final int following = _userData?['following'] ?? 0;
@@ -124,16 +132,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
                         colors: [
-                          AppTheme.joviYellow,
+                          AppTheme.arteYellow,
                           Colors.orange,
-                          AppTheme.joviRed
+                          AppTheme.arteRed
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.joviYellow.withValues(alpha: 0.4),
+                          color: AppTheme.arteYellow.withValues(alpha: 0.4),
                           blurRadius: 20,
                           spreadRadius: 5,
                         )
@@ -158,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppTheme.joviRed,
+                    color: AppTheme.arteRed,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                   ),
@@ -172,11 +180,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               "@${username.replaceAll(' ', '_').toLowerCase()}",
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
             ),
+<<<<<<< HEAD
+            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+=======
             const SizedBox(height: 4),
             Text(
               subtitle.toUpperCase(),
               style: const TextStyle(
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                   letterSpacing: 1.2),
@@ -188,6 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                   color: Colors.grey.shade600, fontSize: 14, height: 1.4),
             ),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             if (!isMyProfile) ...[
               const SizedBox(height: 20),
               Row(
@@ -196,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.joviRed,
+                      backgroundColor: AppTheme.arteRed,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 12),
@@ -223,6 +236,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
             const SizedBox(height: 24),
+<<<<<<< HEAD
+            // Stats Card removed as per cleanup
+            const SizedBox(height: 30),
+            // Medals and stats removed as per cleanup
+=======
             // Stats Card
             Container(
               padding: const EdgeInsets.all(20),
@@ -277,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: LinearProgressIndicator(
                           value: (points % 500) / 500,
                           backgroundColor: Colors.grey.shade100,
-                          color: AppTheme.joviRed,
+                          color: AppTheme.arteRed,
                           minHeight: 6,
                         ),
                       ),
@@ -299,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       MaterialPageRoute(builder: (_) => const RankingScreen())),
                   child: const Text("Ver Ranking",
                       style: TextStyle(
-                          color: AppTheme.joviRed,
+                          color: AppTheme.arteRed,
                           fontWeight: FontWeight.bold)),
                 )
               ],
@@ -327,6 +345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .toList(),
               ),
             ),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
             const SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -335,7 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style:
                         TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
                 const Icon(Icons.grid_view_rounded,
-                    color: AppTheme.joviRed, size: 24),
+                    color: AppTheme.arteRed, size: 24),
               ],
             ),
             const SizedBox(height: 16),
@@ -525,7 +544,7 @@ class _PortfolioItem extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.view_in_ar_rounded,

@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Colors
-  static const Color joviRed = Color(0xFFE30613);
-  static const Color joviYellow = Color(0xFFFFCC00);
-  static const Color joviBlue = Color(0xFF0099D8);
+  static const Color arteRed = Color(0xFFE30613);
+  static const Color arteYellow = Color(0xFFFFCC00);
+  static const Color arteBlue = Color(0xFF0099D8);
 
   static const Color backgroundWhite = Color(0xFFFAFAFA);
   static const Color textBlack = Color(0xFF1A1A1A);
@@ -14,13 +14,13 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      primaryColor: joviRed,
+      primaryColor: arteRed,
       scaffoldBackgroundColor: backgroundWhite,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: joviRed,
-        primary: joviRed,
-        secondary: joviYellow,
-        tertiary: joviBlue,
+        seedColor: arteRed,
+        primary: arteRed,
+        secondary: arteYellow,
+        tertiary: arteBlue,
         surface: backgroundWhite,
       ),
       textTheme: GoogleFonts.poppinsTextTheme().apply(
@@ -29,7 +29,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: joviRed,
+          backgroundColor: arteRed,
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(

@@ -74,13 +74,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                        color: AppTheme.joviYellow,
+                        color: AppTheme.arteYellow,
                         borderRadius: BorderRadius.circular(20)),
                     child: const Text("CREATIVITY FIRST",
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.joviRed)),
+                            color: AppTheme.arteRed)),
                   )
                 ],
               ),
@@ -99,11 +99,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) =>
                             const Text(
-                          "JoviAR",
+                          "ARte",
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: AppTheme.joviBlue,
+                            color: AppTheme.arteBlue,
                           ),
                         ),
                       ),
@@ -141,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: _inputDecoration(
-                                "ejemplo@jovi.es", Icons.email_outlined),
+                                "ejemplo@arte.es", Icons.email_outlined),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu email';
@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
-                                          color: AppTheme.joviBlue)))
+                                          color: AppTheme.arteBlue)))
                             ],
                           ),
                           TextFormField(
@@ -191,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleLogin,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.joviRed,
+                                backgroundColor: AppTheme.arteRed,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30)),
                                 elevation: 5,
@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Colors.red.shade50), // Google placeholder
                         const SizedBox(width: 20),
                         _socialButton(
-                            Icons.facebook, AppTheme.joviBlue), // Facebook
+                            Icons.facebook, AppTheme.arteBlue), // Facebook
                         const SizedBox(width: 20),
                         _socialButton(Icons.apple, Colors.black), // Apple
                       ],
@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: const Text(
                             "¡Regístrate!",
                             style: TextStyle(
-                              color: AppTheme.joviRed,
+                            color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -288,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: AppTheme.joviBlue.withValues(alpha: 0.5)),
+        prefixIcon: Icon(icon, color: AppTheme.arteBlue.withValues(alpha: 0.5)),
         filled: true,
         fillColor: Colors.grey.shade50,
         border: OutlineInputBorder(
@@ -299,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
             borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: AppTheme.joviBlue, width: 1.5)),
+            borderSide: const BorderSide(color: AppTheme.arteBlue, width: 1.5)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 15));
   }

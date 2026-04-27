@@ -109,7 +109,7 @@ class UserService {
       await _firestore.collection('notifications').add({
         'userId': userId,
         'type': 'welcome',
-        'message': '¡Bienvenido a Jovi AR!',
+        'message': '¡Bienvenido a ARte!',
         'fromUser': 'system',
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
@@ -276,8 +276,13 @@ class UserService {
 
       // In-memory sort by timestamp descending
       allContent.sort((a, b) {
+<<<<<<< HEAD
+        final Timestamp? tA = a['timestamp'] as Timestamp?;
+        final Timestamp? tB = b['timestamp'] as Timestamp?;
+=======
         final Timestamp? tA = a['timestamp'] ?? a['createdAt'] as Timestamp?;
         final Timestamp? tB = b['timestamp'] ?? b['createdAt'] as Timestamp?;
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         if (tA == null) return 1;
         if (tB == null) return -1;
         return tB.compareTo(tA);
@@ -290,6 +295,9 @@ class UserService {
     }
   }
 
+<<<<<<< HEAD
+  // Gamification logic removed as per production cleanup
+=======
   // Calculate medals based on user data and content count
   List<Map<String, dynamic>> calculateMedals(
       Map<String, dynamic> userData, int contentCount) {
@@ -301,7 +309,7 @@ class UserService {
         'id': 'pioneer',
         'label': 'PIONERO',
         'icon': Icons.auto_awesome,
-        'color': const Color(0xFFFFD700), // Jovi Yellow
+        'color': const Color(0xFFFFD700), // ARte Yellow
         'isUnlocked': contentCount >= 1,
         'requirement': 'Crea tu primera obra o sitio',
       },
@@ -317,13 +325,13 @@ class UserService {
         'id': 'master',
         'label': 'MAESTRO AR',
         'icon': Icons.psychology_rounded,
-        'color': const Color(0xFF00BFFF), // Jovi Blue
+        'color': const Color(0xFF00BFFF), // ARte Blue
         'isUnlocked': contentCount >= 10,
         'requirement': 'Crea 10 obras o sitios',
       },
       {
         'id': 'influencer',
-        'label': 'JOVI STAR',
+        'label': 'ESTRELLA ARTE',
         'icon': Icons.star_rounded,
         'color': const Color(0xFFFF69B4), // Pink
         'isUnlocked': followers >= 5,
@@ -331,9 +339,9 @@ class UserService {
       },
       {
         'id': 'critic',
-        'label': 'LEYENDA',
+        'label': 'LEYENDA ARTE',
         'icon': Icons.shield_rounded,
-        'color': const Color(0xFFE30613), // Jovi Red
+        'color': const Color(0xFFE30613), // ARte Red
         'isUnlocked': points >= 1000,
         'requirement': 'Alcanza los 1000 puntos',
       },
@@ -342,9 +350,10 @@ class UserService {
 
   // Get Level Name from points
   String getLevelName(int points) {
-    if (points >= 1500) return 'Leyenda Jovi';
+    if (points >= 1500) return 'Leyenda ARte';
     if (points >= 500) return 'Explorador Experto';
     if (points >= 100) return 'Explorador Activo';
     return 'Novato';
   }
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 }

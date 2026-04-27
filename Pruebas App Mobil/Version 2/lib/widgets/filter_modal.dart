@@ -115,7 +115,7 @@ class _FilterModalState extends State<FilterModal> {
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.joviRed,
+                backgroundColor: AppTheme.arteRed,
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
@@ -164,7 +164,7 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.joviRed : const Color(0xFFEEEEEE),
+          color: isSelected ? AppTheme.arteRed : const Color(0xFFEEEEEE),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Text(

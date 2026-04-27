@@ -14,8 +14,6 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 6,
       color: Colors.white,
       surfaceTintColor: Colors.white,
       elevation: 12,
@@ -34,8 +32,24 @@ class CustomBottomNavBar extends StatelessWidget {
               label: 'Social',
               isSelected: currentIndex == 1,
               onTap: () => onTap(1)),
-          const SizedBox(width: 60), // hueco del FAB
           _NavItem(
+<<<<<<< HEAD
+              icon: Icons.map_rounded,
+              label: 'Mapa',
+              isSelected: currentIndex == 2,
+              onTap: () => onTap(2)),
+          _NavItem(
+              icon: Icons.person_rounded,
+              label: 'Perfil',
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3)),
+=======
+<<<<<<< HEAD
+              icon: Icons.person_rounded,
+              label: 'Perfil',
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3)),
+=======
               icon: Icons.shopping_bag_rounded,
               label: 'Tienda',
               isSelected: currentIndex == 3,
@@ -45,6 +59,8 @@ class CustomBottomNavBar extends StatelessWidget {
               label: 'Perfil',
               isSelected: currentIndex == 4,
               onTap: () => onTap(4)),
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
         ],
       ),
     );
@@ -66,7 +82,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? AppTheme.joviRed : Colors.grey.shade400;
+    final color = isSelected ? AppTheme.arteRed : Colors.grey.shade400;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -81,7 +97,7 @@ class _NavItem extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppTheme.joviRed.withValues(alpha: 0.12)
+                      ? AppTheme.arteRed.withValues(alpha: 0.12)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
