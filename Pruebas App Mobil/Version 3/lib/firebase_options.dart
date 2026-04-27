@@ -44,9 +44,9 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyBNnSU-b7UgScNSyOb9dTezuHEoJ36z_9I',
     appId: '1:30632730598:web:cc8e398899095bc6628027',
     messagingSenderId: '30632730598',
-    projectId: 'aura-45c79',
-    authDomain: 'aura-45c79.firebaseapp.com',
-    storageBucket: 'aura-45c79.firebasestorage.app',
+    projectId: 'jovi-45c79',
+    authDomain: 'jovi-45c79.firebaseapp.com',
+    storageBucket: 'jovi-45c79.firebasestorage.app',
     measurementId: 'G-6Y1KRN56PT',
   );
 
@@ -54,16 +54,16 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyAHcaIdbiGKOzYuZGjPlFP4GlS4gSad9fw',
     appId: '1:30632730598:android:b567c9426c549a99628027',
     messagingSenderId: '30632730598',
-    projectId: 'aura-45c79',
-    storageBucket: 'aura-45c79.firebasestorage.app',
+    projectId: 'jovi-45c79',
+    storageBucket: 'jovi-45c79.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDbJBc6yxdCeP-rNifKIdn9nxCKnj84K2E',
     appId: '1:30632730598:ios:251722ce91159af5628027',
     messagingSenderId: '30632730598',
-    projectId: 'aura-45c79',
-    storageBucket: 'aura-45c79.firebasestorage.app',
+    projectId: 'jovi-45c79',
+    storageBucket: 'jovi-45c79.firebasestorage.app',
     iosBundleId: 'com.example.auraArApp',
   );
 
@@ -71,8 +71,8 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyDbJBc6yxdCeP-rNifKIdn9nxCKnj84K2E',
     appId: '1:30632730598:ios:251722ce91159af5628027',
     messagingSenderId: '30632730598',
-    projectId: 'aura-45c79',
-    storageBucket: 'aura-45c79.firebasestorage.app',
+    projectId: 'jovi-45c79',
+    storageBucket: 'jovi-45c79.firebasestorage.app',
     iosBundleId: 'com.example.auraArApp',
   );
 
@@ -80,9 +80,9 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyBNnSU-b7UgScNSyOb9dTezuHEoJ36z_9I',
     appId: '1:30632730598:web:b1c8f1aecedb5212628027',
     messagingSenderId: '30632730598',
-    projectId: 'aura-45c79',
-    authDomain: 'aura-45c79.firebaseapp.com',
-    storageBucket: 'aura-45c79.firebasestorage.app',
+    projectId: 'jovi-45c79',
+    authDomain: 'jovi-45c79.firebaseapp.com',
+    storageBucket: 'jovi-45c79.firebasestorage.app',
     measurementId: 'G-SK0KCL2Y19',
   );
 }
