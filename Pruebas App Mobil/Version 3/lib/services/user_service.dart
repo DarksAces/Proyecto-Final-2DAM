@@ -109,7 +109,7 @@ class UserService {
       await _firestore.collection('notifications').add({
         'userId': userId,
         'type': 'welcome',
-        'message': '¡Bienvenido a Aura AR!',
+        'message': '¡Bienvenido a ARte!',
         'fromUser': 'system',
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
@@ -301,7 +301,7 @@ class UserService {
         'id': 'pioneer',
         'label': 'PIONERO',
         'icon': Icons.auto_awesome,
-        'color': const Color(0xFFFFD700), // Aura Yellow
+        'color': const Color(0xFFFFD700), // ARte Yellow
         'isUnlocked': contentCount >= 1,
         'requirement': 'Crea tu primera obra o sitio',
       },
@@ -317,13 +317,13 @@ class UserService {
         'id': 'master',
         'label': 'MAESTRO AR',
         'icon': Icons.psychology_rounded,
-        'color': const Color(0xFF00BFFF), // Aura Blue
+        'color': const Color(0xFF00BFFF), // ARte Blue
         'isUnlocked': contentCount >= 10,
         'requirement': 'Crea 10 obras o sitios',
       },
       {
         'id': 'influencer',
-        'label': 'AURA STAR',
+        'label': 'ARte STAR',
         'icon': Icons.star_rounded,
         'color': const Color(0xFFFF69B4), // Pink
         'isUnlocked': followers >= 5,
@@ -333,7 +333,7 @@ class UserService {
         'id': 'critic',
         'label': 'LEYENDA',
         'icon': Icons.shield_rounded,
-        'color': const Color(0xFFE30613), // Aura Red
+        'color': const Color(0xFFE30613), // ARte Red
         'isUnlocked': points >= 1000,
         'requirement': 'Alcanza los 1000 puntos',
       },
@@ -342,7 +342,7 @@ class UserService {
 
   // Get Level Name from points
   String getLevelName(int points) {
-    if (points >= 1500) return 'Leyenda Aura';
+    if (points >= 1500) return 'Leyenda ARte';
     if (points >= 500) return 'Explorador Experto';
     if (points >= 100) return 'Explorador Activo';
     return 'Novato';

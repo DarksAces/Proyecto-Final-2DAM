@@ -10,7 +10,7 @@ class TermsOfServiceScreen extends StatelessWidget {
           AppBar(title: const Text("Términos de Servicio"), centerTitle: true),
       body: const SingleChildScrollView(
         padding: EdgeInsets.all(20),
-        child: Text("Aquí van los términos de servicio de Aura AR..."),
+        child: Text("Aquí van los términos de servicio de ARte..."),
       ),
     );
   }
@@ -26,7 +26,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           title: const Text("Política de Privacidad"), centerTitle: true),
       body: const SingleChildScrollView(
         padding: EdgeInsets.all(20),
-        child: Text("Aquí va la política de privacidad de Aura AR..."),
+        child: Text("Aquí va la política de privacidad de ARte..."),
       ),
     );
   }
@@ -41,7 +41,7 @@ class SoftwareLicensesScreen extends StatelessWidget {
       appBar:
           AppBar(title: const Text("Licencias de Software"), centerTitle: true),
       body: const LicensePage(
-        applicationName: "Aura AR",
+        applicationName: "ARte",
         applicationVersion: "1.0.0",
       ),
     );

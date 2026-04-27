@@ -38,7 +38,7 @@ class CartScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: const BoxDecoration(
-                      color: AppTheme.auraRed, shape: BoxShape.circle),
+                      color: AppTheme.arteRed, shape: BoxShape.circle),
                   child: const Text("3",
                       style: TextStyle(
                           color: Colors.white,
@@ -66,7 +66,7 @@ class CartScreen extends StatelessWidget {
                     image: Icons.temple_buddhist),
                 const SizedBox(height: 16),
                 const _CartItem(
-                    title: "Aura AR Explorer Cap",
+                    title: "ARte Explorer Cap",
                     subtitle: "Talla: M | Color: Rojo",
                     price: "30,00 €",
                     unitPrice: "15,00 € ud.",
@@ -92,13 +92,13 @@ class CartScreen extends StatelessWidget {
                       color: const Color(0xFFFDE8E8), // Light red/pink
                       borderRadius: BorderRadius.circular(12),
                       border:
-                          Border.all(color: AppTheme.auraRed.withAlpha(50))),
+                          Border.all(color: AppTheme.arteRed.withAlpha(50))),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                            color: AppTheme.auraRed, shape: BoxShape.circle),
+                            color: AppTheme.arteRed, shape: BoxShape.circle),
                         child: const Icon(Icons.star,
                             color: Colors.white, size: 16),
                       ),
@@ -107,7 +107,7 @@ class CartScreen extends StatelessWidget {
                         child: Text(
                           "¡Añade 1 experiencia más y obtén un 15% de descuento!",
                           style: TextStyle(
-                              color: AppTheme.auraRed,
+                              color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                               fontSize: 13),
                         ),
@@ -157,7 +157,7 @@ class CartScreen extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w900,
-                                  color: AppTheme.auraRed)),
+                                  color: AppTheme.arteRed)),
                         ],
                       )
                     ],
@@ -192,13 +192,13 @@ class CartScreen extends StatelessWidget {
                                 builder: (context) => const DiscoveryScreen()));
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.auraRed,
+                        backgroundColor: AppTheme.arteRed,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 5,
-                        shadowColor: AppTheme.auraRed.withAlpha(100),
+                        shadowColor: AppTheme.arteRed.withAlpha(100),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -310,7 +310,7 @@ class _CartItem extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: const BoxDecoration(
-                      color: AppTheme.auraRed,
+                      color: AppTheme.arteRed,
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(14),
                           bottomRight: Radius.circular(8)),
@@ -369,7 +369,7 @@ class _CartItem extends StatelessWidget {
                       children: [
                         Text(price,
                             style: const TextStyle(
-                                color: AppTheme.auraRed,
+                                color: AppTheme.arteRed,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold)),
                         if (unitPrice != null)
@@ -403,7 +403,7 @@ class _QtyBtn extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         child: Icon(icon,
             size: 16, // Slightly larger
-            color: isRed ? AppTheme.auraRed : Colors.grey.shade600),
+            color: isRed ? AppTheme.arteRed : Colors.grey.shade600),
       ),
     );
   }

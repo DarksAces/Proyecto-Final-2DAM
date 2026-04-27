@@ -25,7 +25,7 @@ class CommunityScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
-                      color: AppTheme.auraRed,
+                      color: AppTheme.arteRed,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.hub,
@@ -99,7 +99,7 @@ class CommunityScreen extends StatelessWidget {
                     imageUrl: "https://i.pravatar.cc/150?img=5",
                   ),
                   _ChatTile(
-                    name: "Aura Bot",
+                    name: "ARte Bot",
                     message: "¡Bienvenido! Descubre tu primera rec...",
                     time: "Ayer",
                     imageUrl: "https://i.pravatar.cc/150?img=12",
@@ -121,7 +121,7 @@ class CommunityScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: AppTheme.auraRed,
+        backgroundColor: AppTheme.arteRed,
         child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
       ),
     );
@@ -260,7 +260,7 @@ class _ChatTile extends StatelessWidget {
                 Text(time,
                     style: TextStyle(
                         color:
-                            isRedTime ? AppTheme.auraRed : Colors.grey.shade600,
+                            isRedTime ? AppTheme.arteRed : Colors.grey.shade600,
                         fontSize: 12,
                         fontWeight:
                             isRedTime ? FontWeight.bold : FontWeight.normal)),
@@ -270,7 +270,7 @@ class _ChatTile extends StatelessWidget {
                     width: 10,
                     height: 10,
                     decoration: const BoxDecoration(
-                      color: AppTheme.auraRed,
+                      color: AppTheme.arteRed,
                       shape: BoxShape.circle,
                     ),
                   )

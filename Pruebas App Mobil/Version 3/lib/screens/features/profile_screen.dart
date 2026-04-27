@@ -56,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isLoading) {
       return const Scaffold(
           body: Center(
-              child: CircularProgressIndicator(color: AppTheme.auraRed)));
+              child: CircularProgressIndicator(color: AppTheme.arteRed)));
     }
 
     final bool isMyProfile =
@@ -124,16 +124,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
                         colors: [
-                          AppTheme.auraYellow,
+                          AppTheme.arteYellow,
                           Colors.orange,
-                          AppTheme.auraRed
+                          AppTheme.arteRed
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.auraYellow.withValues(alpha: 0.4),
+                          color: AppTheme.arteYellow.withValues(alpha: 0.4),
                           blurRadius: 20,
                           spreadRadius: 5,
                         )
@@ -158,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppTheme.auraRed,
+                    color: AppTheme.arteRed,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                   ),
@@ -176,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               subtitle.toUpperCase(),
               style: const TextStyle(
-                  color: AppTheme.auraRed,
+                  color: AppTheme.arteRed,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                   letterSpacing: 1.2),
@@ -196,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.auraRed,
+                      backgroundColor: AppTheme.arteRed,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 12),
@@ -277,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: LinearProgressIndicator(
                           value: (points % 500) / 500,
                           backgroundColor: Colors.grey.shade100,
-                          color: AppTheme.auraRed,
+                          color: AppTheme.arteRed,
                           minHeight: 6,
                         ),
                       ),
@@ -299,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       MaterialPageRoute(builder: (_) => const RankingScreen())),
                   child: const Text("Ver Ranking",
                       style: TextStyle(
-                          color: AppTheme.auraRed,
+                          color: AppTheme.arteRed,
                           fontWeight: FontWeight.bold)),
                 )
               ],
@@ -335,7 +335,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style:
                         TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
                 const Icon(Icons.grid_view_rounded,
-                    color: AppTheme.auraRed, size: 24),
+                    color: AppTheme.arteRed, size: 24),
               ],
             ),
             const SizedBox(height: 16),
@@ -525,7 +525,7 @@ class _PortfolioItem extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(
-                  color: AppTheme.auraRed,
+                  color: AppTheme.arteRed,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.view_in_ar_rounded,

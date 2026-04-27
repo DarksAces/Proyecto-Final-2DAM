@@ -9,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class ArGenerationService {
-  final String _baseUrl = 'https://aura-r3zk.onrender.com';
+  final String _baseUrl = 'https://ARte-r3zk.onrender.com';
   final String _apiKey = 'antigravity_3d_key_2026';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

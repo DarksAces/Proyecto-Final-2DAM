@@ -31,8 +31,6 @@ class MainWrapperState extends State<MainWrapper> {
       case 2:
         return const MapScreen();
       case 3:
-        return const StoreScreen();
-      case 4:
         return const ProfileScreen();
       default:
         return const HomeScreen();
@@ -52,7 +50,7 @@ class MainWrapperState extends State<MainWrapper> {
       extendBody: true, // el cuerpo se extiende detrás del nav bar
       body: Stack(
         fit: StackFit.expand,
-        children: List.generate(5, (index) {
+        children: List.generate(4, (index) {
           final bool visited = _visitedTabs.contains(index);
           final bool active = _currentIndex == index;
           return Offstage(
@@ -61,16 +59,6 @@ class MainWrapperState extends State<MainWrapper> {
           );
         }),
       ),
-      // FAB centrado en la muesca del BottomAppBar
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'map_fab',
-        shape: const CircleBorder(),
-        backgroundColor: AppTheme.auraRed,
-        elevation: 6,
-        onPressed: () => switchTab(2),
-        child: const Icon(Icons.map_rounded, color: Colors.white, size: 28),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {

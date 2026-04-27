@@ -39,7 +39,7 @@ class ArModelViewerScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(color: AppTheme.auraRed),
+                CircularProgressIndicator(color: AppTheme.arteRed),
                 SizedBox(height: 20),
                 Text("Cargando modelo 3D...",
                     style: TextStyle(color: Colors.white54)),
@@ -72,12 +72,12 @@ class ArModelViewerScreen extends StatelessWidget {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: AppTheme.auraRed.withValues(alpha: 0.5)),
+                      color: AppTheme.arteRed.withValues(alpha: 0.5)),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.view_in_ar, color: AppTheme.auraRed, size: 20),
+                    Icon(Icons.view_in_ar, color: AppTheme.arteRed, size: 20),
                     SizedBox(width: 8),
                     Text(
                       "Toca el icono AR para verlo en tu espacio",

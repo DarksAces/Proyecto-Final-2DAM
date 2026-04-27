@@ -20,7 +20,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         title: const Column(
           children: [
             Text("Mi Galería", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text("Aura AR Explorer",
+            Text("ARte Explorer",
                 style: TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
@@ -45,7 +45,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   onPressed: () => setState(() => _selectedType = "Todo"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        _selectedType == "Todo" ? AppTheme.auraRed : null,
+                        _selectedType == "Todo" ? AppTheme.arteRed : null,
                   ),
                   child: const Text("Todo"),
                 ),
@@ -61,7 +61,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     onPressed: () => setState(() => _selectedType = "Video"),
                     style: OutlinedButton.styleFrom(
                       backgroundColor: _selectedType == "Video"
-                          ? AppTheme.auraRed.withAlpha(30)
+                          ? AppTheme.arteRed.withAlpha(30)
                           : null,
                     ),
                     child: const Row(children: [
@@ -92,7 +92,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     },
                     child: const Text("VER MAPA",
                         style: TextStyle(
-                            color: AppTheme.auraRed,
+                            color: AppTheme.arteRed,
                             fontWeight: FontWeight.bold)))
               ],
             ),
@@ -183,7 +183,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text("64%",
                         style: TextStyle(
-                            color: AppTheme.auraRed,
+                            color: AppTheme.arteRed,
                             fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -194,13 +194,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     value: 0.64,
                     minHeight: 15,
                     backgroundColor: Colors.grey.shade300,
-                    color: AppTheme.auraRed,
+                    color: AppTheme.arteRed,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Center(
                     child: Text(
-                        "\"Tus recuerdos AR están a salvo en Aura Cloud\"",
+                        "\"Tus recuerdos AR están a salvo en ARte Cloud\"",
                         style: TextStyle(
                             fontStyle: FontStyle.italic,
                             color: Colors.grey,
@@ -262,7 +262,7 @@ class _GalleryCardState extends State<_GalleryCard> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: const BoxDecoration(
-                    color: AppTheme.auraYellow, shape: BoxShape.circle),
+                    color: AppTheme.arteYellow, shape: BoxShape.circle),
                 child: const Icon(Icons.center_focus_weak, size: 20),
               ),
             ),
@@ -326,11 +326,11 @@ class _GalleryCardState extends State<_GalleryCard> {
                         child: const CircleAvatar(
                             backgroundColor: Colors.white,
                             radius: 25,
-                            child: Icon(Icons.delete, color: AppTheme.auraRed)),
+                            child: Icon(Icons.delete, color: AppTheme.arteRed)),
                       ),
                       const SizedBox(width: 15),
                       const CircleAvatar(
-                          backgroundColor: AppTheme.auraRed,
+                          backgroundColor: AppTheme.arteRed,
                           radius: 25,
                           child: Icon(Icons.share, color: Colors.white)),
                     ],

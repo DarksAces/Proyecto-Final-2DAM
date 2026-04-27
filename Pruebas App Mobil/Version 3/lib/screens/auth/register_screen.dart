@@ -77,13 +77,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                        color: AppTheme.auraYellow,
+                        color: AppTheme.arteYellow,
                         borderRadius: BorderRadius.circular(20)),
                     child: const Text("UNIRSE A LA AVENTURA",
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.auraRed)),
+                            color: AppTheme.arteRed)),
                   )
                 ],
               ),
@@ -102,11 +102,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) =>
                             const Text(
-                          "AuraAR",
+                          "ARte",
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: AppTheme.auraBlue,
+                            color: AppTheme.arteBlue,
                           ),
                         ),
                       ),
@@ -153,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: _inputDecoration(
-                                "creativo@aura.es", Icons.email_outlined),
+                                "creativo@ARte.es", Icons.email_outlined),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu email';
@@ -192,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleRegister,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.auraRed,
+                                backgroundColor: AppTheme.arteRed,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30)),
                                 elevation: 5,
@@ -243,7 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             Colors.red.shade50), // Google placeholder
                         const SizedBox(width: 20),
                         _socialButton(
-                            Icons.facebook, AppTheme.auraBlue), // Facebook
+                            Icons.facebook, AppTheme.arteBlue), // Facebook
                         const SizedBox(width: 20),
                         _socialButton(Icons.apple, Colors.black), // Apple
                       ],
@@ -259,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: const Text(
                             "Inicia sesión",
                             style: TextStyle(
-                              color: AppTheme.auraBlue,
+                              color: AppTheme.arteBlue,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -289,7 +289,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       {bool isPassword = false}) {
     return InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: AppTheme.auraBlue.withValues(alpha: 0.5)),
+        prefixIcon: Icon(icon, color: AppTheme.arteBlue.withValues(alpha: 0.5)),
         suffixIcon: isPassword
             ? const Icon(Icons.remove_red_eye_outlined,
                 color: Colors.grey, size: 20)
@@ -304,7 +304,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: AppTheme.auraBlue, width: 1.5)),
+            borderSide: const BorderSide(color: AppTheme.arteBlue, width: 1.5)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 15));
   }

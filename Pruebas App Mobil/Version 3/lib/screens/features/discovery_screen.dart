@@ -32,21 +32,21 @@ class DiscoveryScreen extends StatelessWidget {
               child: Transform.rotate(
                   angle: -0.2,
                   child: Container(
-                      width: 20, height: 10, color: AppTheme.auraYellow))),
+                      width: 20, height: 10, color: AppTheme.arteYellow))),
           Positioned(
               top: 250,
               left: 40,
               child: Transform.rotate(
                   angle: 0.2,
                   child: Container(
-                      width: 15, height: 25, color: AppTheme.auraBlue))),
+                      width: 15, height: 25, color: AppTheme.arteBlue))),
           Positioned(
               top: 180,
               right: 20,
               child: Transform.rotate(
                   angle: 0.1,
                   child: Container(
-                      width: 25, height: 10, color: AppTheme.auraRed))),
+                      width: 25, height: 10, color: AppTheme.arteRed))),
 
           Column(
             children: [
@@ -61,7 +61,7 @@ class DiscoveryScreen extends StatelessWidget {
                     decoration: const BoxDecoration(
                         color: Colors.white, shape: BoxShape.circle),
                     child: const Icon(Icons.celebration,
-                        color: AppTheme.auraRed, size: 24),
+                        color: AppTheme.arteRed, size: 24),
                   ),
                   const SizedBox(width: 12),
                   const Text("¡DESCUBRIMIENTO!",
@@ -104,7 +104,7 @@ class DiscoveryScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 8),
                         decoration: BoxDecoration(
-                            color: AppTheme.auraYellow,
+                            color: AppTheme.arteYellow,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
@@ -140,7 +140,7 @@ class DiscoveryScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
-                                color: AppTheme.auraYellow,
+                                color: AppTheme.arteYellow,
                                 shape: BoxShape.circle),
                             child: const Icon(Icons.star,
                                 color: Colors.white, size: 14),
@@ -151,7 +151,7 @@ class DiscoveryScreen extends StatelessWidget {
                             TextSpan(
                                 text: "+50 ",
                                 style: TextStyle(
-                                    color: AppTheme.auraRed,
+                                    color: AppTheme.arteRed,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900)),
                             TextSpan(
@@ -195,7 +195,7 @@ class DiscoveryScreen extends StatelessWidget {
                 children: [
                   const Text("¡Felicidades!",
                       style: TextStyle(
-                          color: AppTheme.auraRed,
+                          color: AppTheme.arteRed,
                           fontSize: 32,
                           fontWeight: FontWeight.w900)),
                   const SizedBox(height: 16),
@@ -232,7 +232,7 @@ class DiscoveryScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               fontSize: 16)),
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.auraRed,
+                          backgroundColor: AppTheme.arteRed,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -269,15 +269,15 @@ class DiscoveryScreen extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.map_outlined,
-                          color: AppTheme.auraRed),
+                          color: AppTheme.arteRed),
                       label: const Text("Volver al Mapa",
                           style: TextStyle(
-                              color: AppTheme.auraRed,
+                              color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                               fontSize: 16)),
                       style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                              color: AppTheme.auraRed, width: 2),
+                              color: AppTheme.arteRed, width: 2),
                           backgroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -295,7 +295,7 @@ class DiscoveryScreen extends StatelessWidget {
                             height: 1, width: 40, color: Colors.grey.shade300),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text("AURA AR EXPLORER",
+                          child: Text("ARte EXPLORER",
                               style: TextStyle(
                                   color: Colors.grey.shade400,
                                   fontWeight: FontWeight.bold,

@@ -80,7 +80,7 @@ class SimulationService {
 
   // Fake post contents
   final List<String> _postContents = [
-    '¡Acabo de dejar una escultura increíble en el parque central! 🌳✨ #AuraAR',
+    '¡Acabo de dejar una escultura increíble en el parque central! 🌳✨ #ARte',
     'Creando nuevos filtros para el concurso de esta semana. ¿Qué opinan? 🤔',
     '¡Encontré un easter egg oculto en el mapa! 🥚🗺️',
     'Mi galería está creciendo. ¡Gracias por el apoyo! ❤️',
@@ -120,16 +120,6 @@ class SimulationService {
         await _seedDemoContent();
       }
 
-      // Check 'products' - Seed if empty or few products (ensuring our new Aura list is there)
-      final prodSnapshot = await _firestore
-          .collection('products')
-          .limit(10)
-          .get();
-      if (prodSnapshot.docs.length < 5) {
-        debugPrint('🤖 Simulation: Seeding shop products (Aura Catalog)...');
-        await _seedProducts();
-      }
-
       // Check 'users'
       final usersSnapshot = await _firestore.collection('users').limit(1).get();
       if (usersSnapshot.docs.isEmpty) {
@@ -165,7 +155,6 @@ class SimulationService {
     }
 
     // Scan sitios (posts)
-    // Scan sitios (posts)
     debugPrint('🧹 Simulation: Thorough cleanup of problematic content...');
     final terms = ['chocpo', 'sexu', 'chico sexu', 'chico'];
     final collections = [
@@ -173,7 +162,6 @@ class SimulationService {
       'sitios',
       'contest_entries',
       'notifications',
-      'products',
     ];
 
     for (var colName in collections) {
@@ -235,7 +223,7 @@ class SimulationService {
         'userAvatarColor': 0xFF2196F3,
         'userDegree': '2º',
         'content':
-            'Encontré un portal interdimensional en el museo. 🌌🌀 #AuraAR #Mystery',
+            'Encontré un portal interdimensional en el museo. 🌌🌀 #ARte #Mystery',
         'imageUrl':
             'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000&auto=format&fit=crop',
         'isVideo': false,
@@ -318,119 +306,7 @@ class SimulationService {
     }
   }
 
-  Future<void> _seedProducts() async {
-    final List<Map<String, dynamic>> products = [
-      {
-        'title': 'Plastilina Aura - Pack 10 Pastillas Surtidas (50g)',
-        'rating': 4.9,
-        'reviews': 3200,
-        'price': '5,45€',
-        'oldPrice': '8,50€',
-        'discount': '-36%',
-        'tag': 'TOP VENTAS',
-        'subTag': 'MEJOR VALORADO',
-        'imageUrl':
-            'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800&auto=format&fit=crop',
-        'isRedButton': true,
-        'category': 'Plastilina',
-        'description':
-            'Plastilina vegetal de gran plasticidad. No endurece al aire, es reutilizable y muy fácil de moldear. Ideal para el desarrollo de la motricidad fina.',
-      },
-      {
-        'title': 'Pintura de Dedos Aura - Pack 5 Botes Fluorescentes',
-        'rating': 4.7,
-        'reviews': 1200,
-        'price': '12,99€',
-        'oldPrice': '18,50€',
-        'discount': '-30%',
-        'tag': 'OFERTA',
-        'subTag': 'AR READY',
-        'imageUrl':
-            'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=800&auto=format&fit=crop',
-        'isRedButton': true,
-        'category': 'Pintura',
-        'description':
-            'Pintura de dedos ideal para los más pequeños. Colores vivos y mezclables. Se lava fácilmente de manos y ropa.',
-      },
-      {
-        'title': 'Témpera Líquida Aura - Set 6 Botellas Brillantes',
-        'rating': 4.8,
-        'reviews': 850,
-        'price': '8,90€',
-        'oldPrice': '12,00€',
-        'discount': '-25%',
-        'tag': 'NUEVO',
-        'subTag': 'CREATIVITY KIT',
-        'imageUrl':
-            'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800&auto=format&fit=crop', // Reuse or use specific
-        'isRedButton': false,
-        'category': 'Pintura',
-        'description':
-            'Témpera lista para usar. Gran cobertura y secado rápido. Perfecta para papel, cartón, madera y tela.',
-      },
-      {
-        'title': 'Pasta de Modelar Aura Air Dry - Blanco 1kg',
-        'rating': 5.0,
-        'reviews': 2100,
-        'price': '4,20€',
-        'oldPrice': '6,50€',
-        'discount': '-35%',
-        'tag': 'IMPULSO',
-        'subTag': 'SECADO AL AIRE',
-        'imageUrl':
-            'https://images.unsplash.com/photo-1560421683-6856ea585c78?q=80&w=800&auto=format&fit=crop',
-        'isRedButton': true,
-        'category': 'Plastilina',
-        'description':
-            'Pasta de modelar que se endurece al aire sin necesidad de cocción. Tacto fresco y agradable. Una vez seca se puede pintar.',
-      },
-      {
-        'title': 'Ceras Oso Aura - 12 Colores Triangulares',
-        'rating': 4.6,
-        'reviews': 450,
-        'price': '3,75€',
-        'oldPrice': '5,00€',
-        'discount': '-25%',
-        'tag': null,
-        'subTag': 'ERGO DESIGN',
-        'imageUrl':
-            'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800&auto=format&fit=crop',
-        'isRedButton': true,
-        'category': 'Ceras',
-        'description':
-            'Ceras de colores con forma de oso, diseñadas para las manos más pequeñas. Colores intensos y resistentes.',
-      },
-      {
-        'title': 'Acuarelas Aura - Estuche 24 Pastillas con Pincel',
-        'rating': 4.9,
-        'reviews': 980,
-        'price': '7,50€',
-        'oldPrice': '10,95€',
-        'discount': '-31%',
-        'tag': 'RECOMENDADO',
-        'subTag': 'PREMIUM',
-        'imageUrl':
-            'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=800&auto=format&fit=crop',
-        'isRedButton': false,
-        'category': 'Pintura',
-        'description':
-            'Acuarelas de alta calidad con gran concentración de pigmento. Incluye pincel sintético de gran suavidad.',
-      },
-    ];
 
-    // Clean existing products first to ensure fresh demo data
-    final existing = await _firestore.collection('products').get();
-    for (var doc in existing.docs) {
-      await doc.reference.delete();
-    }
-
-    for (var product in products) {
-      await _firestore.collection('products').add({
-        ...product,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-    }
-  }
 
   Future<void> _createBotUser(Map<String, dynamic> userData) async {
     await _firestore.collection('users').add({

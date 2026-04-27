@@ -78,11 +78,11 @@ class NearbySitesBar extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppTheme.auraRed.withValues(alpha: 0.1),
+                        color: AppTheme.arteRed.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.explore_rounded,
-                          size: 14, color: AppTheme.auraRed),
+                          size: 14, color: AppTheme.arteRed),
                     ),
                     const SizedBox(width: 8),
                     const Text(
@@ -224,14 +224,14 @@ class _NearbyCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.auraRed.withValues(alpha: 0.08),
+                          color: AppTheme.arteRed.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           formatDist(distance!),
                           style: const TextStyle(
                             fontSize: 10,
-                            color: AppTheme.auraRed,
+                            color: AppTheme.arteRed,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -254,13 +254,13 @@ class _NearbyCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.auraRed.withValues(alpha: 0.1),
-            AppTheme.auraRed.withValues(alpha: 0.05)
+            AppTheme.arteRed.withValues(alpha: 0.1),
+            AppTheme.arteRed.withValues(alpha: 0.05)
           ],
         ),
       ),
       child: const Icon(Icons.image_not_supported_rounded,
-          color: AppTheme.auraRed, size: 24),
+          color: AppTheme.arteRed, size: 24),
     );
   }
 }

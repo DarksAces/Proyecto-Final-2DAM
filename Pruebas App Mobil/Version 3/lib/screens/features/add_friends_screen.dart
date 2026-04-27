@@ -57,7 +57,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.qr_code_scanner, color: AppTheme.auraRed),
+            icon: const Icon(Icons.qr_code_scanner, color: AppTheme.arteRed),
           ),
         ],
       ),
@@ -292,7 +292,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                   ],
                 ),
                 Text(
-                  user['bio'] ?? user['level'] ?? "Explorador en Aura AR",
+                  user['bio'] ?? user['level'] ?? "Explorador en ARte",
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
