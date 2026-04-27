@@ -22,6 +22,12 @@ class ArModelViewerScreen extends StatelessWidget {
     final String source =
         modelFile != null ? 'file://${modelFile!.path}' : modelUrl!;
 
+    print("DEBUG: ModelViewer loading source: $source");
+    if (modelFile != null) {
+      print("DEBUG: File exists: ${modelFile!.existsSync()}");
+      print("DEBUG: File size: ${modelFile!.lengthSync()} bytes");
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
