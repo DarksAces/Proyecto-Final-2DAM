@@ -4,7 +4,7 @@ import '../widgets/custom_bottom_nav.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/features/feed_social_screen.dart';
 import 'map/map_screen.dart';
-import '../screens/features/store_screen.dart';
+
 import '../screens/features/profile_screen.dart';
 
 class MainWrapper extends StatefulWidget {
