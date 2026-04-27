@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_theme.dart';
 import '../../services/ar_generation_service.dart';
+import 'ar_model_viewer_screen.dart';
 
 class ArGenerationScreen extends StatefulWidget {
   const ArGenerationScreen({super.key});
@@ -34,22 +36,52 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
   Future<void> _generate3D() async {
     if (_selectedImage == null) return;
 
+    // 1. Check if user is logged in
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        _statusMessage = "Debes iniciar sesión para generar modelos AR.";
+      });
+      return;
+    }
+
+    // 2. Check if user can generate more
+    final canMore = await _arService.canGenerateMore();
+    if (!canMore) {
+      if (mounted) {
+        _showLimitDialog();
+      }
+      return;
+    }
+
     setState(() {
       _isGenerating = true;
       _statusMessage =
-          "Despertando servidor y procesando... (puede tardar 50s+)";
+          "Generando 3D y sincronizando con la nube... (50s+)";
       _showSuccess = false;
     });
 
     try {
-      final result = await _arService.generate3DModel(_selectedImage!);
+      // 3. Generate and Sync to Firebase
+      final localFile = await _arService.generateAndUpload3DModel(_selectedImage!);
 
       if (mounted) {
-        if (result != null) {
+        if (localFile != null) {
           setState(() {
             _showSuccess = true;
-            _statusMessage = "¡Modelo 3D generado con éxito!";
+            _statusMessage = "¡Modelo 3D generado y guardado!";
           });
+
+          // 4. Navigate to Viewer
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ArModelViewerScreen(
+                modelFile: localFile,
+                title: "Modelo AR Generado",
+              ),
+            ),
+          );
         } else {
           setState(() {
             _statusMessage =
@@ -60,7 +92,7 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _statusMessage = "Error de conexión: $e";
+          _statusMessage = "Error: ${e.toString().replaceAll("Exception: ", "")}";
         });
       }
     } finally {
@@ -70,6 +102,28 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
         });
       }
     }
+  }
+
+  void _showLimitDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text("Límite Alcanzado",
+            style: TextStyle(color: Colors.white)),
+        content: const Text(
+          "Has alcanzado el límite de 5 objetos AR generados. Elimina alguno en tu galería para crear más.",
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("ENTENDIDO",
+                style: TextStyle(color: AppTheme.arteRed)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

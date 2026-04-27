@@ -114,44 +114,32 @@ class _ArScannerScreenState extends State<ArScannerScreen>
 
       if (mounted) {
         setState(() {
-          _statusMessage = "Enviando imagen a IA cognitiva... (60s+)";
+          _statusMessage = "Generando 3D y sincronizando con la nube...";
         });
       }
 
-      // 3. Generate and Upload to Firebase
-      final downloadUrl =
+      // 3. Generate and Sync to Firebase
+      final File? localFile =
           await _arService.generateAndUpload3DModel(File(photo.path));
 
-      if (downloadUrl != null) {
+      if (localFile != null) {
         if (mounted) {
-          setState(() {
-            _statusMessage = "Descargando modelo localmente...";
-          });
-        }
-
-        // 4. Download locally for the viewer
-        final fileName = "ar_${DateTime.now().millisecondsSinceEpoch}.glb";
-        final localFile =
-            await _arService.downloadToLocal(downloadUrl, fileName);
-
-        if (mounted && localFile != null) {
           setState(() {
             _showSuccess = true;
             _statusMessage = "¡Listo! Abriendo visor...";
           });
-
-          // 5. Navigate to Viewer (Passing BOTH to be safe)
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ArModelViewerScreen(
-                modelFile: localFile,
-                modelUrl: downloadUrl,
-                title: "Obra AR Generada",
-              ),
-            ),
-          );
         }
+
+        // 4. Navigate to Viewer
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ArModelViewerScreen(
+              modelFile: localFile,
+              title: "Obra AR Generada",
+            ),
+          ),
+        );
       } else {
         if (mounted) {
           setState(() {
