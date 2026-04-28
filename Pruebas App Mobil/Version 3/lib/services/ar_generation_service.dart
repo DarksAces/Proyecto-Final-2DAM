@@ -17,6 +17,27 @@ class ArGenerationService {
 
   String? get currentUserId => _auth.currentUser?.uid;
 
+  /// Saves bytes to a local GLB file.
+  Future<File?> saveBytesLocally(Uint8List bytes, String fileName) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final localPath = path.join(directory.path, 'ar_models');
+
+      final localDir = Directory(localPath);
+      if (!await localDir.exists()) {
+        await localDir.create(recursive: true);
+      }
+
+      final file = File(path.join(localPath, fileName));
+      await file.writeAsBytes(bytes);
+      print("Model saved locally at: ${file.path}");
+      return file;
+    } catch (e) {
+      print("Error saving bytes locally: $e");
+      return null;
+    }
+  }
+
   /// Downloads a GLB file from a URL and saves it locally.
   Future<File?> downloadToLocal(String url, String fileName) async {
     try {
