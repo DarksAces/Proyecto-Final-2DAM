@@ -6,6 +6,7 @@ import 'ranking_screen.dart';
 import 'ar_model_viewer_screen.dart';
 import '../../services/ar_generation_service.dart';
 import 'dart:io';
+import 'connections_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;
@@ -249,8 +250,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStat("SEGUIDORES", "$followers"),
-                      _buildStat("SIGUIENDO", "$following"),
+                      GestureDetector(
+                        onTap: () {
+                          final uid = widget.userId ?? _userService.currentUserId ?? '';
+                          if (uid.isNotEmpty) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => ConnectionsScreen(userId: uid, initialTabIndex: 0)));
+                          }
+                        },
+                        child: _buildStat("SEGUIDORES", "$followers"),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          final uid = widget.userId ?? _userService.currentUserId ?? '';
+                          if (uid.isNotEmpty) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => ConnectionsScreen(userId: uid, initialTabIndex: 1)));
+                          }
+                        },
+                        child: _buildStat("SIGUIENDO", "$following"),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),

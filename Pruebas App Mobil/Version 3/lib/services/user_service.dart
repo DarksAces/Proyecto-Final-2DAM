@@ -239,6 +239,80 @@ class UserService {
     }
   }
 
+  // Get following users details
+  Future<List<Map<String, dynamic>>> getFollowingUsers(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('following')
+          .get();
+      
+      final List<String> followingIds = snapshot.docs.map((doc) => doc.id).toList();
+      if (followingIds.isEmpty) return [];
+
+      final List<Map<String, dynamic>> users = [];
+      // Firestore 'whereIn' limits to 10 elements, so we split in chunks if needed or fetch individually
+      // For simplicity and to avoid limit errors, we'll fetch individually if not many, or use chunks.
+      for (var chunk in _chunkList(followingIds, 10)) {
+        final query = await _firestore
+            .collection('users')
+            .where(FieldPath.documentId, whereIn: chunk)
+            .get();
+        for (var doc in query.docs) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          users.add(data);
+        }
+      }
+      return users;
+    } catch (e) {
+      debugPrint('Error getting following users: $e');
+      return [];
+    }
+  }
+
+  // Get followers users details
+  Future<List<Map<String, dynamic>>> getFollowersUsers(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('followers')
+          .get();
+      
+      final List<String> followerIds = snapshot.docs.map((doc) => doc.id).toList();
+      if (followerIds.isEmpty) return [];
+
+      final List<Map<String, dynamic>> users = [];
+      for (var chunk in _chunkList(followerIds, 10)) {
+        final query = await _firestore
+            .collection('users')
+            .where(FieldPath.documentId, whereIn: chunk)
+            .get();
+        for (var doc in query.docs) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          users.add(data);
+        }
+      }
+      return users;
+    } catch (e) {
+      debugPrint('Error getting followers users: $e');
+      return [];
+    }
+  }
+
+  // Helper for chunking lists
+  List<List<T>> _chunkList<T>(List<T> list, int chunkSize) {
+    List<List<T>> chunks = [];
+    for (var i = 0; i < list.length; i += chunkSize) {
+      int end = (i + chunkSize < list.length) ? i + chunkSize : list.length;
+      chunks.add(list.sublist(i, end));
+    }
+    return chunks;
+  }
+
   // Get user-generated content (sites and AR objects)
   Future<List<Map<String, dynamic>>> getUserContent(String userId) async {
     try {
