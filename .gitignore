@@ -1,4 +1,11 @@
-# --- Visual Studio / C# ---
+# === GLOBAL ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+
+# === VISUAL STUDIO (C#) ===
 .vs/
 [Bb]in/
 [Oo]bj/
@@ -6,39 +13,27 @@
 *.suo
 *.userosscache
 *.sln.docstates
-*.patch
-*.diff
+build.log
+build_*.log
+run_error.log
 
-# --- Flutter / Dart ---
+# === WEB / NODE ===
+node_modules/
+.vscode/
+dist/
+out/
+build/
+
+# === PYTHON ===
+__pycache__/
+.venv/
+venv/
+env/
+*.py[cod]
+
+# === FLUTTER ===
 .dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
 build/
-android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
-
-# --- Web / Node ---
-node_modules/
-.npm
-package-lock.json
-
-# --- Secrets & Config ---
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-secrets.json
-appsettings.Development.json
-appsettings.Local.json
-
-# --- OS ---
-Thumbs.db
-.DS_Store
-*.swp
-*.bak
-*.tmp
-*.log
