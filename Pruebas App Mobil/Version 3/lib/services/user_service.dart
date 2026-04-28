@@ -146,10 +146,10 @@ class UserService {
       );
 
       // Update counts
-      batch.update(_firestore.collection('users').doc(currentUserId!),
-          {'following': FieldValue.increment(1)});
-      batch.update(_firestore.collection('users').doc(targetUserId),
-          {'followers': FieldValue.increment(1)});
+      batch.set(_firestore.collection('users').doc(currentUserId!),
+          {'following': FieldValue.increment(1)}, SetOptions(merge: true));
+      batch.set(_firestore.collection('users').doc(targetUserId),
+          {'followers': FieldValue.increment(1)}, SetOptions(merge: true));
 
       await batch.commit();
       return true;
@@ -176,10 +176,10 @@ class UserService {
           .collection('followers')
           .doc(currentUserId!));
 
-      batch.update(_firestore.collection('users').doc(currentUserId!),
-          {'following': FieldValue.increment(-1)});
-      batch.update(_firestore.collection('users').doc(targetUserId),
-          {'followers': FieldValue.increment(-1)});
+      batch.set(_firestore.collection('users').doc(currentUserId!),
+          {'following': FieldValue.increment(-1)}, SetOptions(merge: true));
+      batch.set(_firestore.collection('users').doc(targetUserId),
+          {'followers': FieldValue.increment(-1)}, SetOptions(merge: true));
 
       await batch.commit();
       return true;

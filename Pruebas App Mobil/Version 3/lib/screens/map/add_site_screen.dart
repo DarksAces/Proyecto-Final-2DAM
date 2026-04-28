@@ -159,9 +159,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
 
       // Subir imagen si la hay
       if (_imageFile != null) {
-        final storage = FirebaseStorage.instanceFor(
-          bucket: 'gs://ARte-45c79.firebasestorage.app',
-        );
+        final storage = FirebaseStorage.instance;
         final ref = storage.ref().child(
           'stop_photos/${user!.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg',
         );
