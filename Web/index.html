@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARte | Captura el Mundo en 3D</title>
+    <meta name="description" content="ARte: Sistema avanzado de captura y visualización 3D mediante Realidad Aumentada.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="background-glow"></div>
+        
+        <nav>
+            <div class="logo">AR<span>te</span></div>
+            <div class="nav-links">
+                <a href="#features">Características</a>
+                <a href="#about">Proyecto</a>
+                <a href="#" class="btn-primary">Descargar App</a>
+            </div>
+        </nav>
+
+        <main>
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="reveal-text">Transforma la Realidad en <span>Arte Digital</span></h1>
+                    <p class="hero-subtitle">Captura objetos físicos con tu móvil y conviértelos en modelos 3D listos para Realidad Aumentada. El puente entre lo físico y lo digital.</p>
+                    <div class="hero-actions">
+                        <button class="btn-main">Empezar Ahora</button>
+                        <button class="btn-secondary">Ver Galería</button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="floating-cube">
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="glow-effect"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="features">
+                <div class="section-header">
+                    <h2>Tecnología de Vanguardia</h2>
+                    <p>Potenciado por algoritmos de visión por computador y procesamiento en la nube.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="icon">📱</div>
+                        <h3>Captura Móvil</h3>
+                        <p>Usa la app de Flutter para tomar ráfagas de fotos optimizadas para reconstrucción 3D.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">⚙️</div>
+                        <h3>Procesamiento Cloud</h3>
+                        <p>Nuestro backend en Python procesa tus imágenes para generar mallas geométricas precisas.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🕶️</div>
+                        <h3>Visualización AR</h3>
+                        <p>Interactúa con tus modelos en el mundo real gracias a la Realidad Aumentada integrada.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 ARte Project - 2º DAM. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
