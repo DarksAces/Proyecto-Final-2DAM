@@ -120,20 +120,42 @@ nav {
 }
 
 .model-card {
-  background: var(--glass);
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent);
+  background-color: var(--glass);
   border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  border-radius: 30px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  height: 450px;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  height: 500px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .model-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-15px) scale(1.02);
   border-color: var(--accent-primary);
-  box-shadow: 0 15px 40px rgba(0, 242, 255, 0.15);
+  box-shadow: 0 30px 60px rgba(0, 242, 255, 0.2);
+}
+
+.ar-button {
+  background: white;
+  border-radius: 10px;
+  border: none;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  font-family: var(--font-main);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.ar-button:hover {
+  background: var(--accent-primary);
+  color: white;
 }
 
 model-viewer {

@@ -54,12 +54,19 @@ function createModelCard(name, url) {
             ar-modes="webxr scene-viewer quick-look" 
             camera-controls 
             touch-action="pan-y" 
-            shadow-intensity="1" 
-            auto-rotate>
+            shadow-intensity="2" 
+            shadow-softness="1"
+            exposure="1"
+            environment-image="neutral"
+            auto-rotate 
+            rotation-speed="20deg"
+            interpolation-decay="200"
+            alt="Modelo 3D de ${name}">
+            <button slot="ar-button" class="ar-button">Ver en tu espacio (AR)</button>
         </model-viewer>
         <div class="model-info">
             <h3>${name.replace('.glb', '')}</h3>
-            <p>Formato: GLB | Listo para AR</p>
+            <p>Toque inmersivo | Calidad HD</p>
         </div>
     `;
     container.appendChild(card);
