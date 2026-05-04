@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 // CONFIGURACIÓN DE FIREBASE (Vía Variables de Entorno)
 const firebaseConfig = {
@@ -13,30 +13,31 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
+const db = getFirestore(app);
 
 async function loadModels() {
     const container = document.getElementById('models-container');
     
     try {
-        // Carpeta donde están los .glb en Firebase Storage
-        const listRef = ref(storage, 'models/');
-        const res = await listAll(listRef);
+        // Obtenemos los documentos de la colección "ar_objects"
+        const querySnapshot = await getDocs(collection(db, "ar_objects"));
 
-        if (res.items.length === 0) {
-            container.innerHTML = '<div class="loading-state">No hay modelos en la carpeta "models/" de Firebase.</div>';
+        if (querySnapshot.empty) {
+            container.innerHTML = '<div class="loading-state">No se encontraron objetos en la colección "ar_objects".</div>';
             return;
         }
 
         container.innerHTML = ''; // Limpiar cargando
 
-        for (const itemRef of res.items) {
-            const url = await getDownloadURL(itemRef);
-            createModelCard(itemRef.name, url);
-        }
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Usamos el campo 'url' y 'name' que vemos en tu captura de Firebase
+            if (data.url && data.type === 'glb') {
+                createModelCard(data.name || "Objeto sin nombre", data.url);
+            }
+        });
     } catch (error) {
-        console.error("Error cargando modelos de Firebase:", error);
-        // MODO DEMO si falla Firebase (para que veas cómo queda)
+        console.error("Error cargando modelos de Firestore:", error);
         showDemoModels();
     }
 }
