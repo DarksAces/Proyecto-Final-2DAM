@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
-// CONFIGURACIÓN DE FIREBASE (Vía Variables de Entorno)
+// CONFIGURACIÓN DE FIREBASE
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -11,82 +11,83 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+let allModels = [];
+
 async function loadModels() {
-    const container = document.getElementById('models-container');
+    const container = document.getElementById('thumbnails-container');
     
     try {
-        // Obtenemos los documentos de la colección "ar_objects"
         const querySnapshot = await getDocs(collection(db, "ar_objects"));
 
         if (querySnapshot.empty) {
-            container.innerHTML = '<div class="loading-state">No se encontraron objetos en la colección "ar_objects".</div>';
+            container.innerHTML = '<div class="loading-state">No hay modelos disponibles.</div>';
             return;
         }
 
-        container.innerHTML = ''; // Limpiar cargando
+        container.innerHTML = ''; 
+        allModels = [];
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Usamos el campo 'url' y 'name' que vemos en tu captura de Firebase
             if (data.url && data.type === 'glb') {
-                createModelCard(data.name || "Objeto sin nombre", data.url);
+                allModels.push({
+                    id: doc.id,
+                    name: data.name || "Objeto 3D",
+                    url: data.url
+                });
             }
         });
+
+        // Crear miniaturas
+        allModels.forEach((model, index) => {
+            const thumb = createThumbnail(model, index);
+            container.appendChild(thumb);
+        });
+
+        // Cargar el primer modelo por defecto
+        if (allModels.length > 0) {
+            selectModel(0);
+        }
+
     } catch (error) {
-        console.error("Error cargando modelos de Firestore:", error);
-        showDemoModels();
+        console.error("Error:", error);
+        container.innerHTML = '<div class="loading-state">Error al conectar con la colección.</div>';
     }
 }
 
-function createModelCard(name, url) {
-    const container = document.getElementById('models-container');
-    const card = document.createElement('div');
-    card.className = 'model-card';
-    
-    card.innerHTML = `
-        <model-viewer 
-            src="${url}" 
-            ar 
-            ar-modes="webxr scene-viewer quick-look" 
-            camera-controls 
-            touch-action="pan-y" 
-            shadow-intensity="2" 
-            shadow-softness="1"
-            exposure="1"
-            environment-image="neutral"
-            auto-rotate 
-            rotation-speed="20deg"
-            interpolation-decay="200"
-            alt="Modelo 3D de ${name}">
-            <button slot="ar-button" class="ar-button">Ver en tu espacio (AR)</button>
-        </model-viewer>
-        <div class="model-info">
-            <h3>${name.replace('.glb', '')}</h3>
-            <p>Toque inmersivo | Calidad HD</p>
-        </div>
+function createThumbnail(model, index) {
+    const div = document.createElement('div');
+    div.className = 'thumb-card';
+    div.id = `thumb-${index}`;
+    div.innerHTML = `
+        <div class="thumb-icon">📦</div>
+        <span>${model.name.replace('.glb', '')}</span>
     `;
-    container.appendChild(card);
+    div.onclick = () => selectModel(index);
+    return div;
 }
 
-function showDemoModels() {
-    const container = document.getElementById('models-container');
-    container.innerHTML = `
-        <div class="loading-state" style="animation: none; margin-bottom: 2rem; grid-column: 1/-1;">
-            Mostrando ejemplos (Configura Firebase en main.js para ver tus propios archivos)
-        </div>
-    `;
-    
-    // Modelos de ejemplo de Google para probar el visor
-    const demos = [
-        { name: "Astronauta", url: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-        { name: "Caja de Prueba", url: "https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb" }
-    ];
+function selectModel(index) {
+    const model = allModels[index];
+    const viewer = document.getElementById('main-viewer');
+    const nameOverlay = document.getElementById('model-name-overlay');
 
-    demos.forEach(d => createModelCard(d.name, d.url));
+    // Actualizar Visor
+    viewer.src = model.url;
+    nameOverlay.innerText = model.name.replace('.glb', '');
+
+    // Actualizar clase activa en miniaturas
+    document.querySelectorAll('.thumb-card').forEach(card => card.classList.remove('active'));
+    document.getElementById(`thumb-${index}`).classList.add('active');
+
+    // Efecto de entrada suave
+    viewer.style.opacity = '0';
+    setTimeout(() => {
+        viewer.style.opacity = '1';
+    }, 50);
 }
 
 document.addEventListener('DOMContentLoaded', loadModels);

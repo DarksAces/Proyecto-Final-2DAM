@@ -24,16 +24,42 @@
             </div>
         </nav>
 
-        <main>
-            <section class="hero-simple">
-                <h1>Tu Galería de <span>Objetos 3D</span></h1>
-                <p>Visualiza y explora tus capturas en tiempo real.</p>
+        <main class="immersive-layout">
+            <!-- Escenario Principal -->
+            <section class="viewer-stage">
+                <div class="stage-container">
+                    <model-viewer 
+                        id="main-viewer"
+                        src="" 
+                        ar 
+                        ar-modes="webxr scene-viewer quick-look" 
+                        camera-controls 
+                        touch-action="pan-y" 
+                        shadow-intensity="2" 
+                        shadow-softness="1"
+                        exposure="1.2"
+                        environment-image="neutral"
+                        auto-rotate 
+                        rotation-speed="10deg"
+                        interpolation-decay="200"
+                        interaction-prompt="auto">
+                        
+                        <div id="model-name-overlay" class="model-name-tag">Selecciona un objeto</div>
+                        
+                        <button slot="ar-button" class="ar-button-main">
+                            <span>🕶️ Ver en Realidad Aumentada</span>
+                        </button>
+                    </model-viewer>
+                </div>
             </section>
 
-            <section id="gallery" class="gallery-section">
-                <div id="models-container" class="models-grid">
-                    <!-- Los modelos se cargarán aquí dinámicamente -->
-                    <div class="loading-state">Conectando con Firebase...</div>
+            <!-- Galería Inferior (Selector) -->
+            <section class="selection-gallery">
+                <div class="gallery-header">
+                    <h2>Colección 3D <span>ARte</span></h2>
+                </div>
+                <div id="thumbnails-container" class="thumbnails-scroll">
+                    <div class="loading-state">Cargando colección...</div>
                 </div>
             </section>
         </main>
