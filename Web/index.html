@@ -27,6 +27,9 @@
         <main class="immersive-layout">
             <!-- Escenario Principal -->
             <section class="viewer-stage">
+                <!-- Botón Izquierda -->
+                <button id="prev-btn" class="nav-arrow left">❮</button>
+                
                 <div class="stage-container">
                     <model-viewer 
                         id="main-viewer"
@@ -36,21 +39,23 @@
                         camera-controls 
                         touch-action="pan-y" 
                         shadow-intensity="2" 
-                        shadow-softness="1"
                         exposure="1.2"
                         environment-image="neutral"
                         auto-rotate 
                         rotation-speed="10deg"
-                        interpolation-decay="200"
                         interaction-prompt="auto">
                         
-                        <div id="model-name-overlay" class="model-name-tag">Selecciona un objeto</div>
+                        <div id="model-name-overlay" class="model-name-tag">Cargando...</div>
                         
-                        <button slot="ar-button" class="ar-button-main">
-                            <span>🕶️ Ver en Realidad Aumentada</span>
-                        </button>
+                        <div class="stage-controls">
+                            <button id="fullscreen-btn" class="control-btn">⛶ Pantalla Completa</button>
+                            <button slot="ar-button" class="ar-button-stage">🕶️ Ver en AR</button>
+                        </div>
                     </model-viewer>
                 </div>
+
+                <!-- Botón Derecha -->
+                <button id="next-btn" class="nav-arrow right">❯</button>
             </section>
 
             <!-- Galería Inferior (Selector) -->
