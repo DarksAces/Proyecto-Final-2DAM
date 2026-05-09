@@ -91,8 +91,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       await FirebaseFirestore.instance.collection('sitios').add({
         'userId': user.uid,
         'username': _userData?['displayName'] ?? 'Usuario',
+<<<<<<< HEAD
+=======
         'userTitle': 'Creator',
         'userAvatarColor': 0xFFE30613,
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         'content': content,
         'imageUrl': _selectedImage, // Use selected or work image
         'videoUrl': _selectedVideo,
@@ -100,11 +103,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'latitude': 40.4168,
         'longitude': -3.7038,
         'status': 'pending_review',
+<<<<<<< HEAD
+        'referenceWorkId': _selectedWorkId,
+=======
         'badge': _selectedWorkId != null ? 'WORK UPDATE' : 'NEW',
         'referenceWorkId': _selectedWorkId,
         'likes': 0,
         'comments': 0,
         'shares': 0,
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
         'timestamp': FieldValue.serverTimestamp(),
       });
 
@@ -113,7 +120,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Publicado con éxito! 🎉'),
-            backgroundColor: AppTheme.joviRed,
+            backgroundColor: AppTheme.arteRed,
           ),
         );
       }
@@ -145,7 +152,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _submitPost,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.joviRed,
+                backgroundColor: AppTheme.arteRed,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -180,12 +187,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       CircleAvatar(
                         radius: 24,
                         backgroundColor:
-                            AppTheme.joviRed.withValues(alpha: 0.1),
+                            AppTheme.arteRed.withValues(alpha: 0.1),
                         backgroundImage: _userData?['avatarUrl'] != null
                             ? NetworkImage(_userData!['avatarUrl'])
                             : null,
                         child: _userData?['avatarUrl'] == null
-                            ? const Icon(Icons.person, color: AppTheme.joviRed)
+                            ? const Icon(Icons.person, color: AppTheme.arteRed)
                             : null,
                       ),
                       const SizedBox(width: 16),
@@ -241,7 +248,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Chip(
                         avatar: const Icon(Icons.location_on,
-                            size: 16, color: AppTheme.joviRed),
+                            size: 16, color: AppTheme.arteRed),
                         label: Text(_selectedLocation!),
                         onDeleted: () =>
                             setState(() => _selectedLocation = null),
@@ -301,7 +308,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   border: isSelected
                                       ? Border.all(
-                                          color: AppTheme.joviRed, width: 3)
+                                          color: AppTheme.arteRed, width: 3)
                                       : null,
                                   image: DecorationImage(
                                     image: NetworkImage(imageUrl),
@@ -311,7 +318,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 child: isSelected
                                     ? Container(
                                         decoration: BoxDecoration(
-                                          color: AppTheme.joviRed
+                                          color: AppTheme.arteRed
                                               .withValues(alpha: 0.3),
                                           borderRadius:
                                               BorderRadius.circular(9),
@@ -343,19 +350,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 _ActionButton(
                   icon:
                       _selectedImage != null ? Icons.photo : Icons.photo_camera,
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   onTap: _pickImage,
                   isActive: _selectedImage != null,
                 ),
                 _ActionButton(
                   icon: Icons.videocam,
-                  color: AppTheme.joviBlue,
+                  color: AppTheme.arteBlue,
                   onTap: _pickVideo,
                   isActive: _selectedVideo != null,
                 ),
                 _ActionButton(
                   icon: Icons.event,
-                  color: AppTheme.joviYellow,
+                  color: AppTheme.arteYellow,
                   onTap: () {},
                 ),
                 _ActionButton(

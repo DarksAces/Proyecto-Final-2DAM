@@ -40,7 +40,7 @@ class _RankingScreenState extends State<RankingScreen> {
       "points": "24.150 pts",
       "tag": "MAESTRO TÉMPERAS",
       "imageUrl": "https://i.pravatar.cc/150?img=3",
-      "ringColor": AppTheme.joviYellow,
+      "ringColor": AppTheme.arteYellow,
       "size": 100.0
     },
     {
@@ -68,7 +68,7 @@ class _RankingScreenState extends State<RankingScreen> {
     },
     {
       "rank": 5,
-      "name": "JoviFan99",
+      "name": "ARteFan99",
       "subtext": "Iniciado",
       "points": "11.200",
       "imageUrl": "https://i.pravatar.cc/150?img=12"
@@ -96,7 +96,7 @@ class _RankingScreenState extends State<RankingScreen> {
       "points": "5.150 pts",
       "tag": "CLASE 5A",
       "imageUrl": "https://i.pravatar.cc/150?img=33",
-      "ringColor": AppTheme.joviYellow,
+      "ringColor": AppTheme.arteYellow,
       "size": 100.0
     },
     {
@@ -157,7 +157,7 @@ class _RankingScreenState extends State<RankingScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.joviRed.withAlpha(30),
+                  AppTheme.arteRed.withAlpha(30),
                   AppTheme.backgroundWhite,
                 ],
               ),
@@ -306,11 +306,11 @@ class _RankingScreenState extends State<RankingScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.joviRed.withAlpha(100),
+                      color: AppTheme.arteRed.withAlpha(100),
                       blurRadius: 20,
                       offset: const Offset(0, 5),
                     )
@@ -423,7 +423,7 @@ class _TabButton extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? AppTheme.joviRed : Colors.grey,
+          color: isSelected ? AppTheme.arteRed : Colors.grey,
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
@@ -503,7 +503,7 @@ class _PodiumItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(points,
             style: const TextStyle(
-                color: AppTheme.joviRed,
+                color: AppTheme.arteRed,
                 fontWeight: FontWeight.w900,
                 fontSize: 14)),
         if (tag != null) ...[
@@ -591,7 +591,7 @@ class _RankingListItem extends StatelessWidget {
             children: [
               Text(points,
                   style: const TextStyle(
-                      color: AppTheme.joviBlue,
+                      color: AppTheme.arteBlue,
                       fontWeight: FontWeight.w900,
                       fontSize: 16)),
               Text("PUNTOS",

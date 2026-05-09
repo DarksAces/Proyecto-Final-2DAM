@@ -7,7 +7,10 @@ import '../features/notifications_screen.dart';
 import '../features/gallery_screen.dart';
 import '../features/ar_scanner_screen.dart';
 import '../main_wrapper.dart';
+<<<<<<< HEAD
+=======
 import '../../services/simulation_service.dart';
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -43,7 +46,7 @@ class HomeScreen extends StatelessWidget {
                         const Text(
                           "Mundo AR Creativo",
                           style: TextStyle(
-                              color: AppTheme.joviRed,
+                              color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.0),
                         ),
@@ -69,7 +72,7 @@ class HomeScreen extends StatelessWidget {
                                   blurRadius: 10)
                             ]),
                         child: const Icon(Icons.notifications,
-                            color: AppTheme.joviRed),
+                            color: AppTheme.arteRed),
                       ),
                     )
                   ],
@@ -85,7 +88,7 @@ class HomeScreen extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                             content: Text("Buscando: $value..."),
-                            backgroundColor: AppTheme.joviBlue),
+                            backgroundColor: AppTheme.arteBlue),
                       );
                     }
                   },
@@ -93,13 +96,13 @@ class HomeScreen extends StatelessWidget {
                     hintText: "¿Qué vamos a descubrir hoy?",
                     hintStyle: TextStyle(color: Colors.grey.shade500),
                     prefixIcon:
-                        const Icon(Icons.search, color: AppTheme.joviRed),
+                        const Icon(Icons.search, color: AppTheme.arteRed),
                     suffixIcon: GestureDetector(
                       onTap: () => _showFilters(context),
                       child: Container(
                         margin: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
-                            color: AppTheme.joviRed, shape: BoxShape.circle),
+                            color: AppTheme.arteRed, shape: BoxShape.circle),
                         child: const Icon(Icons.tune,
                             color: Colors.white, size: 20),
                       ),
@@ -117,7 +120,7 @@ class HomeScreen extends StatelessWidget {
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                         borderSide: const BorderSide(
-                            color: AppTheme.joviRed, width: 1)),
+                            color: AppTheme.arteRed, width: 1)),
                   ),
                 ),
 
@@ -141,16 +144,25 @@ class HomeScreen extends StatelessWidget {
                     childAspectRatio: 0.9,
                     children: const [
                       _DashboardItem(
+<<<<<<< HEAD
+                          icon: Icons.map,
+                          color: AppTheme.arteBlue,
+                          label: "Mapa"),
+=======
+<<<<<<< HEAD
+=======
                           icon: Icons.store,
                           color: AppTheme.joviBlue,
                           label: "Tienda Jovi"),
+>>>>>>> origin/main
                       _DashboardItem(
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                           icon: Icons.emoji_events,
-                          color: AppTheme.joviYellow,
+                          color: AppTheme.arteYellow,
                           label: "Concurso"),
                       _DashboardItem(
                           icon: Icons.qr_code_scanner,
-                          color: AppTheme.joviRed,
+                          color: AppTheme.arteRed,
                           label: "Escanear AR"),
                       _DashboardItem(
                           icon: Icons.public,
@@ -183,7 +195,7 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.joviRed.withValues(alpha: 0.3),
+                          color: AppTheme.arteRed.withValues(alpha: 0.3),
                           blurRadius: 15,
                           offset: const Offset(0, 10),
                         )
@@ -222,7 +234,7 @@ class HomeScreen extends StatelessWidget {
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
-                              foregroundColor: AppTheme.joviRed,
+                              foregroundColor: AppTheme.arteRed,
                               textStyle:
                                   const TextStyle(fontWeight: FontWeight.w900)),
                           child: const Text("EMPEZAR"))
@@ -334,7 +346,7 @@ class HomeScreen extends StatelessWidget {
                     min: 1,
                     max: 50,
                     divisions: 10,
-                    activeColor: AppTheme.joviRed,
+                    activeColor: AppTheme.arteRed,
                     inactiveColor: Colors.grey.shade200,
                     label: "${searchDistance.round()} km",
                     onChanged: (val) {
@@ -362,14 +374,19 @@ class HomeScreen extends StatelessWidget {
                         mainWrapper.switchTab(2); // Switch to Map
                       }
 
+<<<<<<< HEAD
+                      // Trigger search event (simulation disabled)
+                      // SimulationService().triggerSearch(selectedCategory);
+=======
                       // Trigger search event
                       SimulationService().triggerSearch(selectedCategory);
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.joviRed,
+                        backgroundColor: AppTheme.arteRed,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         elevation: 5,
-                        shadowColor: AppTheme.joviRed.withValues(alpha: 0.4),
+                        shadowColor: AppTheme.arteRed.withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16))),
                     child: const Text("APLICAR FILTROS",
@@ -402,10 +419,10 @@ class _FilterChip extends StatelessWidget {
       label: Text(label),
       selected: isSelected,
       onSelected: onSelected,
-      selectedColor: AppTheme.joviRed.withValues(alpha: 0.1),
+      selectedColor: AppTheme.arteRed.withValues(alpha: 0.1),
       backgroundColor: Colors.grey.shade50,
       labelStyle: TextStyle(
-          color: isSelected ? AppTheme.joviRed : Colors.black87,
+          color: isSelected ? AppTheme.arteRed : Colors.black87,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
       side: BorderSide.none,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -432,9 +449,17 @@ class _DashboardItem extends StatelessWidget {
         final mainWrapper = MainWrapper.of(context);
 
         switch (label) {
+<<<<<<< HEAD
+          case "Mapa":
+            mainWrapper?.switchTab(2); // Map Tab
+=======
+<<<<<<< HEAD
+=======
           case "Tienda Jovi":
             mainWrapper?.switchTab(3); // Store Tab
+>>>>>>> origin/main
             break;
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
           case "Concurso":
             Navigator.push(
               context,
@@ -457,7 +482,15 @@ class _DashboardItem extends StatelessWidget {
             );
             break;
           case "Mi Perfil":
+<<<<<<< HEAD
+            mainWrapper?.switchTab(3); // Profile Tab
+=======
+<<<<<<< HEAD
+            mainWrapper?.switchTab(3); // Profile Tab
+=======
             mainWrapper?.switchTab(4); // Profile Tab
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
+>>>>>>> origin/main
             break;
         }
       },

@@ -62,10 +62,10 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               backgroundImage: widget.avatarUrl != null
                   ? NetworkImage(widget.avatarUrl!)
                   : null,
-              backgroundColor: AppTheme.joviRed.withValues(alpha: 0.1),
+              backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
               child: widget.avatarUrl == null
                   ? Text(widget.chatName[0].toUpperCase(),
-                      style: const TextStyle(color: AppTheme.joviRed))
+                      style: const TextStyle(color: AppTheme.arteRed))
                   : null,
             ),
             const SizedBox(width: 10),
@@ -182,7 +182,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
-                  color: AppTheme.joviRed,
+                  color: AppTheme.arteRed,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.send, color: Colors.white, size: 20),
@@ -221,7 +221,7 @@ class _MessageBubble extends StatelessWidget {
         constraints:
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
-          color: isMe ? AppTheme.joviRed : Colors.grey.shade100,
+          color: isMe ? AppTheme.arteRed : Colors.grey.shade100,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
@@ -292,7 +292,7 @@ class _MessageBubble extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(Icons.location_on,
-                    size: 12, color: AppTheme.joviRed),
+                    size: 12, color: AppTheme.arteRed),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(

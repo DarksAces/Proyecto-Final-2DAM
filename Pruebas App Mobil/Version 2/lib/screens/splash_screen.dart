@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
+<<<<<<< HEAD
+=======
 import '../services/simulation_service.dart';
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -61,10 +64,14 @@ class _SplashScreenState extends State<SplashScreen>
       ).timeout(const Duration(seconds: 15));
       debugPrint('🔥 SplashScreen: Firebase ready!');
 
+<<<<<<< HEAD
+      // Initialization logic complete
+=======
       // Initialize demo data in background
       SimulationService()
           .initSimulation()
           .catchError((e) => debugPrint("Error seeding: $e"));
+>>>>>>> 08759375c10047997d9cde5eccddac3892898c94
     } catch (e) {
       debugPrint('⚠️ SplashScreen: Firebase init error: $e');
     } finally {
@@ -110,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 24),
             Text(
-              'Jovi AR',
+              'ARte',
               style: GoogleFonts.outfit(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
