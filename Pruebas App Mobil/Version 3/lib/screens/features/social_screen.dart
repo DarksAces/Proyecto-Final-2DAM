@@ -81,36 +81,94 @@ class _SocialScreenState extends State<SocialScreen> {
                     icon: const Icon(Icons.add_circle,
                         color: Colors.grey, size: 28),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.settings,
-                        color: Colors.grey, size: 28),
-                  ),
                 ],
               ),
             ),
 
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100, // Darker input bg
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.search, color: Colors.grey),
-                    hintText: "Buscar amigos o grupos...",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ),
 
             const SizedBox(height: 16),
+
+            // Friends List (Amigos)
+            SizedBox(
+              height: 100,
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _userService.getFollowingUsersDetails(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text("Sigue a alguien para empezar a chatear", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    );
+                  }
+                  
+                  final friends = snapshot.data!;
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: friends.length,
+                    itemBuilder: (context, index) {
+                      final friend = friends[index];
+                      final avatarUrl = friend['avatarUrl'];
+                      final name = friend['displayName'] ?? 'Usuario';
+                      final targetUserId = friend['id'];
+                      
+                      return GestureDetector(
+                        onTap: () async {
+                           try {
+                             final chatId = await _chatService.createChat(targetUserId, name, avatarUrl ?? '');
+                             if (mounted) {
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(
+                                   builder: (context) => ChatDetailScreen(
+                                     chatId: chatId,
+                                     chatName: name,
+                                     avatarUrl: avatarUrl,
+                                   ),
+                                 ),
+                               );
+                             }
+                           } catch (e) {
+                             debugPrint("Error creating chat: $e");
+                           }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 16),
+                          width: 60,
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 28,
+                                backgroundColor: AppTheme.arteRed.withAlpha(50),
+                                backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                                child: avatarUrl == null ? Text(name[0].toUpperCase(), style: const TextStyle(color: AppTheme.arteRed, fontWeight: FontWeight.bold)) : null,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                name,
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Mensajes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black)),
+              ),
+            ),
 
             // Chat List
             Expanded(
@@ -150,7 +208,19 @@ class _SocialScreenState extends State<SocialScreen> {
                     );
                   }
 
-                  final chats = snapshot.data!.docs;
+                  final chats = snapshot.data!.docs.toList();
+                  
+                  // Sort locally to avoid Firestore composite index requirement
+                  chats.sort((a, b) {
+                    final dataA = a.data() as Map<String, dynamic>;
+                    final dataB = b.data() as Map<String, dynamic>;
+                    final tA = dataA['lastMessageTime'] as Timestamp?;
+                    final tB = dataB['lastMessageTime'] as Timestamp?;
+                    if (tA == null && tB == null) return 0;
+                    if (tA == null) return 1;
+                    if (tB == null) return -1;
+                    return tB.compareTo(tA);
+                  });
 
                   return ListView.builder(
                     itemCount: chats.length,
@@ -162,36 +232,6 @@ class _SocialScreenState extends State<SocialScreen> {
                         chatId: chat.id,
                         data: data,
                         currentUserId: _currentUserId,
-                        onTap: () {
-                          // Get other user name/avatar
-                          String name = "Usuario";
-                          String? avatarUrl;
-                          final participants =
-                              List<String>.from(data['participants'] ?? []);
-                          final otherUserId = participants.firstWhere(
-                              (id) => id != _currentUserId,
-                              orElse: () => '');
-
-                          if (otherUserId.isNotEmpty) {
-                            final names = data['participantNames']
-                                as Map<String, dynamic>?;
-                            final avatars = data['participantAvatars']
-                                as Map<String, dynamic>?;
-                            name = names?[otherUserId] ?? "Usuario";
-                            avatarUrl = avatars?[otherUserId];
-                          }
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatDetailScreen(
-                                chatId: chat.id,
-                                chatName: name,
-                                avatarUrl: avatarUrl,
-                              ),
-                            ),
-                          );
-                        },
                       );
                     },
                   );
@@ -209,13 +249,11 @@ class _ChatTile extends StatelessWidget {
   final String chatId;
   final Map<String, dynamic> data;
   final String currentUserId;
-  final VoidCallback onTap;
 
   const _ChatTile({
     required this.chatId,
     required this.data,
     required this.currentUserId,
-    required this.onTap,
   });
 
   @override
@@ -224,18 +262,16 @@ class _ChatTile extends StatelessWidget {
     final otherUserId =
         participants.firstWhere((id) => id != currentUserId, orElse: () => '');
 
-    String name = "Usuario";
-    String? avatarUrl;
-
-    if (otherUserId.isNotEmpty) {
-      final names = data['participantNames'] as Map<String, dynamic>?;
-      final avatars = data['participantAvatars'] as Map<String, dynamic>?;
-      name = names?[otherUserId] ?? "Usuario";
-      avatarUrl = avatars?[otherUserId];
-    }
-
     final lastMessage = data['lastMessage'] ?? '';
     final timestamp = data['lastMessageTime'] as Timestamp?;
+    final lastSenderId = data['lastSenderId'];
+    final lastReadTimeMap = data['lastReadTime'] as Map<String, dynamic>?;
+    final myLastReadTime = lastReadTimeMap?[currentUserId] as Timestamp?;
+
+    final bool isUnread = lastSenderId != currentUserId && 
+                          (myLastReadTime == null || 
+                           (timestamp != null && timestamp.compareTo(myLastReadTime) > 0));
+
     String timeStr = '';
     if (timestamp != null) {
       final dt = timestamp.toDate();
@@ -249,23 +285,59 @@ class _ChatTile extends StatelessWidget {
       }
     }
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-        ),
-        child: Row(
-          children: [
-            Stack(
+    if (otherUserId.isEmpty) return const SizedBox.shrink();
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').doc(otherUserId).snapshots(),
+      builder: (context, userSnapshot) {
+        String name = "Usuario";
+        String? avatarUrl;
+
+        if (userSnapshot.hasData && userSnapshot.data!.exists) {
+          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+          name = userData['userName'] ?? userData['fullName'] ?? userData['displayName'] ?? "Usuario";
+          // Try all possible avatar field names
+          avatarUrl = userData['profileImageUrl'] ?? 
+                      userData['avatarUrl'] ?? 
+                      userData['photoUrl'];
+          
+          debugPrint('✅ SocialScreen: Loaded user $name ($otherUserId) with avatar: $avatarUrl');
+        } else {
+          // Fallback to chat metadata if user doc is loading or not found
+          final names = data['participantNames'] as Map<String, dynamic>?;
+          final avatars = data['participantAvatars'] as Map<String, dynamic>?;
+          name = names?[otherUserId] ?? "Usuario";
+          avatarUrl = avatars?[otherUserId];
+        }
+
+        return GestureDetector(
+          onTap: () {
+            debugPrint('👉 SocialScreen: Tapped on chat $chatId with $name');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailScreen(
+                  chatId: chatId,
+                  chatName: name,
+                  avatarUrl: avatarUrl,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: isUnread ? AppTheme.arteRed.withValues(alpha: 0.05) : Colors.transparent,
+              border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+            ),
+            child: Row(
               children: [
                 CircleAvatar(
                   radius: 28,
                   backgroundImage:
-                      avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                      (avatarUrl != null && avatarUrl.isNotEmpty) ? NetworkImage(avatarUrl) : null,
                   backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
-                  child: avatarUrl == null
+                  child: (avatarUrl == null || avatarUrl.isEmpty)
                       ? Text(name[0].toUpperCase(),
                           style: const TextStyle(
                               color: AppTheme.arteRed,
@@ -273,66 +345,52 @@ class _ChatTile extends StatelessWidget {
                               fontSize: 20))
                       : null,
                 ),
-                // Online indicator mock
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      border: Border.all(color: Colors.white, width: 2),
-                      shape: BoxShape.circle,
-                    ),
+                // DEBUG VERSION INDICATOR - REMOVE IN PRODUCTION
+                // Positioned(right: 0, bottom: 0, child: Icon(Icons.check_circle, size: 10, color: Colors.blue)), 
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            name,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: isUnread ? FontWeight.w900 : FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            timeStr,
+                            style: TextStyle(
+                              color: isUnread ? AppTheme.arteRed : Colors.grey,
+                              fontSize: 12,
+                              fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        lastMessage,
+                        style: TextStyle(
+                          color: isUnread ? Colors.black : Colors.grey.shade600,
+                          fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        timeStr, // Mock time
-                        style: TextStyle(
-                          color: lastMessage.contains('rincón')
-                              ? AppTheme.arteRed
-                              : Colors.grey, // Highlight example
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    lastMessage,
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 }

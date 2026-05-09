@@ -6,6 +6,7 @@ import '../screens/features/feed_social_screen.dart';
 import 'map/map_screen.dart';
 
 import '../screens/features/profile_screen.dart';
+import '../services/notification_service.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -21,6 +22,15 @@ class MainWrapper extends StatefulWidget {
 class MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
   final Set<int> _visitedTabs = {0};
+
+  @override
+  void initState() {
+    super.initState();
+    // Procesar notificaciones pendientes si existen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService().processPendingNotification();
+    });
+  }
 
   Widget _buildPage(int index) {
     switch (index) {

@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -48,6 +49,42 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _handleResetPassword() async {
+    if (_emailController.text.isEmpty || !_emailController.text.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ingresa un email válido para recuperar tu contraseña"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    final result = await _authService.resetPassword(_emailController.text);
+    setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result.errorMessage ?? "Correo enviado"),
+        backgroundColor: result.success ? Colors.green : Colors.red,
+      ),
+    );
+  }
+
+  void _showComingSoon(String provider) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('El inicio de sesión con $provider estará disponible próximamente.'),
+        backgroundColor: AppTheme.arteBlue,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -93,17 +130,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        height: 80,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Text(
-                          "ARte",
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.arteBlue,
+                      child: SizedBox(
+                        height: 100,
+                        width: 100,
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Text(
+                            "ARte",
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.arteBlue,
+                            ),
                           ),
                         ),
                       ),
@@ -159,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               _buildLabel("CONTRASEÑA"),
                               TextButton(
-                                  onPressed: () {},
+                                  onPressed: _handleResetPassword,
                                   child: const Text("¿La olvidaste?",
                                       style: TextStyle(
                                           fontSize: 12,
@@ -169,9 +209,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           TextFormField(
                             controller: _passwordController,
-                            obscureText: true,
+                            obscureText: _obscurePassword,
                             decoration: _inputDecoration(
-                                "........", Icons.lock_outline),
+                                "........", 
+                                Icons.lock_outline,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                    color: AppTheme.arteBlue.withValues(alpha: 0.5),
+                                    size: 20,
+                                  ),
+                                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                )
+                            ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu contraseña';
@@ -238,13 +288,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _socialButton(Icons.g_mobiledata,
-                            Colors.red.shade50), // Google placeholder
+                        _socialButton(
+                          Icons.g_mobiledata,
+                          Colors.red.shade50,
+                          onTap: () => _showComingSoon("Google"),
+                        ),
                         const SizedBox(width: 20),
                         _socialButton(
-                            Icons.facebook, AppTheme.arteBlue), // Facebook
+                          Icons.facebook,
+                          AppTheme.arteBlue,
+                          onTap: () => _showComingSoon("Facebook"),
+                        ),
                         const SizedBox(width: 20),
-                        _socialButton(Icons.apple, Colors.black), // Apple
+                        _socialButton(
+                          Icons.apple,
+                          Colors.black,
+                          onTap: () => _showComingSoon("Apple"),
+                        ),
                       ],
                     ),
 
@@ -285,10 +345,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon) {
+  InputDecoration _inputDecoration(String hint, IconData icon, {Widget? suffixIcon}) {
     return InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: AppTheme.arteBlue.withValues(alpha: 0.5)),
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.grey.shade50,
         border: OutlineInputBorder(
@@ -304,19 +365,22 @@ class _LoginScreenState extends State<LoginScreen> {
             const EdgeInsets.symmetric(horizontal: 20, vertical: 15));
   }
 
-  Widget _socialButton(IconData icon, Color bgColor) {
+  Widget _socialButton(IconData icon, Color bgColor, {VoidCallback? onTap}) {
     bool isLight = bgColor == Colors.red.shade50;
-    return Container(
-      width: 50,
-      height: 50,
-      decoration:
-          BoxDecoration(color: bgColor, shape: BoxShape.circle, boxShadow: [
-        BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3))
-      ]),
-      child: Icon(icon, color: isLight ? Colors.grey : Colors.white),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration:
+            BoxDecoration(color: bgColor, shape: BoxShape.circle, boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 3))
+        ]),
+        child: Icon(icon, color: isLight ? Colors.grey : Colors.white),
+      ),
     );
   }
 }

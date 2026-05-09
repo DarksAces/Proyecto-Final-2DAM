@@ -12,8 +12,7 @@ class AddFriendsScreen extends StatefulWidget {
 class _AddFriendsScreenState extends State<AddFriendsScreen> {
   final UserService _userService = UserService();
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _suggestions = [];
-  List<Map<String, dynamic>> _explorers = [];
+  List<Map<String, dynamic>> _users = [];
   bool _isLoading = true;
 
   @override
@@ -24,12 +23,11 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    final suggested = await _userService.getSuggestedUsers();
+    final allUsers = await _userService.getAllUsersWithFollowStatus();
 
     if (mounted) {
       setState(() {
-        _suggestions = suggested.take(5).toList();
-        _explorers = suggested.skip(5).toList();
+        _users = allUsers;
         _isLoading = false;
       });
     }
@@ -88,47 +86,14 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
 
             const SizedBox(height: 16),
 
-            // Suggestions Carousel
-            if (_suggestions.isNotEmpty) ...[
-              _buildSectionHeader("SUGERENCIAS PARA TI", onAction: () {}),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 180,
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        itemCount: _suggestions.length,
-                        itemBuilder: (context, index) {
-                          return _buildSuggestionCard(_suggestions[index]);
-                        },
-                      ),
-              ),
-              const SizedBox(height: 24),
-            ],
-
-            const SizedBox(height: 24),
-            // Follow Requests (Temporarily hidden until real logic is implemented)
-            // _buildSectionHeader("SOLICITUDES DE SEGUIMIENTO"),
-
-            const SizedBox(height: 24),
-
-            // Explorers List
-            if (_explorers.isNotEmpty) ...[
-              _buildSectionHeader("EXPLORADORES QUE QUIZÁ CONOZCAS"),
-              if (_isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _explorers.length,
-                  itemBuilder: (context, index) {
-                    return _buildExplorerTile(_explorers[index]);
-                  },
-                ),
-            ] else if (!_isLoading && _suggestions.isEmpty)
+            _buildSectionHeader("SUGERENCIAS PARA TI"),
+            
+            if (_isLoading)
+              const Center(child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: CircularProgressIndicator(color: AppTheme.arteRed),
+              ))
+            else if (_users.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
@@ -138,12 +103,21 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                           size: 48, color: Colors.grey.shade300),
                       const SizedBox(height: 16),
                       Text(
-                        "No se encontraron más exploradores",
+                        "No se encontraron exploradores",
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                     ],
                   ),
                 ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _users.length,
+                itemBuilder: (context, index) {
+                  return _buildUserTile(_users[index], index);
+                },
               ),
 
             const SizedBox(height: 40),
@@ -185,79 +159,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
     );
   }
 
-  Widget _buildSuggestionCard(Map<String, dynamic> user) {
-    return Container(
-      width: 130,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.orange, width: 2),
-            ),
-            child: CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.grey.shade200,
-              child: Text(
-                (user['displayName'] ?? user['username'] ?? 'U')[0]
-                    .toUpperCase(),
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black54),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            user['displayName'] ?? "Usuario",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            user['level'] ?? "Explorador",
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: 100,
-            height: 32,
-            child: ElevatedButton(
-              onPressed: () => _followUser(user['id']),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                padding: EdgeInsets.zero,
-              ),
-              child: const Text("Seguir",
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildUserTile(Map<String, dynamic> user, int index) {
+    final bool isFollowing = user['isFollowing'] ?? false;
 
-  Widget _buildExplorerTile(Map<String, dynamic> user) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -303,20 +207,30 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
           const SizedBox(width: 12),
           SizedBox(
             height: 32,
-            width: 80,
+            width: isFollowing ? 100 : 80,
             child: ElevatedButton(
-              onPressed: () => _followUser(user['id']),
+              onPressed: () {
+                if (isFollowing) {
+                  _showUnfollowDialog(user, index);
+                } else {
+                  _followUser(user['id'], index);
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: isFollowing ? Colors.grey.shade200 : Colors.blue,
                 elevation: 0,
+                padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text("Seguir",
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
+              child: Text(
+                isFollowing ? "Siguiendo" : "Seguir",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isFollowing ? Colors.black87 : Colors.white,
+                ),
+              ),
             ),
           ),
         ],
@@ -324,13 +238,71 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
     );
   }
 
-  Future<void> _followUser(String userId) async {
+  void _showUnfollowDialog(Map<String, dynamic> user, int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text("Dejar de seguir"),
+          content: Text("¿Seguro que quieres dejar de seguir a ${user['displayName'] ?? 'este usuario'}?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _unfollowUser(user['id'], index);
+              },
+              child: const Text("Dejar de seguir", style: TextStyle(color: AppTheme.arteRed, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _followUser(String userId, int index) async {
+    // Optimistic UI update
+    setState(() {
+      _users[index]['isFollowing'] = true;
+    });
+
     final success = await _userService.followUser(userId);
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Ahora sigues a este usuario")),
-      );
-      _loadData(); // Refresh lists
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ahora sigues a este usuario")),
+        );
+      }
+    } else {
+      // Revert if failed
+      setState(() {
+        _users[index]['isFollowing'] = false;
+      });
+    }
+  }
+
+  Future<void> _unfollowUser(String userId, int index) async {
+    // Optimistic UI update
+    setState(() {
+      _users[index]['isFollowing'] = false;
+    });
+
+    final success = await _userService.unfollowUser(userId);
+    if (success) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Has dejado de seguir a este usuario")),
+        );
+      }
+    } else {
+      // Revert if failed
+      setState(() {
+        _users[index]['isFollowing'] = true;
+      });
     }
   }
 }

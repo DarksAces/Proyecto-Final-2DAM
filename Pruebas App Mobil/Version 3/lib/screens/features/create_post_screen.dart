@@ -262,15 +262,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 120,
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: _userService.getUserPosts(user?.uid ?? ''),
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: _userService.getUserContent(user?.uid ?? ''),
                       builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Center(
-                              child: CircularProgressIndicator());
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator(color: AppTheme.arteRed));
                         }
-                        final docs = snapshot.data!.docs;
-                        if (docs.isEmpty) {
+                        if (snapshot.hasError) {
+                          return const Center(child: Text('Error al cargar obras'));
+                        }
+                        
+                        final works = snapshot.data ?? [];
+                        if (works.isEmpty) {
                           return Center(
                             child: Text(
                               "No tienes obras aún",
@@ -280,20 +283,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         }
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: docs.length,
+                          itemCount: works.length,
                           itemBuilder: (context, index) {
-                            final data =
-                                docs[index].data() as Map<String, dynamic>;
-                            final imageUrl = data['imageUrl'];
-                            final isSelected =
-                                _selectedWorkId == docs[index].id;
+                            final work = works[index];
+                            final imageUrl = work['imageUrl'];
+                            final postId = work['id'];
+                            final isSelected = _selectedWorkId == postId;
 
-                            if (imageUrl == null)
-                              return const SizedBox.shrink();
+                            if (imageUrl == null) return const SizedBox.shrink();
 
                             return GestureDetector(
-                              onTap: () =>
-                                  _selectWork(docs[index].id, imageUrl),
+                              onTap: () => _selectWork(postId, imageUrl),
                               child: Container(
                                 width: 100,
                                 margin: const EdgeInsets.only(right: 8),

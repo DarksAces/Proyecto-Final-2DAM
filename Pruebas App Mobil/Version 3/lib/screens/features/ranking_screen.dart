@@ -89,54 +89,7 @@ class _RankingScreenState extends State<RankingScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> _schoolRanking = [
-    {
-      "rank": 1,
-      "name": "Tu Compañero",
-      "points": "5.150 pts",
-      "tag": "CLASE 5A",
-      "imageUrl": "https://i.pravatar.cc/150?img=33",
-      "ringColor": AppTheme.arteYellow,
-      "size": 100.0
-    },
-    {
-      "rank": 2,
-      "name": "Ana Maria",
-      "points": "4.420 pts",
-      "imageUrl": "https://i.pravatar.cc/150?img=41",
-      "ringColor": const Color(0xFFC0C0C0),
-      "size": 80.0
-    },
-    {
-      "rank": 3,
-      "name": "Luis P.",
-      "points": "3.900 pts",
-      "imageUrl": "https://i.pravatar.cc/150?img=55",
-      "ringColor": const Color(0xFFCD7F32),
-      "size": 80.0
-    },
-    {
-      "rank": 4,
-      "name": "Carlos D.",
-      "subtext": "Clase 4B",
-      "points": "2.840",
-      "imageUrl": "https://i.pravatar.cc/150?img=19"
-    },
-    {
-      "rank": 5,
-      "name": "Sofia M.",
-      "subtext": "Clase 5A",
-      "points": "2.200",
-      "imageUrl": "https://i.pravatar.cc/150?img=22"
-    },
-    {
-      "rank": 6,
-      "name": "Javi R.",
-      "subtext": "Clase 6C",
-      "points": "1.950",
-      "imageUrl": "https://i.pravatar.cc/150?img=15"
-    },
-  ];
+  final List<Map<String, dynamic>> _schoolRanking = [];
 
   @override
   Widget build(BuildContext context) {
@@ -196,33 +149,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
                 const SizedBox(height: 16),
 
-                // Tabs (Global/Mi Colegio)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: GestureDetector(
-                        onTap: () => setState(() => _selectedTabIndex = 0),
-                        child: _TabButton(
-                            label: "GLOBAL",
-                            isSelected: _selectedTabIndex == 0),
-                      )),
-                      Expanded(
-                          child: GestureDetector(
-                        onTap: () => setState(() => _selectedTabIndex = 1),
-                        child: _TabButton(
-                            label: "MI COLEGIO",
-                            isSelected: _selectedTabIndex == 1),
-                      )),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 16),
 
                 const SizedBox(height: 30),
 

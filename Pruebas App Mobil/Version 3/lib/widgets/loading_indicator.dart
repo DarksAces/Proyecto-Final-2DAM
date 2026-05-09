@@ -40,10 +40,13 @@ class BrandedLoadingScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: 80,
-              height: 80,
+            SizedBox(
+              width: 90,
+              height: 90,
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
+              ),
             ),
             const SizedBox(height: 24),
             const CustomLoadingIndicator(),

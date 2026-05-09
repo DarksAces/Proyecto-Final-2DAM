@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -30,6 +31,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+
+    // Final check for username availability before submitting
+    final isAvailable = await _authService.isUsernameAvailable(_nameController.text);
+    if (!isAvailable) {
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('El nombre artístico ya está en uso. Elige otro.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
     final result = await _authService.registerWithEmailAndPassword(
       email: _emailController.text,
@@ -51,6 +66,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     }
+  }
+
+  void _handleAuthResult(AuthResult result) {
+    if (!mounted) return;
+    if (result.success) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else if (result.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.errorMessage!),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showComingSoon(String provider) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('El registro con $provider estará disponible próximamente.'),
+        backgroundColor: AppTheme.arteBlue,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -96,17 +136,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                      child: Image.asset(
-                        'assets/images/logo.png',
+                      child: SizedBox(
                         height: 80,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Text(
-                          "ARte",
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.arteBlue,
+                        width: 80,
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Text(
+                            "ARte",
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.arteBlue,
+                            ),
                           ),
                         ),
                       ),
@@ -169,7 +212,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           _buildLabel("CONTRASEÑA"),
                           TextFormField(
                             controller: _passwordController,
-                            obscureText: true,
+                            obscureText: _obscurePassword,
                             decoration: _inputDecoration(
                                 "........", Icons.lock_outline,
                                 isPassword: true),
@@ -235,17 +278,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: Colors.grey))),
                     const SizedBox(height: 20),
 
-                    // Social Buttons
+                    // Social Placeholders
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _socialButton(Icons.g_mobiledata,
-                            Colors.red.shade50), // Google placeholder
+                        _socialButton(
+                          Icons.g_mobiledata,
+                          Colors.red.shade50,
+                          onTap: () => _showComingSoon("Google"),
+                        ),
                         const SizedBox(width: 20),
                         _socialButton(
-                            Icons.facebook, AppTheme.arteBlue), // Facebook
+                          Icons.facebook,
+                          AppTheme.arteBlue,
+                          onTap: () => _showComingSoon("Facebook"),
+                        ),
                         const SizedBox(width: 20),
-                        _socialButton(Icons.apple, Colors.black), // Apple
+                        _socialButton(
+                          Icons.apple,
+                          Colors.black,
+                          onTap: () => _showComingSoon("Apple"),
+                        ),
                       ],
                     ),
 
@@ -291,8 +344,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         hintText: hint,
         prefixIcon: Icon(icon, color: AppTheme.arteBlue.withValues(alpha: 0.5)),
         suffixIcon: isPassword
-            ? const Icon(Icons.remove_red_eye_outlined,
-                color: Colors.grey, size: 20)
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.remove_red_eye_outlined
+                      : Icons.visibility_off_outlined,
+                  color: Colors.grey,
+                  size: 20,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
             : null,
         filled: true,
         fillColor: Colors.grey.shade50,
@@ -309,19 +374,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const EdgeInsets.symmetric(horizontal: 20, vertical: 15));
   }
 
-  Widget _socialButton(IconData icon, Color bgColor) {
+  Widget _socialButton(IconData icon, Color bgColor, {VoidCallback? onTap}) {
     bool isLight = bgColor == Colors.red.shade50;
-    return Container(
-      width: 50,
-      height: 50,
-      decoration:
-          BoxDecoration(color: bgColor, shape: BoxShape.circle, boxShadow: [
-        BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3))
-      ]),
-      child: Icon(icon, color: isLight ? Colors.grey : Colors.white),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration:
+            BoxDecoration(color: bgColor, shape: BoxShape.circle, boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 3))
+        ]),
+        child: Icon(icon, color: isLight ? Colors.grey : Colors.white),
+      ),
     );
   }
 }

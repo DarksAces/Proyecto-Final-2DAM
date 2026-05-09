@@ -27,11 +27,11 @@ class FeedHeader extends StatelessWidget {
             onTap: onProfileTap,
             child: CircleAvatar(
               radius: 18,
-              backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
+              backgroundColor: AppTheme.arteGreen.withOpacity(0.1),
               backgroundImage:
                   avatarUrl != null ? NetworkImage(avatarUrl!) : null,
               child: avatarUrl == null
-                  ? const Icon(Icons.person, color: AppTheme.arteRed, size: 20)
+                  ? const Icon(Icons.person, color: AppTheme.arteGreen, size: 20)
                   : null,
             ),
           ),

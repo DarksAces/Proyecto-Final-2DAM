@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
@@ -101,12 +102,15 @@ class _SplashScreenState extends State<SplashScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: 150,
-              height: 150,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.error, size: 100, color: Colors.red),
+            SizedBox(
+              width: 160,
+              height: 160,
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) =>
+                    Icon(Icons.auto_awesome, size: 100, color: AppTheme.arteRed),
+              ),
             ),
             const SizedBox(height: 24),
             Text(
