@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class CreatePostCard extends StatelessWidget {
   final String? avatarUrl;
@@ -39,12 +41,13 @@ class CreatePostCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Text(
-                      "Start a post...",
+                      AppLocalizations.of(context)!.social_start_post,
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+
                   ),
                 ),
               ],
@@ -57,14 +60,16 @@ class CreatePostCard extends StatelessWidget {
             children: [
               _ActionButton(
                 icon: Icons.photo,
-                label: "Photo",
+                label: AppLocalizations.of(context)!.social_photo,
                 color: const Color(0xFFE30613), // Red
               ),
+
               _ActionButton(
                 icon: Icons.videocam,
-                label: "Video",
+                label: AppLocalizations.of(context)!.social_video,
                 color: const Color(0xFF0099D8), // Blue
               ),
+
               _ActionButton(
                 icon: Icons.event,
                 label: "Event",

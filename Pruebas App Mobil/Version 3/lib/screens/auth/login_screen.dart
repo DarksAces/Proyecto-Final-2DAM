@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/auth_background.dart';
 import '../../services/auth_service.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -159,14 +161,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    const Text("¡Hola de nuevo!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
+                    Center(
+                      child: Text(AppLocalizations.of(context)!.hello_again,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold)),
+                    ),
                     const SizedBox(height: 8),
-                    const Text("Entra en tu mundo de realidad aumentada",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey)),
+                    Center(
+                      child: Text(AppLocalizations.of(context)!.enter_ar_world,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.grey)),
+                    ),
+
                     const SizedBox(height: 40),
 
                     // Form with validation
@@ -176,12 +183,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Inputs
-                          _buildLabel("TU EMAIL"),
+                          _buildLabel(AppLocalizations.of(context)!.email),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: _inputDecoration(
                                 "ejemplo@ARte.es", Icons.email_outlined),
+
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu email';
@@ -197,15 +205,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildLabel("CONTRASEÑA"),
+                              _buildLabel(AppLocalizations.of(context)!.password),
                               TextButton(
                                   onPressed: _handleResetPassword,
-                                  child: const Text("¿La olvidaste?",
-                                      style: TextStyle(
+                                  child: Text(AppLocalizations.of(context)!.forgot_password,
+                                      style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                           color: AppTheme.arteBlue)))
                             ],
+
                           ),
                           TextFormField(
                             controller: _passwordController,
@@ -252,19 +261,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Row(
+                                  : Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Text("Iniciar Sesión",
-                                            style: TextStyle(
+                                        Text(AppLocalizations.of(context)!.login_button,
+                                            style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.white)),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.rocket_launch,
+                                        const SizedBox(width: 8),
+                                        const Icon(Icons.rocket_launch,
                                             color: Colors.white, size: 20)
                                       ],
+
                                     ),
                             ),
                           ),
@@ -273,12 +283,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 30),
-                    const Center(
-                        child: Text("O USA TU CUENTA",
-                            style: TextStyle(
+                    Center(
+                        child: Text(AppLocalizations.of(context)!.or_use_account,
+                            style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey))),
+
                     const SizedBox(height: 20),
 
                     // Social Buttons
@@ -309,18 +320,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("¿Aún no tienes cuenta? "),
+                        Text(AppLocalizations.of(context)!.no_account_yet + " "),
                         GestureDetector(
                           onTap: () =>
                               Navigator.pushNamed(context, '/register'),
-                          child: const Text(
-                            "¡Regístrate!",
-                            style: TextStyle(
+                          child: Text(
+                            AppLocalizations.of(context)!.register_link,
+                            style: const TextStyle(
                               color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         )
+
                       ],
                     )
                   ],

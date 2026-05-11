@@ -17,10 +17,15 @@ class SettingsService extends ChangeNotifier {
     final isDark = prefs.getBool('isDarkMode') ?? false;
     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     
-    final langCode = prefs.getString('languageCode') ?? 'es';
+    // Detect system language if no preference is saved
+    final String defaultSystemLocale = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    final String langCode = prefs.getString('languageCode') ?? (['es', 'en'].contains(defaultSystemLocale) ? defaultSystemLocale : 'es');
+
+    
     _locale = Locale(langCode);
     notifyListeners();
   }
+
 
   void toggleTheme(bool isDark) async {
     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
@@ -60,18 +65,8 @@ class SettingsService extends ChangeNotifier {
       'sign_out': 'Sign Out',
       'delete_account': 'Delete Account permanently',
     },
-    'fr': {
-      'settings_title': 'Paramètres Avancés',
-      'appearance': 'APPARENCE',
-      'dark_mode': 'Mode Sombre',
-      'language': 'Langue',
-      'security': 'SÉCURITÉ',
-      'preferences': 'PRÉFÉRENCES',
-      'change_password': 'Changer le mot de passe',
-      'sign_out': 'Déconnexion',
-      'delete_account': 'Supprimer le compte définitivement',
-    }
   };
+
 
   String translate(String key) {
     return _translations[locale.languageCode]?[key] ?? _translations['es']![key] ?? key;

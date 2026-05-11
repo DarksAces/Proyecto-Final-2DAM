@@ -11,6 +11,8 @@ import '../../services/chat_service.dart';
 import 'chat_detail_screen.dart';
 import 'dart:io';
 import 'connections_screen.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;
@@ -91,12 +93,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isFollowing ? "Ahora sigues a este usuario" : "Has dejado de seguir a este usuario"),
+            content: Text(_isFollowing 
+              ? AppLocalizations.of(context)!.profile_following_btn 
+              : AppLocalizations.of(context)!.profile_follow_btn),
             backgroundColor: AppTheme.arteBlue,
             behavior: SnackBarBehavior.floating,
           ),
         );
       }
+
     }
   }
 
@@ -129,9 +134,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         setState(() => _isActionLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error al iniciar el chat"), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.profile_user_not_found), backgroundColor: Colors.red),
         );
       }
+
     }
   }
 
@@ -143,7 +149,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (_) => UserListScreen(
           userId: targetId,
           type: type,
-          title: type == 'followers' ? "Seguidores" : "Seguidos",
+        title: type == 'followers' 
+          ? AppLocalizations.of(context)!.profile_followers 
+          : AppLocalizations.of(context)!.profile_following,
+
         ),
       ),
     );
@@ -169,8 +178,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final displayData = data ?? _userData;
 
         if (displayData == null) {
-          return const Scaffold(body: Center(child: Text("Usuario no encontrado")));
+          return Scaffold(body: Center(child: Text(AppLocalizations.of(context)!.profile_user_not_found)));
         }
+
 
         final bool isMyProfile =
             widget.userId == null || widget.userId == _userService.currentUserId;
@@ -193,10 +203,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              isMyProfile ? "MI PERFIL PRO" : "PERFIL",
+              isMyProfile 
+                ? AppLocalizations.of(context)!.profile_my_pro 
+                : AppLocalizations.of(context)!.profile_title,
               style: const TextStyle(
                   fontWeight: FontWeight.w900, color: Colors.black, fontSize: 18),
             ),
+
             backgroundColor: Colors.white,
             elevation: 0,
             leading: isMyProfile
@@ -333,8 +346,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: _isActionLoading 
                             ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                            : Text(_isFollowing ? "SIGUIENDO" : "SEGUIR",
+                            : Text(_isFollowing 
+                                ? AppLocalizations.of(context)!.profile_following_btn 
+                                : AppLocalizations.of(context)!.profile_follow_btn,
                               style: const TextStyle(fontWeight: FontWeight.bold)),
+
                         ),
                         const SizedBox(width: 12),
                         OutlinedButton(
@@ -371,6 +387,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final nextLevelName = isMaxLevel
                         ? 'NIVEL MÁXIMO'
                         : _userService.getLevelName(lvlMax);
+                    
+                    final l10n = AppLocalizations.of(context)!;
+
 
                     return Container(
                       padding: const EdgeInsets.all(22),
@@ -396,12 +415,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('PUNTOS TOTALES',
+                                    Text(l10n.profile_total_points,
                                         style: TextStyle(
                                             color: Colors.grey.shade500,
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 1)),
+
                                     const SizedBox(height: 4),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.end,

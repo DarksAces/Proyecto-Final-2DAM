@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
+
+
 
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
@@ -64,7 +68,19 @@ class MyApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: settingsService.themeMode,
             locale: settingsService.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('es'),
+              Locale('en'),
+            ],
+
             home: const SplashScreen(),
+
             routes: {
               '/auth': (context) => const AuthWrapper(),
               '/welcome': (context) => const WelcomeScreen(),

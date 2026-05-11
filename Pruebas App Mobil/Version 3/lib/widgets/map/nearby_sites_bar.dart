@@ -2,6 +2,8 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class NearbySitesBar extends StatelessWidget {
   final List<Map<String, dynamic>> stops;
@@ -62,10 +64,11 @@ class NearbySitesBar extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                   child: Row(
                     children: [
-                      const Text(
-                        'CERCA DE TI',
-                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.2, color: Color(0xFF1A1A1A)),
+                       Text(
+                        AppLocalizations.of(context)!.map_near_you,
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.2, color: Color(0xFF1A1A1A)),
                       ),
+
                       const Spacer(),
                       _SortMiniSelector(current: sortBy, onChanged: onSortChanged),
                     ],
@@ -75,7 +78,8 @@ class NearbySitesBar extends StatelessWidget {
                 SizedBox(
                   height: 80,
                   child: stops.isEmpty
-                      ? const Center(child: Text('Sin obras cerca', style: TextStyle(fontSize: 10, color: Colors.grey)))
+                      ? Center(child: Text(AppLocalizations.of(context)!.map_no_sites, style: const TextStyle(fontSize: 10, color: Colors.grey)))
+
                       : ListView.builder(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -129,10 +133,11 @@ class _SortMiniSelector extends StatelessWidget {
         ),
       ),
       itemBuilder: (context) => [
-        const PopupMenuItem(value: 'distance', height: 35, child: Text('Distancia', style: TextStyle(fontSize: 11))),
-        const PopupMenuItem(value: 'likes', height: 35, child: Text('Likes', style: TextStyle(fontSize: 11))),
-        const PopupMenuItem(value: 'date', height: 35, child: Text('Fecha', style: TextStyle(fontSize: 11))),
+        PopupMenuItem(value: 'distance', height: 35, child: Text(AppLocalizations.of(context)!.map_distance, style: const TextStyle(fontSize: 11))),
+        PopupMenuItem(value: 'likes', height: 35, child: Text(AppLocalizations.of(context)!.map_likes, style: const TextStyle(fontSize: 11))),
+        PopupMenuItem(value: 'date', height: 35, child: Text(AppLocalizations.of(context)!.map_date, style: const TextStyle(fontSize: 11))),
       ],
+
     );
   }
 }
@@ -180,10 +185,11 @@ class _NearbyMiniCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      stop['title'] ?? 'Sin título',
+                      stop['title'] ?? AppLocalizations.of(context)!.add_site_no_title,
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF2D2D2D)),
                       maxLines: 1, overflow: TextOverflow.ellipsis,
                     ),
+
                     const SizedBox(height: 4),
                     if (sortBy == 'likes')
                       Row(children: [const Icon(Icons.favorite, size: 9, color: Colors.redAccent), const SizedBox(width: 3), Text("${stop['likes']}", style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold))])

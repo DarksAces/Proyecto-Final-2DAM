@@ -1,13 +1,15 @@
 name: arte_go_map
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0+3
+version: 1.0.0+5
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   # flutter_map: ^6.1.0
   # latlong2: ^0.9.0
@@ -45,6 +47,7 @@ dev_dependencies:
   flutter_native_splash: ^2.4.0
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/images/logo.png

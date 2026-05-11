@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+
 import '../../widgets/auth_background.dart';
+import '../../services/settings_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../settings/language_screen.dart';
+
+
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -20,10 +26,48 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Header Badge
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
+              // Header Row (Language Selector + Creativity Badge)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Language Selector
+                  ListenableBuilder(
+                    listenable: SettingsService(),
+                    builder: (context, _) {
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LanguageScreen()),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.language, size: 16, color: AppTheme.arteBlue),
+                              const SizedBox(width: 4),
+                              Text(
+                                SettingsService().locale.languageCode.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.arteBlue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  // Header Badge
+                  Container(
+
                   padding:
                       const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                   decoration: BoxDecoration(
@@ -52,7 +96,10 @@ class WelcomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
+              ],
+            ),
+
+
 
               const SizedBox(height: 20),
 
@@ -86,25 +133,26 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "¡Crea tu propia\naventura mágica!",
+                    AppLocalizations.of(context)!.welcome_title,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.textBlack,
                       height: 1.1,
                     ),
                   ),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Text(
-                    "Explora lugares secretos y dales vida\ncon la magia de tus colores.",
+                    AppLocalizations.of(context)!.welcome_subtitle,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+
                 ],
               ),
 
@@ -127,20 +175,21 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         elevation: 5,
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "¡EMPEZAR A JUGAR!",
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.start_playing,
+                            style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.rocket_launch,
+                          const SizedBox(width: 8),
+                          const Icon(Icons.rocket_launch,
                               color: Colors.white, size: 20)
                         ],
+
                       ),
                     ),
                   ),
@@ -155,12 +204,13 @@ class WelcomeScreen extends StatelessWidget {
                               color: AppTheme.arteBlue.withValues(alpha: 0.3)),
                           borderRadius: BorderRadius.circular(20),
                           color: Colors.white.withValues(alpha: 0.8)),
-                      child: const Text(
-                        "Entrar ahora",
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.login_now,
+                        style: const TextStyle(
                             color: AppTheme.arteBlue,
                             fontWeight: FontWeight.bold),
                       ),
+
                     ),
                   )
                 ],

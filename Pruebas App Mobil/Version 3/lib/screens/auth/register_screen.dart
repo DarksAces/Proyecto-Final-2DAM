@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/auth_background.dart';
 import '../../services/auth_service.dart';
+import '../settings/language_screen.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -119,11 +122,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: BoxDecoration(
                         color: AppTheme.arteYellow,
                         borderRadius: BorderRadius.circular(20)),
-                    child: const Text("UNIRSE A LA AVENTURA",
-                        style: TextStyle(
+                    child: Text(AppLocalizations.of(context)!.join_adventure,
+                        style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.arteRed)),
+
                   )
                 ],
               ),
@@ -155,16 +159,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    const Center(
-                      child: Text("Crear Cuenta",
-                          style: TextStyle(
+                    Center(
+                      child: Text(AppLocalizations.of(context)!.create_account,
+                          style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold)),
                     ),
+
                     const SizedBox(height: 5),
-                    const Center(
-                      child: Text("Explora lugares ocultos con nosotros",
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    Center(
+                      child: Text(AppLocalizations.of(context)!.explore_hidden,
+                          style: const TextStyle(fontSize: 12, color: Colors.grey)),
                     ),
+
                     const SizedBox(height: 40),
 
                     // Form with validation
@@ -174,12 +180,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Inputs
-                          _buildLabel("NOMBRE DE USUARIO"),
+                          _buildLabel(AppLocalizations.of(context)!.username),
                           TextFormField(
                             controller: _nameController,
                             maxLength: 10,
                             decoration: _inputDecoration(
-                                "Tu nombre artístico", Icons.person_outline),
+                                AppLocalizations.of(context)!.username_hint, Icons.person_outline),
+
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu nombre';
@@ -195,12 +202,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          _buildLabel("EMAIL"),
+                          _buildLabel(AppLocalizations.of(context)!.email),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: _inputDecoration(
                                 "creativo@ARte.es", Icons.email_outlined),
+
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu email';
@@ -213,9 +221,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          _buildLabel("CONTRASEÑA"),
+                          _buildLabel(AppLocalizations.of(context)!.password),
                           TextFormField(
                             controller: _passwordController,
+
                             obscureText: _obscurePassword,
                             decoration: _inputDecoration(
                                 "........", Icons.lock_outline,
@@ -265,15 +274,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Row(
+                                  : Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Text("Registrarme",
-                                            style: TextStyle(
+                                        Text(AppLocalizations.of(context)!.register_button,
+                                            style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.white)),
+
                                         SizedBox(width: 8),
                                         Icon(Icons.brush,
                                             color: Colors.white, size: 20)
@@ -286,12 +296,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
 
                     const SizedBox(height: 30),
-                    const Center(
-                        child: Text("O REGÍSTRATE CON",
-                            style: TextStyle(
+                    Center(
+                        child: Text(AppLocalizations.of(context)!.or_register_with,
+                            style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey))),
+
                     const SizedBox(height: 20),
 
                     // Social Placeholders
@@ -322,17 +333,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("¿Ya tienes una cuenta? "),
+                        Text(AppLocalizations.of(context)!.already_have_account + " "),
                         GestureDetector(
                           onTap: () => Navigator.pushNamed(context, '/login'),
-                          child: const Text(
-                            "Inicia sesión",
-                            style: TextStyle(
+                          child: Text(
+                            AppLocalizations.of(context)!.login_link,
+                            style: const TextStyle(
                               color: AppTheme.arteBlue,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         )
+
                       ],
                     )
                   ],

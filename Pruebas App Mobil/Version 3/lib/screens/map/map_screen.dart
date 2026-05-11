@@ -11,6 +11,8 @@ import '../../widgets/map/nearby_sites_bar.dart';
 import '../../services/user_service.dart';
 import 'add_site_screen.dart';
 import '../features/profile_screen.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -112,19 +114,20 @@ class _MapScreenState extends State<MapScreen> {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text("Permiso Permanente Denegado"),
-            content: const Text("Has denegado el permiso de ubicación permanentemente. Debes activarlo manualmente en los ajustes de la aplicación para usar el mapa."),
+            title: Text(AppLocalizations.of(context)!.map_perm_denied),
+            content: Text(AppLocalizations.of(context)!.map_perm_denied_desc),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("CANCELAR")),
+              TextButton(onPressed: () => Navigator.pop(ctx), child: Text(AppLocalizations.of(context)!.map_cancel)),
               TextButton(
                 onPressed: () {
                   Navigator.pop(ctx);
                   Geolocator.openAppSettings();
                 },
-                child: const Text("ABRIR AJUSTES"),
+                child: Text(AppLocalizations.of(context)!.map_open_settings),
               ),
             ],
           ),
+
         );
       }
       return;
@@ -146,12 +149,12 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               const Icon(Icons.location_on_rounded, color: Color(0xFF6C63FF), size: 50),
               const SizedBox(height: 20),
-              const Text("Permitir Ubicación", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+              Text(AppLocalizations.of(context)!.map_allow_loc, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
               const SizedBox(height: 12),
-              const Text(
-                "Aura AR necesita tu ubicación para mostrarte las obras de arte que están cerca de ti en el radar.",
+              Text(
+                AppLocalizations.of(context)!.map_loc_reason,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 30),
               SizedBox(
@@ -160,10 +163,11 @@ class _MapScreenState extends State<MapScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(ctx, true),
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6C63FF)),
-                  child: const Text("CONTINUAR", style: TextStyle(fontWeight: FontWeight.w900)),
+                  child: Text(AppLocalizations.of(context)!.map_continue, style: const TextStyle(fontWeight: FontWeight.w900)),
                 ),
               ),
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("MÁS TARDE")),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context)!.map_later)),
+
             ],
           ),
         ),
@@ -506,11 +510,12 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     Icon(Icons.visibility_off, color: Colors.blue.shade400, size: 18),
                     const SizedBox(width: 6),
-                    const Text("MODO FANTASMA", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    Text(AppLocalizations.of(context)!.map_ghost_mode, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue)),
                   ],
                 ),
               ),
             ),
+
 
           if (_hasLocation && !_mapInitialized && !isBlocked) _buildLoadingOverlay(),
 
@@ -582,12 +587,12 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildLocationWaitingOverlay() {
     return Container(
       color: Colors.white,
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppTheme.arteRed, strokeWidth: 3),
-          SizedBox(height: 30),
-          Text("OBTENIENDO UBICACIÓN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5, color: AppTheme.arteRed)),
+          const CircularProgressIndicator(color: AppTheme.arteRed, strokeWidth: 3),
+          const SizedBox(height: 30),
+          Text(AppLocalizations.of(context)!.map_getting_loc, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5, color: AppTheme.arteRed)),
         ],
       ),
     );
@@ -602,16 +607,17 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           const Icon(Icons.location_off_rounded, color: AppTheme.arteRed, size: 70),
           const SizedBox(height: 30),
-          const Text("GPS REQUERIDO", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.map_gps_required, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          const Text("Activa la ubicación para explorar el arte.", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+          Text(AppLocalizations.of(context)!.map_gps_desc, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 40),
           ElevatedButton(
             onPressed: () => _requestLocationPermission(),
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.arteRed),
-            child: const Text("CONECTAR", style: TextStyle(fontWeight: FontWeight.w900)),
+            child: Text(AppLocalizations.of(context)!.map_connect, style: const TextStyle(fontWeight: FontWeight.w900)),
           ),
         ],
+
       ),
     );
   }
@@ -638,11 +644,11 @@ class _MapScreenState extends State<MapScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [BoxShadow(color: AppTheme.arteRed.withAlpha(60), blurRadius: 15, offset: const Offset(0, 5))],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text('CREAR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
+                  const Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Text(AppLocalizations.of(context)!.map_create, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
                 ],
               ),
             ),
@@ -724,10 +730,11 @@ class _FilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _FilterTab(label: 'TODO', value: 'all', isSelected: selected == 'all', onTap: onSelect),
-        _FilterTab(label: 'AMIGOS', value: 'following', isSelected: selected == 'following', onTap: onSelect),
-        _FilterTab(label: 'MÍO', value: 'me', isSelected: selected == 'me', onTap: onSelect),
+        _FilterTab(label: AppLocalizations.of(context)!.map_all, value: 'all', isSelected: selected == 'all', onTap: onSelect),
+        _FilterTab(label: AppLocalizations.of(context)!.map_friends, value: 'following', isSelected: selected == 'following', onTap: onSelect),
+        _FilterTab(label: AppLocalizations.of(context)!.map_mine, value: 'me', isSelected: selected == 'me', onTap: onSelect),
       ],
+
     );
   }
 }
