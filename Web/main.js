@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -16,13 +16,14 @@ const db = getFirestore(app);
 let allModels = [];
 let currentIndex = 0;
 
-async function loadModels() {
+function loadModels() {
     const container = document.getElementById('thumbnails-container');
     
-    try {
-        const querySnapshot = await getDocs(collection(db, "ar_objects"));
+    // Usamos onSnapshot para actualizaciones en tiempo real
+    onSnapshot(collection(db, "ar_objects"), (querySnapshot) => {
         if (querySnapshot.empty) {
             container.innerHTML = '<div class="loading-state">No hay modelos.</div>';
+            allModels = [];
             return;
         }
 
@@ -40,11 +41,18 @@ async function loadModels() {
             container.appendChild(thumb);
         });
 
-        if (allModels.length > 0) selectModel(0);
-
-    } catch (error) {
-        console.error(error);
-    }
+        // Seleccionar el primer modelo si no hay ninguno seleccionado o si el actual ya no existe
+        if (allModels.length > 0) {
+            if (!allModels[currentIndex]) {
+                selectModel(0);
+            } else {
+                selectModel(currentIndex); // Refrescar el estado visual del actual
+            }
+        }
+    }, (error) => {
+        console.error("Error cargando modelos:", error);
+        container.innerHTML = '<div class="loading-state">Error al conectar con la base de datos.</div>';
+    });
 }
 
 function createThumbnail(model, index) {
@@ -57,15 +65,20 @@ function createThumbnail(model, index) {
 }
 
 function selectModel(index) {
+    if (allModels.length === 0) return;
     if (index < 0) index = allModels.length - 1;
     if (index >= allModels.length) index = 0;
     
-    currentIndex = index;
     const model = allModels[index];
     const viewer = document.getElementById('main-viewer');
     const nameOverlay = document.getElementById('model-name-overlay');
 
-    viewer.src = model.url;
+    // Solo actualizar si el modelo ha cambiado para evitar recargas innecesarias
+    if (viewer.getAttribute('src') !== model.url) {
+        viewer.src = model.url;
+        currentIndex = index;
+    }
+    
     nameOverlay.innerText = `${index + 1}. ${model.name.replace('.glb', '')}`;
 
     document.querySelectorAll('.thumb-card').forEach(card => card.classList.remove('active'));
