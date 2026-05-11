@@ -1,4 +1,4 @@
-package com.example.pokemon_go_map
+package com.example.arte_go_map
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,7 +17,6 @@ class ChatService {
     return _firestore
         .collection('chats')
         .where('participants', arrayContains: currentUserId)
-        .orderBy('lastMessageTime', descending: true)
         .snapshots();
   }
 
@@ -64,6 +66,72 @@ class ChatService {
     });
   }
 
+  // Send an image message
+  Future<void> sendImageMessage(String chatId, File imageFile) async {
+    if (currentUserId == null) return;
+    
+    // Upload image
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final ref = FirebaseStorage.instance.ref().child('chat_images').child(chatId).child('$fileName.jpg');
+    
+    await ref.putFile(imageFile);
+    final imageUrl = await ref.getDownloadURL();
+    
+    // Send message
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add({
+      'senderId': currentUserId,
+      'text': '',
+      'imageUrl': imageUrl,
+      'type': 'image',
+      'timestamp': FieldValue.serverTimestamp(),
+      'readBy': [currentUserId],
+    });
+
+    // Update chat last message
+    await _firestore.collection('chats').doc(chatId).update({
+      'lastMessage': '📷 Imagen',
+      'lastMessageTime': FieldValue.serverTimestamp(),
+      'lastSenderId': currentUserId,
+    });
+  }
+
+  // Send a video message
+  Future<void> sendVideoMessage(String chatId, File videoFile) async {
+    if (currentUserId == null) return;
+    
+    // Upload video
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final ref = FirebaseStorage.instance.ref().child('chat_videos').child(chatId).child('$fileName.mp4');
+    
+    await ref.putFile(videoFile);
+    final videoUrl = await ref.getDownloadURL();
+    
+    // Send message
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add({
+      'senderId': currentUserId,
+      'text': '',
+      'videoUrl': videoUrl,
+      'type': 'video',
+      'timestamp': FieldValue.serverTimestamp(),
+      'readBy': [currentUserId],
+    });
+
+    // Update chat last message
+    await _firestore.collection('chats').doc(chatId).update({
+      'lastMessage': '🎥 Vídeo',
+      'lastMessageTime': FieldValue.serverTimestamp(),
+      'lastSenderId': currentUserId,
+    });
+  }
+
   // Create or get existing chat with a user
   Future<String> createChat(
       String otherUserId, String otherUserName, String otherUserAvatar) async {
@@ -82,16 +150,20 @@ class ChatService {
       }
     }
 
+    // Get current user data to store in the chat
+    final currentUserDoc = await _firestore.collection('users').doc(currentUserId).get();
+    final currentUserName = currentUserDoc.data()?['userName'] ?? currentUserDoc.data()?['fullName'] ?? 'Usuario';
+    final currentUserAvatar = currentUserDoc.data()?['profileImageUrl'] ?? currentUserDoc.data()?['avatarUrl'];
+
     // Create new chat
     final docRef = await _firestore.collection('chats').add({
       'participants': [currentUserId, otherUserId],
       'participantNames': {
-        // Store names for easy display
+        currentUserId: currentUserName,
         otherUserId: otherUserName,
-        // We assume the other user has our name, or we fetch it.
-        // For simplicity in this demo, we might update this differently or fetch user data.
       },
       'participantAvatars': {
+        currentUserId: currentUserAvatar,
         otherUserId: otherUserAvatar,
       },
       'lastMessage': 'Nuevo chat comenzado',
@@ -100,5 +172,63 @@ class ChatService {
     });
 
     return docRef.id;
+  }
+
+  // Mark chat as read for current user
+  Future<void> markChatAsRead(String chatId) async {
+    if (currentUserId == null) return;
+    try {
+      // 1. Mark in the chat document (lastReadTime)
+      await _firestore.collection('chats').doc(chatId).set({
+        'lastReadTime': {
+          currentUserId: FieldValue.serverTimestamp(),
+        }
+      }, SetOptions(merge: true));
+
+      // 2. Mark all notifications for this chat as read
+      final unreadNotifications = await _firestore
+          .collection('notifications')
+          .where('userId', isEqualTo: currentUserId)
+          .where('chatId', isEqualTo: chatId)
+          .where('read', isEqualTo: false)
+          .get();
+
+      if (unreadNotifications.docs.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (var doc in unreadNotifications.docs) {
+          batch.update(doc.reference, {'read': true});
+        }
+        await batch.commit();
+      }
+    } catch (e) {
+      debugPrint('Error marking chat as read: $e');
+    }
+  }
+
+  // Get unread chats count (source of truth for messages)
+  Stream<int> getUnreadChatCount() {
+    if (currentUserId == null) return Stream.value(0);
+    return _firestore
+        .collection('chats')
+        .where('participants', arrayContains: currentUserId)
+        .snapshots()
+        .map((snapshot) {
+      int count = 0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final timestamp = data['lastMessageTime'] as Timestamp?;
+        final lastSenderId = data['lastSenderId'];
+        final lastReadTimeMap = data['lastReadTime'] as Map<String, dynamic>?;
+        final myLastReadTime = lastReadTimeMap?[currentUserId] as Timestamp?;
+
+        if (lastSenderId != currentUserId && 
+            (myLastReadTime == null || 
+             (timestamp != null && timestamp.compareTo(myLastReadTime) > 0))) {
+          count++;
+        }
+      }
+      debugPrint('DEBUG: UnreadChatCount (source of truth): $count');
+      return count;
+    });
   }
 }

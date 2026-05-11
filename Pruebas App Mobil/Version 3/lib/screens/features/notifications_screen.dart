@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_theme.dart';
 import '../../services/user_service.dart';
 import 'package:intl/intl.dart';
+import 'chat_detail_screen.dart';
+import 'profile_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -34,8 +36,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _userService.getNotifications(_currentUserId),
+      body: SafeArea(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _userService.getNotifications(_currentUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -77,15 +80,58 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               return _NotificationTile(
                 notificationId: doc.id,
                 data: data,
-                onTap: () {
+                onTap: () async {
                   _userService.markNotificationAsRead(doc.id);
-                  // Optional: Navigate based on notification type
+                  
+                  if (data['type'] == 'chat' && data['chatId'] != null) {
+                    final chatId = data['chatId'];
+                    
+                    try {
+                      final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(chatId).get();
+                      if (chatDoc.exists) {
+                        final participants = List<String>.from(chatDoc.data()?['participants'] ?? []);
+                        final otherUserId = participants.firstWhere(
+                          (id) => id != _currentUserId, 
+                          orElse: () => data['senderId'] ?? data['fromUserId'] ?? ''
+                        );
+                        
+                        if (otherUserId.isNotEmpty) {
+                          final userDoc = await FirebaseFirestore.instance.collection('users').doc(otherUserId).get();
+                          final userName = userDoc.data()?['userName'] ?? userDoc.data()?['fullName'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+                          final avatarUrl = userDoc.data()?['profileImageUrl'] ?? userDoc.data()?['avatarUrl'];
+                          
+                          if (mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatDetailScreen(
+                                  chatId: chatId,
+                                  chatName: userName,
+                                  avatarUrl: avatarUrl,
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      }
+                    } catch (e) {
+                      debugPrint('Error navigating to chat from notification: $e');
+                    }
+                  } else if (data['type'] == 'follow' && data['fromUserId'] != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(userId: data['fromUserId']),
+                      ),
+                    );
+                  }
                 },
               );
             },
           );
         },
       ),
+     ),
     );
   }
 }
@@ -121,8 +167,13 @@ class _NotificationTile extends StatelessWidget {
         iconColor = AppTheme.arteRed;
         break;
       case 'comment':
-        icon = Icons.chat_bubble;
+      case 'chat':
+        icon = type == 'chat' ? Icons.message : Icons.chat_bubble;
         iconColor = AppTheme.arteBlue;
+        break;
+      case 'follow':
+        icon = Icons.person_add;
+        iconColor = AppTheme.arteYellow;
         break;
       default:
         icon = Icons.notifications;

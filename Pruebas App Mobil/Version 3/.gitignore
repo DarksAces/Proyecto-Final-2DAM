@@ -10,6 +10,8 @@
 .history
 .svn/
 .swiftpm/
+Thumbs.db
+analyze_output.txt
 
 # IntelliJ related
 *.iml
@@ -19,6 +21,7 @@
 
 # Visual Studio Code related
 .vscode/
+.history/
 
 # Flutter/Dart related
 **/doc/api/
@@ -71,3 +74,17 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Firebase/Functions related
+functions/node_modules/
+functions/.env
+functions/.runtimeconfig.json
+firebase-debug.log
+firestore-debug.log
+pubsub-debug.log
+ui-debug.log
+database-debug.log
+
+# Environment variables
+.env
+.env.*

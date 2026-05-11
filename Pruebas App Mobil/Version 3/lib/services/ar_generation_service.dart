@@ -144,8 +144,15 @@ class ArGenerationService {
         'userId': currentUserId,
       });
 
-      // 6. Also save locally for the viewer (immediate performance)
-      return await downloadToLocal(flaskModelUrl, glbFileName);
+      // 6. Award +10 points for generating an AR model
+      await _firestore.collection('users').doc(currentUserId).update({
+        'points': FieldValue.increment(10),
+      });
+      print("DEBUG: +10 points awarded to $currentUserId for AR generation");
+
+      // 7. Also save locally for the viewer (immediate performance)
+      // Using already downloaded modelBytes to avoid redundant request
+      return await saveBytesLocally(modelBytes, glbFileName);
     } catch (e) {
       print("Error in generateAndUpload3DModel: $e");
       rethrow;

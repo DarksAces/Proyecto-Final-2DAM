@@ -11,6 +11,15 @@ class AuthService {
   // Auth state changes stream
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  // Check if username is available
+  Future<bool> isUsernameAvailable(String username) async {
+    final result = await _firestore
+        .collection('users')
+        .where('displayName', isEqualTo: username)
+        .get();
+    return result.docs.isEmpty;
+  }
+
   // Sign in with email and password
   Future<AuthResult> signInWithEmailAndPassword({
     required String email,
@@ -42,6 +51,14 @@ class AuthService {
     required String displayName,
   }) async {
     try {
+      // Final check for username availability
+      if (!await isUsernameAvailable(displayName)) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'El nombre artístico ya está en uso.',
+        );
+      }
+
       final UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
@@ -52,26 +69,7 @@ class AuthService {
 
       // Create user document in Firestore
       if (result.user != null) {
-        await _firestore.collection('users').doc(result.user!.uid).set({
-          'displayName': displayName,
-          'email': email.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-          'points': 0,
-          'level': 'Aprendiz de AR',
-          'followers': 0,
-          'following': 0,
-          'bio': 'Nuevo en ARte',
-        });
-
-        // Create welcome notification
-        await _firestore.collection('notifications').add({
-          'userId': result.user!.uid,
-          'type': 'welcome',
-          'message': '¡Bienvenido a ARte! Comienza tu aventura creativa.',
-          'fromUser': 'system',
-          'timestamp': FieldValue.serverTimestamp(),
-          'read': false,
-        });
+        await _createUserDocument(result.user!, displayName, email.trim());
       }
 
       return AuthResult(success: true, user: result.user);
@@ -88,9 +86,66 @@ class AuthService {
     }
   }
 
+  // Helper to create user doc
+  Future<void> _createUserDocument(User user, String displayName, String email) async {
+    await _firestore.collection('users').doc(user.uid).set({
+      'displayName': displayName,
+      'email': email,
+      'createdAt': FieldValue.serverTimestamp(),
+      'points': 0,
+      'level': 'Aprendiz de AR',
+      'followers': 0,
+      'following': 0,
+      'bio': 'Nuevo en ARte',
+    });
+
+    await _firestore.collection('notifications').add({
+      'userId': user.uid,
+      'type': 'welcome',
+      'message': '¡Bienvenido a ARte! Comienza tu aventura creativa.',
+      'fromUser': 'system',
+      'timestamp': FieldValue.serverTimestamp(),
+      'read': false,
+    });
+  }
+
   // Sign out
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+
+  // Change password (requires re-authentication)
+  Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final User? user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        return AuthResult(success: false, errorMessage: 'Usuario no autenticado.');
+      }
+
+      // Re-authenticate user
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+
+      return AuthResult(success: true);
+    } on FirebaseAuthException catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: _getSpanishErrorMessage(e.code),
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error al cambiar la contraseña: $e',
+      );
+    }
   }
 
   // Reset password
@@ -105,6 +160,42 @@ class AuthService {
       return AuthResult(
         success: false,
         errorMessage: _getSpanishErrorMessage(e.code),
+      );
+    }
+  }
+
+  // Delete account (requires re-authentication)
+  Future<AuthResult> deleteAccount({required String currentPassword}) async {
+    try {
+      final User? user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        return AuthResult(success: false, errorMessage: 'Usuario no autenticado.');
+      }
+
+      // Re-authenticate user
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      
+      // Delete user data from Firestore
+      await _firestore.collection('users').doc(user.uid).delete();
+      
+      // Delete user from Auth
+      await user.delete();
+
+      return AuthResult(success: true);
+    } on FirebaseAuthException catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: _getSpanishErrorMessage(e.code),
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error al eliminar la cuenta: $e',
       );
     }
   }
@@ -148,3 +239,5 @@ class AuthResult {
     this.errorMessage,
   });
 }
+
+

@@ -8,7 +8,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AuthBackground(
-      withBlob: true,
+      withBlob: false,
       child: SingleChildScrollView(
         child: Container(
           // Ensure min height to fill screen if possible, but allow scrolling
@@ -57,14 +57,17 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Logo/Blob Area
-              Image.asset(
-                'assets/images/logo.png',
-                height: 200,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.auto_awesome,
-                    color: Colors.white24,
-                    size: 80),
+              SizedBox(
+                height: 160,
+                width: 160,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.auto_awesome,
+                      color: Colors.black26,
+                      size: 80),
+                ),
               ),
 
               const SizedBox(height: 20),

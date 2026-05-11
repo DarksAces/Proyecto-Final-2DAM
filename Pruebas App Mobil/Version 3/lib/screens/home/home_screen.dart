@@ -6,8 +6,10 @@ import '../features/contest_screen.dart';
 import '../features/notifications_screen.dart';
 import '../features/gallery_screen.dart';
 import '../features/ar_scanner_screen.dart';
+import '../features/ar_generation_screen.dart';
 import '../main_wrapper.dart';
-import '../../services/simulation_service.dart';
+import '../map/add_site_screen.dart';
+import '../../services/user_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -49,78 +51,43 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const NotificationsScreen()),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 10)
-                            ]),
-                        child: const Icon(Icons.notifications,
-                            color: AppTheme.arteRed),
-                      ),
-                    )
+                    StreamBuilder<int>(
+                        stream: UserService()
+                            .getUnreadNotificationsCount(user?.uid ?? ''),
+                        builder: (context, snapshot) {
+                          final count = snapshot.data ?? 0;
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotificationsScreen()),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
+                                        blurRadius: 10)
+                                  ]),
+                              child: Badge.count(
+                                count: count,
+                                isLabelVisible: count > 0,
+                                backgroundColor: AppTheme.arteRed,
+                                child: const Icon(Icons.notifications,
+                                    color: AppTheme.arteRed),
+                              ),
+                            ),
+                          );
+                        })
                   ],
                 ),
-                const SizedBox(height: 20),
-
-                // Search Bar
-                TextField(
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      // Demo search action
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("Buscando: $value..."),
-                            backgroundColor: AppTheme.arteBlue),
-                      );
-                    }
-                  },
-                  decoration: InputDecoration(
-                    hintText: "¿Qué vamos a descubrir hoy?",
-                    hintStyle: TextStyle(color: Colors.grey.shade500),
-                    prefixIcon:
-                        const Icon(Icons.search, color: AppTheme.arteRed),
-                    suffixIcon: GestureDetector(
-                      onTap: () => _showFilters(context),
-                      child: Container(
-                        margin: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                            color: AppTheme.arteRed, shape: BoxShape.circle),
-                        child: const Icon(Icons.tune,
-                            color: Colors.white, size: 20),
-                      ),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none),
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(
-                            color: AppTheme.arteRed, width: 1)),
-                  ),
-                ),
-
                 const SizedBox(height: 30),
 
                 // Grid - Title
@@ -219,7 +186,14 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ArGenerationScreen(),
+                              ),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: AppTheme.arteRed,
@@ -234,182 +208,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _showFilters(BuildContext context) {
-    // Capture MainWrapper state from the valid context
-    final mainWrapper = MainWrapper.of(context);
-
-    // Local state variables for the modal
-    String selectedCategory = "Arte Urbano";
-    double searchDistance = 5.0;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.55,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-            ),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Filtros de Búsqueda",
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close, color: Colors.grey),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Text("CATEGORÍA",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.grey)),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _FilterChip(
-                        label: "Arte Urbano",
-                        isSelected: selectedCategory == "Arte Urbano",
-                        onSelected: (val) {
-                          setState(() => selectedCategory = "Arte Urbano");
-                        }),
-                    _FilterChip(
-                        label: "Monumentos",
-                        isSelected: selectedCategory == "Monumentos",
-                        onSelected: (val) {
-                          setState(() => selectedCategory = "Monumentos");
-                        }),
-                    _FilterChip(
-                        label: "Naturaleza",
-                        isSelected: selectedCategory == "Naturaleza",
-                        onSelected: (val) {
-                          setState(() => selectedCategory = "Naturaleza");
-                        }),
-                    _FilterChip(
-                        label: "Eventos",
-                        isSelected: selectedCategory == "Eventos",
-                        onSelected: (val) {
-                          setState(() => selectedCategory = "Eventos");
-                        }),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                const Text("DISTANCIA",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.grey)),
-                Slider(
-                    value: searchDistance,
-                    min: 1,
-                    max: 50,
-                    divisions: 10,
-                    activeColor: AppTheme.arteRed,
-                    inactiveColor: Colors.grey.shade200,
-                    label: "${searchDistance.round()} km",
-                    onChanged: (val) {
-                      setState(() => searchDistance = val);
-                    }),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("1 km",
-                        style: TextStyle(color: Colors.grey, fontSize: 10)),
-                    Text("50 km",
-                        style: TextStyle(color: Colors.grey, fontSize: 10)),
-                  ],
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(
-                          sheetContext); // Close modal using sheetContext
-
-                      // Use the captured mainWrapper instance
-                      if (mainWrapper != null) {
-                        mainWrapper.switchTab(2); // Switch to Map
-                      }
-
-                      // Trigger search event
-                      SimulationService().triggerSearch(selectedCategory);
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.arteRed,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        elevation: 5,
-                        shadowColor: AppTheme.arteRed.withValues(alpha: 0.4),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16))),
-                    child: const Text("APLICAR FILTROS",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            fontSize: 16)),
-                  ),
-                )
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final Function(bool)? onSelected;
-
-  const _FilterChip(
-      {required this.label, this.isSelected = false, this.onSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: onSelected,
-      selectedColor: AppTheme.arteRed.withValues(alpha: 0.1),
-      backgroundColor: Colors.grey.shade50,
-      labelStyle: TextStyle(
-          color: isSelected ? AppTheme.arteRed : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }

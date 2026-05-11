@@ -7,6 +7,7 @@ import '../../widgets/social/social_post_card.dart';
 import 'notifications_screen.dart';
 import 'social_screen.dart';
 import 'create_post_screen.dart';
+import 'profile_screen.dart';
 import '../../services/user_service.dart';
 
 class FeedSocialScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100, // Light grey background for feed
+      backgroundColor: Colors.grey.shade200, // Background typical of professional feeds
       body: SafeArea(
         child: Column(
           children: [
@@ -46,7 +47,13 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
             FeedHeader(
               avatarUrl: _userData?['avatarUrl'],
               onProfileTap: () {
-                // Navigate to Profile or Menu
+                final currentUserId = _userService.currentUserId;
+                if (currentUserId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen(userId: currentUserId)),
+                  );
+                }
               },
               onChatTap: () {
                 Navigator.push(
@@ -70,6 +77,7 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
                   setState(() {});
                 },
                 child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
                       // Create Post Box
@@ -85,12 +93,14 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
                         },
                       ),
 
+                      const SizedBox(height: 8),
+
                       // Firestore Posts Stream
                       StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('sitios')
                             .orderBy('timestamp', descending: true)
-                            .limit(20)
+                            .limit(50)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
@@ -101,17 +111,39 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
                             );
                           }
 
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32.0),
+                                child: Text('Error: ${snapshot.error}'),
+                              ),
+                            );
+                          }
+
                           if (!snapshot.hasData ||
                               snapshot.data!.docs.isEmpty) {
                             return _buildEmptyState();
                           }
 
-                          return ListView.builder(
+                          // Client-side filtering to avoid index requirements
+                          final approvedDocs = snapshot.data!.docs.where((doc) {
+                            final data = doc.data() as Map<String, dynamic>;
+                            final status = data['status'] ?? 'accepted';
+                            return status == 'approved' || status == 'accepted';
+                          }).toList();
+
+                          if (approvedDocs.isEmpty) {
+                            return _buildEmptyState();
+                          }
+
+                          return ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: snapshot.data!.docs.length,
+                            itemCount: approvedDocs.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 8),
                             itemBuilder: (context, index) {
-                              final post = snapshot.data!.docs[index];
+                              final post = approvedDocs[index];
                               final data = post.data() as Map<String, dynamic>;
                               return SocialPostCard(
                                 data: data,
@@ -121,7 +153,7 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
                           );
                         },
                       ),
-                      const SizedBox(height: 80), // Bottom padding
+                      const SizedBox(height: 100), // Bottom padding
                     ],
                   ),
                 ),
@@ -139,7 +171,7 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
         padding: const EdgeInsets.all(32.0),
         child: Column(
           children: [
-            Icon(Icons.style, size: 64, color: Colors.grey.shade300),
+            Icon(Icons.style, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             const Text(
               'Aún no hay publicaciones de amigos',

@@ -1,4 +1,4 @@
-name: pokemon_go_map
+name: arte_go_map
 description: A new Flutter project.
 publish_to: 'none'
 version: 1.0.0+1
@@ -19,14 +19,23 @@ dependencies:
   firebase_auth: ^6.4.0
   cloud_firestore: ^6.3.0
   firebase_storage: ^13.3.0
+  firebase_messaging: ^16.2.0
+  flutter_local_notifications: 17.2.3
   image_picker: ^1.1.2
   intl: ^0.20.2
+  shared_preferences: ^2.5.2
   http: ^1.6.0
   camera: ^0.12.0
   permission_handler: ^12.0.1
   model_viewer_plus: ^1.8.0
   path_provider: ^2.1.2
   path: ^1.9.0
+  socket_io_client: ^3.1.4
+  video_player: ^2.11.1
+  chewie: ^1.13.1
+  google_sign_in: ^7.2.0
+  flutter_facebook_auth: ^7.1.6
+  sign_in_with_apple: ^7.0.1
 
 dev_dependencies:
   flutter_test:

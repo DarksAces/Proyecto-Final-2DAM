@@ -1,9 +1,36 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'chat_screen.dart';
+import '../../services/user_service.dart';
+import 'profile_screen.dart';
 
-class CommunityScreen extends StatelessWidget {
+class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
+
+  @override
+  State<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends State<CommunityScreen> {
+  final UserService _userService = UserService();
+  List<Map<String, dynamic>> _users = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    final users = await _userService.getAllUsersWithFollowStatus();
+    if (mounted) {
+      setState(() {
+        _users = users;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +87,7 @@ class CommunityScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.search, color: Colors.grey),
                   SizedBox(width: 12),
-                  Text("Buscar amigos o grupos...",
+                  Text("Buscar amigos o exploradores...",
                       style: TextStyle(color: Colors.grey)),
                 ],
               ),
@@ -68,53 +95,29 @@ class CommunityScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Chat List
+            // User List (Real Data)
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  _ChatTile(
-                    name: "Alex AR",
-                    message: "¡Mira este rincón oculto en Madrid! ...",
-                    time: "2 min",
-                    imageUrl: "https://i.pravatar.cc/150?img=11",
-                    isVerified: true,
-                    isOnline: true,
-                    hasUnread: true,
-                    isRedTime: true,
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator(color: AppTheme.arteRed))
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: _users.length,
+                    itemBuilder: (context, index) {
+                      final user = _users[index];
+                      final name = user['displayName'] ?? user['username'] ?? 'Usuario';
+                      final photoUrl = user['photoUrl'] ?? user['avatarUrl'];
+                      
+                      return _ChatTile(
+                        userId: user['id'],
+                        name: name,
+                        message: user['bio'] ?? "Explorador en ARte",
+                        time: "Ahora",
+                        imageUrl: photoUrl ?? "https://i.pravatar.cc/150?u=${user['id']}",
+                        isVerified: user['isVerified'] == true,
+                        isOnline: index % 3 == 0,
+                      );
+                    },
                   ),
-                  _ChatTile(
-                    name: "Urban Explorers",
-                    message: "Marta: ¿Quién se apunta a una caza e...",
-                    time: "1h",
-                    imageUrl:
-                        "https://i.pravatar.cc/150?img=17", // Group Placeholder
-                    hasRing: true,
-                    ringColor: Colors.cyan,
-                  ),
-                  _ChatTile(
-                    name: "Marta Exploradora",
-                    message: "¿Viste el nuevo marcador en Sol? 🧩",
-                    time: "4h",
-                    imageUrl: "https://i.pravatar.cc/150?img=5",
-                  ),
-                  _ChatTile(
-                    name: "ARte Bot",
-                    message: "¡Bienvenido! Descubre tu primera rec...",
-                    time: "Ayer",
-                    imageUrl: "https://i.pravatar.cc/150?img=12",
-                    hasRing: true,
-                    ringColor: Colors.orange,
-                  ),
-                  _ChatTile(
-                    name: "Sofi_Sky",
-                    message: "📍 Ver ubicación en tiempo real",
-                    time: "Ayer",
-                    imageUrl: "https://i.pravatar.cc/150?img=9",
-                    isHighlightedStart: true,
-                  ),
-                ],
-              ),
             )
           ],
         ),
@@ -152,6 +155,7 @@ class _HeaderButton extends StatelessWidget {
 }
 
 class _ChatTile extends StatelessWidget {
+  final String userId;
   final String name;
   final String message;
   final String time;
@@ -165,6 +169,7 @@ class _ChatTile extends StatelessWidget {
   final bool isHighlightedStart;
 
   const _ChatTile({
+    required this.userId,
     required this.name,
     required this.message,
     required this.time,
@@ -190,37 +195,47 @@ class _ChatTile extends StatelessWidget {
         color: Colors.transparent, // Ensure hit test works
         child: Row(
           children: [
-            Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: hasRing
-                        ? Border.all(
-                            color: ringColor ?? Colors.transparent, width: 2)
-                        : null,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(userId: userId),
                   ),
-                  child: CircleAvatar(
-                    radius: 28,
-                    backgroundImage: NetworkImage(imageUrl),
-                  ),
-                ),
-                if (isOnline)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.black, width: 2),
-                      ),
+                );
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: hasRing
+                          ? Border.all(
+                              color: ringColor ?? Colors.transparent, width: 2)
+                          : null,
                     ),
-                  )
-              ],
+                    child: CircleAvatar(
+                      radius: 28,
+                      backgroundImage: NetworkImage(imageUrl),
+                    ),
+                  ),
+                  if (isOnline)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black, width: 2),
+                        ),
+                      ),
+                    )
+                ],
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(

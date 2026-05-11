@@ -8,6 +8,8 @@ class NearbySitesBar extends StatelessWidget {
   final double userLat;
   final double userLng;
   final bool hasLocation;
+  final String sortBy;
+  final ValueChanged<String> onSortChanged;
   final void Function(Map<String, dynamic>) onTap;
 
   const NearbySitesBar({
@@ -16,6 +18,8 @@ class NearbySitesBar extends StatelessWidget {
     required this.userLat,
     required this.userLng,
     required this.hasLocation,
+    required this.sortBy,
+    required this.onSortChanged,
     required this.onTap,
   });
 
@@ -32,137 +36,119 @@ class NearbySitesBar extends StatelessWidget {
   }
 
   String _formatDist(double m) {
-    if (m < 1000) return '${m.round()} m';
-    return '${(m / 1000).toStringAsFixed(1)} km';
+    if (m < 1000) return '${m.round()}m';
+    return '${(m / 1000).toStringAsFixed(1)}km';
   }
 
   @override
   Widget build(BuildContext context) {
-    final sorted = [...stops];
-    if (hasLocation) {
-      sorted.sort((a, b) {
-        final da = _distance(a['lat'], a['lng']);
-        final db = _distance(b['lat'], b['lng']);
-        return da.compareTo(db);
-      });
-    }
-
-    final nearby = sorted.take(15).toList();
-
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.88),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 15,
-                offset: const Offset(0, 4),
-              ),
-            ],
-            borderRadius:
-                const BorderRadius.vertical(bottom: Radius.circular(24)),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: AppTheme.arteRed.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(180),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withAlpha(80), width: 1),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'CERCA DE TI',
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.2, color: Color(0xFF1A1A1A)),
                       ),
-                      child: const Icon(Icons.explore_rounded,
-                          size: 14, color: AppTheme.arteRed),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'OBRAS CERCANAS',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 11,
-                        letterSpacing: 0.8,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (hasLocation)
-                      Text(
-                        'A tu alrededor',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                  ],
+                      const Spacer(),
+                      _SortMiniSelector(current: sortBy, onChanged: onSortChanged),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 95,
-                child: nearby.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.only(
-                            left: 16, right: 16, bottom: 16),
-                        itemCount: nearby.length,
-                        itemBuilder: (context, i) {
-                          final s = nearby[i];
-                          final dist = hasLocation
-                              ? _distance(s['lat'], s['lng'])
-                              : null;
-                          return _NearbyCard(
-                            stop: s,
-                            distance: dist,
-                            formatDist: _formatDist,
-                            onTap: () => onTap(s),
-                          );
-                        },
-                      ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 80,
+                  child: stops.isEmpty
+                      ? const Center(child: Text('Sin obras cerca', style: TextStyle(fontSize: 10, color: Colors.grey)))
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          itemCount: stops.length,
+                          itemBuilder: (context, i) {
+                            final s = stops[i];
+                            final dist = hasLocation ? _distance(s['lat'], s['lng']) : null;
+                            return _NearbyMiniCard(
+                              stop: s,
+                              distance: dist,
+                              formatDist: _formatDist,
+                              sortBy: sortBy,
+                              onTap: () => onTap(s),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Text(
-          'Explora el mapa para encontrar obras',
-          style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade400,
-              fontStyle: FontStyle.italic),
         ),
       ),
     );
   }
 }
 
-class _NearbyCard extends StatelessWidget {
+class _SortMiniSelector extends StatelessWidget {
+  final String current;
+  final ValueChanged<String> onChanged;
+  const _SortMiniSelector({required this.current, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      initialValue: current,
+      onSelected: onChanged,
+      offset: const Offset(0, 30),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(color: const Color(0xFF6C63FF).withAlpha(15), borderRadius: BorderRadius.circular(8)),
+        child: Row(
+          children: [
+            Icon(
+              current == 'likes' ? Icons.favorite : (current == 'date' ? Icons.access_time : Icons.near_me),
+              size: 10, color: const Color(0xFF6C63FF)
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.keyboard_arrow_down, size: 10, color: Color(0xFF6C63FF)),
+          ],
+        ),
+      ),
+      itemBuilder: (context) => [
+        const PopupMenuItem(value: 'distance', height: 35, child: Text('Distancia', style: TextStyle(fontSize: 11))),
+        const PopupMenuItem(value: 'likes', height: 35, child: Text('Likes', style: TextStyle(fontSize: 11))),
+        const PopupMenuItem(value: 'date', height: 35, child: Text('Fecha', style: TextStyle(fontSize: 11))),
+      ],
+    );
+  }
+}
+
+class _NearbyMiniCard extends StatelessWidget {
   final Map<String, dynamic> stop;
   final double? distance;
+  final String sortBy;
   final String Function(double) formatDist;
   final VoidCallback onTap;
 
-  const _NearbyCard({
+  const _NearbyMiniCard({
     required this.stop,
     required this.distance,
     required this.formatDist,
+    required this.sortBy,
     required this.onTap,
   });
 
@@ -172,70 +158,37 @@ class _NearbyCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 175,
-        margin: const EdgeInsets.only(right: 12),
+        width: 160,
+        margin: const EdgeInsets.only(right: 10, bottom: 2),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.shade100),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 6, offset: const Offset(0, 2))],
         ),
         clipBehavior: Clip.antiAlias,
         child: Row(
           children: [
             if (image.isNotEmpty)
-              Image.network(
-                image,
-                width: 65,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder(),
-              )
+              Image.network(image, width: 60, height: double.infinity, fit: BoxFit.cover)
             else
-              _placeholder(),
+              Container(width: 60, color: Colors.grey.shade100, child: const Icon(Icons.image_outlined, color: Colors.grey, size: 16)),
             Expanded(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       stop['title'] ?? 'Sin título',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF2D2D2D)),
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
-                    if (distance != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.arteRed.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          formatDist(distance!),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppTheme.arteRed,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                    const SizedBox(height: 4),
+                    if (sortBy == 'likes')
+                      Row(children: [const Icon(Icons.favorite, size: 9, color: Colors.redAccent), const SizedBox(width: 3), Text("${stop['likes']}", style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold))])
+                    else if (distance != null)
+                      Text(formatDist(distance!), style: const TextStyle(fontSize: 9, color: Color(0xFF6C63FF), fontWeight: FontWeight.w900)),
                   ],
                 ),
               ),
@@ -243,24 +196,6 @@ class _NearbyCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _placeholder() {
-    return Container(
-      width: 65,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.arteRed.withValues(alpha: 0.1),
-            AppTheme.arteRed.withValues(alpha: 0.05)
-          ],
-        ),
-      ),
-      child: const Icon(Icons.image_not_supported_rounded,
-          color: AppTheme.arteRed, size: 24),
     );
   }
 }

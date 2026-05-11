@@ -1,8 +1,107 @@
 import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../theme/app_theme.dart';
+import 'package:intl/intl.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  late IO.Socket socket;
+  List<Map<String, dynamic>> messages = [
+    {
+      "username": "UsuarioFlutter",
+      "message": "¡Hola a todos!",
+      "timestamp": DateTime.now().subtract(const Duration(minutes: 5)),
+    },
+    {
+      "username": "Alex AR",
+      "message": "¡Todo bien! ¿Alguien para ir a explorar?",
+      "timestamp": DateTime.now().subtract(const Duration(minutes: 4)),
+    }
+  ];
+  final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final String myUsername =
+      "UsuarioFlutter"; // O el nombre del usuario logueado
+
+  @override
+  void initState() {
+    super.initState();
+    initSocket();
+  }
+
+  void initSocket() {
+    socket = IO.io('https://aura-bmqy.onrender.com', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+    socket.connect();
+    socket.onConnect((_) {
+      print('Conectado al servidor de sockets');
+    });
+
+    socket.on('receive_message', (data) {
+      if (mounted) {
+        if (data["username"] == myUsername)
+          return; // Evitar duplicado si ya lo mostramos
+        setState(() {
+          messages.insert(0, {
+            "username": data["username"],
+            "message": data["message"],
+            "timestamp": DateTime.now(),
+          });
+        });
+      }
+    });
+    socket.onDisconnect((_) => print('Desconectado'));
+  }
+
+  void sendMessage() {
+    String text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      // Mostrar el mensaje inmediatamente de forma local
+      setState(() {
+        messages.insert(0, {
+          'username': myUsername,
+          'message': text,
+          'timestamp': DateTime.now(),
+        });
+      });
+
+      socket.emit('send_message', {
+        'username': myUsername,
+        'message': text,
+      });
+      _controller.clear();
+      _scrollToBottom();
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0.0, // En un ListView invertido, 0.0 es el final (abajo)
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    socket.disconnect();
+    socket.dispose();
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +121,8 @@ class ChatScreen extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 20,
-                  backgroundImage:
-                      NetworkImage("https://i.pravatar.cc/150?img=11"),
+                  backgroundColor: AppTheme.arteRed,
+                  child: Icon(Icons.people, color: Colors.white),
                 ),
                 Positioned(
                   bottom: 0,
@@ -43,22 +142,16 @@ class ChatScreen extends StatelessWidget {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Alex Designer",
+                Text("Chat Comunitario",
                     style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 16)),
-                Text("EN LÍNEA",
-                    style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold)),
               ],
             )
           ],
         ),
         actions: [
-          // IconButton(icon: const Icon(Icons.videocam, color: Colors.black), onPressed: (){}), // REMOVED as per request
           IconButton(
               icon: const Icon(Icons.info_outline, color: Colors.black),
               onPressed: () {}),
@@ -68,81 +161,46 @@ class ChatScreen extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
+            child: ListView.builder(
+              controller: _scrollController,
+              reverse:
+                  true, // Esto hace que los mensajes salgan de abajo hacia arriba y no los tape el teclado
               padding: const EdgeInsets.all(20),
-              children: [
-                Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text("HOY",
-                        style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2)),
-                  ),
-                ),
-                const SizedBox(height: 20),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final msg = messages[index];
+                bool isMe = msg['username'] == myUsername;
+                String time =
+                    DateFormat('hh:mm a').format(msg['timestamp'] as DateTime);
 
-                // Received Text
-                const _MessageBubble(
-                  isMe: false,
-                  message:
-                      "¡Oye! Tienes que ver lo que acabo de encontrar con el escáner ARte en el centro. 🎨",
-                  time: "10:42 AM",
-                ),
-
-                // Received Image
-                const _ImageBubble(
-                  imageUrl:
-                      "https://images.unsplash.com/photo-1517713982677-4b66332f98de?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                  label: "Mural Escondido – Calle Mayor",
-                  description:
-                      "Es un mural interactivo que solo aparece si usas los pinceles virtuales.",
-                ),
-
-                // Sent Text
-                const _MessageBubble(
-                  isMe: true,
-                  message:
-                      "¡Increíble! Justo estoy por la zona. ¿Me puedes pasar la ubicación exacta? 📍",
-                  time: "10:45 AM",
-                  isRead: true,
-                ),
-
-                // Typing Indicator
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                        bottomLeft: Radius.circular(0),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    crossAxisAlignment: isMe
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    children: [
+                      if (!isMe)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12, bottom: 4),
+                          child: Text(
+                            msg['username'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                      _MessageBubble(
+                        isMe: isMe,
+                        message: msg['message'],
+                        time: time,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _Dot(),
-                        const SizedBox(width: 4),
-                        _Dot(),
-                        const SizedBox(width: 4),
-                        _Dot()
-                      ],
-                    ),
+                    ],
                   ),
-                )
-              ],
+                );
+              },
             ),
           ),
 
@@ -167,29 +225,34 @@ class ChatScreen extends StatelessWidget {
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const TextField(
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(
                             hintText: "Escribe un mensaje...",
                             border: InputBorder.none,
                             icon: Icon(Icons.sticky_note_2_outlined,
                                 color: Colors.grey, size: 20)),
+                        onSubmitted: (_) => sendMessage(),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                        color: AppTheme.arteRed,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Color(0x33FF0000),
-                              blurRadius: 10,
-                              offset: Offset(0, 4))
-                        ]),
-                    child:
-                        const Icon(Icons.send, color: Colors.white, size: 20),
+                  GestureDetector(
+                    onTap: sendMessage,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                          color: AppTheme.arteRed,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                                color: Color(0x33FF0000),
+                                blurRadius: 10,
+                                offset: Offset(0, 4))
+                          ]),
+                      child:
+                          const Icon(Icons.send, color: Colors.white, size: 20),
+                    ),
                   )
                 ],
               ),
@@ -223,14 +286,12 @@ class _MessageBubble extends StatelessWidget {
             isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
+            margin: const EdgeInsets.symmetric(vertical: 2),
             padding: const EdgeInsets.all(16),
             constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.75),
             decoration: BoxDecoration(
-                color: isMe
-                    ? AppTheme.arteRed
-                    : Colors.white, // White for received
+                color: isMe ? AppTheme.arteRed : Colors.white,
                 border: isMe ? null : Border.all(color: Colors.grey.shade100),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
@@ -273,126 +334,6 @@ class _MessageBubble extends StatelessWidget {
             )
         ],
       ),
-    );
-  }
-}
-
-class _ImageBubble extends StatelessWidget {
-  final String imageUrl;
-  final String label;
-  final String description;
-
-  const _ImageBubble({
-    required this.imageUrl,
-    required this.label,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-            bottomLeft: Radius.zero,
-          ),
-          border: Border.all(color: Colors.grey.shade100),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(imageUrl,
-                      height: 180, width: double.infinity, fit: BoxFit.cover),
-                ),
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: AppTheme.arteRed,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.center_focus_strong,
-                            color: Colors.white, size: 12),
-                        SizedBox(width: 4),
-                        Text("ARte",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold))
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                          Colors.black.withAlpha(200),
-                          Colors.transparent
-                        ])),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.location_on,
-                            color: Colors.white, size: 14),
-                        const SizedBox(width: 4),
-                        Expanded(
-                            child: Text(label,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis)),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(description,
-                  style: const TextStyle(color: Colors.black, fontSize: 14)),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration:
-          BoxDecoration(color: Colors.grey.shade400, shape: BoxShape.circle),
     );
   }
 }

@@ -6,6 +6,7 @@ import '../screens/features/feed_social_screen.dart';
 import 'map/map_screen.dart';
 
 import '../screens/features/profile_screen.dart';
+import '../services/notification_service.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -21,6 +22,15 @@ class MainWrapper extends StatefulWidget {
 class MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
   final Set<int> _visitedTabs = {0};
+
+  @override
+  void initState() {
+    super.initState();
+    // Procesar notificaciones pendientes si existen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService().processPendingNotification();
+    });
+  }
 
   Widget _buildPage(int index) {
     switch (index) {
@@ -48,16 +58,19 @@ class MainWrapperState extends State<MainWrapper> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true, // el cuerpo se extiende detrás del nav bar
-      body: Stack(
-        fit: StackFit.expand,
-        children: List.generate(4, (index) {
-          final bool visited = _visitedTabs.contains(index);
-          final bool active = _currentIndex == index;
-          return Offstage(
-            offstage: !active,
-            child: visited ? _buildPage(index) : const SizedBox.shrink(),
-          );
-        }),
+      body: SafeArea(
+        bottom: true,
+        child: Stack(
+          fit: StackFit.expand,
+          children: List.generate(4, (index) {
+            final bool visited = _visitedTabs.contains(index);
+            final bool active = _currentIndex == index;
+            return Offstage(
+              offstage: !active,
+              child: visited ? _buildPage(index) : const SizedBox.shrink(),
+            );
+          }),
+        ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,

@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../theme/app_theme.dart';
 
 class ArModelViewerScreen extends StatelessWidget {
@@ -37,6 +40,14 @@ class ArModelViewerScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
+        actions: [
+          if (modelUrl != null)
+            IconButton(
+              icon: const Icon(Icons.download_rounded),
+              tooltip: "Descargar modelo .glb",
+              onPressed: () => _downloadModel(context),
+            ),
+        ],
       ),
       body: Stack(
         children: [
@@ -112,5 +123,82 @@ class ArModelViewerScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _downloadModel(BuildContext context) async {
+    try {
+      if (modelUrl == null) return;
+
+      // 1. Request Permission
+      if (Platform.isAndroid) {
+        // For Android 13+, storage permission is split, but for saving to Downloads 
+        // sometimes no permission is needed if using MediaStore, 
+        // but here we use direct file access for simplicity in the Download folder.
+        var status = await Permission.storage.request();
+        if (!status.isGranted) {
+          // Try to continue anyway as some devices allow it
+          debugPrint("Storage permission not granted, attempting download anyway...");
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Iniciando descarga del modelo 3D..."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // 2. Download
+      final response = await http.get(Uri.parse(modelUrl!));
+      if (response.statusCode == 200) {
+        // 3. Determine save path
+        Directory? dir;
+        if (Platform.isAndroid) {
+          // Standard Android Downloads folder
+          dir = Directory('/storage/emulated/0/Download');
+          if (!await dir.exists()) {
+            dir = await getExternalStorageDirectory();
+          }
+        } else {
+          dir = await getApplicationDocumentsDirectory();
+        }
+
+        if (dir == null) throw Exception("No se pudo encontrar una ruta para guardar");
+
+        final cleanTitle = title.replaceAll(RegExp(r'[^\w\s]+'), '_').trim();
+        final fileName = "ARte_${cleanTitle}_${DateTime.now().millisecondsSinceEpoch}.glb";
+        final filePath = "${dir.path}/$fileName";
+        final file = File(filePath);
+        
+        await file.writeAsBytes(response.bodyBytes);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("✅ Modelo guardado en: $fileName"),
+              backgroundColor: Colors.green.shade700,
+              duration: const Duration(seconds: 4),
+              action: SnackBarAction(
+                label: "CERRAR",
+                textColor: Colors.white,
+                onPressed: () {},
+              ),
+            ),
+          );
+        }
+      } else {
+        throw Exception("Error del servidor: ${response.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("Error downloading: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("❌ Error al descargar: $e"),
+            backgroundColor: AppTheme.arteRed,
+          ),
+        );
+      }
+    }
   }
 }

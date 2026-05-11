@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pokemon_go_map/widgets/custom_bottom_nav.dart';
+import 'package:arte_go_map/widgets/custom_bottom_nav.dart';
 
 void main() {
   testWidgets('CustomBottomNavBar selection test', (WidgetTester tester) async {

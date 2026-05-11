@@ -7,6 +7,9 @@ import 'change_password_screen.dart';
 import 'two_factor_screen.dart';
 import 'language_screen.dart';
 import 'legal_screens.dart';
+import '../../services/settings_service.dart';
+import '../../services/auth_service.dart';
+import '../../theme/app_theme.dart';
 
 class AdvancedSettingsScreen extends StatefulWidget {
   const AdvancedSettingsScreen({super.key});
@@ -17,6 +20,7 @@ class AdvancedSettingsScreen extends StatefulWidget {
 
 class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
   final UserService _userService = UserService();
+  final AuthService _authService = AuthService();
   Map<String, dynamic>? _userData;
   bool _isLoading = true;
   bool _isVisibleOnMap = true;
@@ -49,30 +53,33 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.red),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           "Configuración Avanzada",
           style: GoogleFonts.outfit(
-            color: Colors.black,
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadUserData,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
+      body: ListenableBuilder(
+        listenable: SettingsService(),
+        builder: (context, _) {
+          return RefreshIndicator(
+            onRefresh: _loadUserData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
               const SizedBox(height: 20),
               // Profile Header
               _buildProfileHeader(),
@@ -99,7 +106,6 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                   ),
                 ],
               ),
-
               _buildSection(
                 "SEGURIDAD",
                 [
@@ -111,33 +117,9 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                         MaterialPageRoute(
                             builder: (_) => const ChangePasswordScreen())),
                   ),
-                  _buildSettingsTile(
-                    icon: Icons.verified_user_outlined,
-                    title: "Autenticación (2FA)",
-                    subtitle: "Activado",
-                    subtitleColor: Colors.green,
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TwoFactorScreen())),
-                  ),
                 ],
               ),
-
-              _buildSection(
-                "PREFERENCIAS",
-                [
-                  _buildSettingsTile(
-                    icon: Icons.language,
-                    title: "Idioma",
-                    trailingText: "Español(ES)",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const LanguageScreen())),
-                  ),
-                ],
-              ),
+              
 
               _buildSection(
                 "PRIVACIDAD",
@@ -212,7 +194,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
+                      await _authService.signOut();
                       if (mounted) {
                         Navigator.of(context)
                             .pushNamedAndRemoveUntil('/auth', (route) => false);
@@ -223,7 +205,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppTheme.arteRed,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.all(16),
                       shape: RoundedRectangleBorder(
@@ -236,7 +218,60 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  // Placeholder for delete account
+                  final passwordController = TextEditingController();
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Eliminar Cuenta"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                              "¿Estás seguro? Esta acción es IRREVERSIBLE. Por favor, confirma tu contraseña para continuar:"),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                              labelText: "Contraseña Actual",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("CANCELAR"),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            if (passwordController.text.isEmpty) return;
+                            
+                            final result = await _authService.deleteAccount(
+                              currentPassword: passwordController.text
+                            );
+                            
+                            if (mounted) {
+                              if (result.success) {
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/auth', (route) => false);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(result.errorMessage ?? "Error al eliminar cuenta"),
+                                    backgroundColor: Colors.red,
+                                  )
+                                );
+                              }
+                            }
+                          },
+                          child: const Text("ELIMINAR DEFINITIVAMENTE",
+                              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
                 },
                 child: const Text(
                   "Eliminar Cuenta permanentemente",
@@ -253,15 +288,19 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 
   Widget _buildProfileHeader() {
     final String username =
         _userData?['displayName'] ?? _userData?['username'] ?? 'Explorador';
     final String subtitle = _userData?['userTitle'] ?? 'CREADOR AR';
     final int avatarColorValue = _userData?['avatarColor'] ?? 0xFFE30613;
+
+    final String? photoUrl = _userData?['photoUrl'] ?? _userData?['avatarUrl'];
 
     return Column(
       children: [
@@ -272,18 +311,21 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.orange.shade100, width: 2),
+                border: Border.all(color: Colors.red.shade100, width: 2),
               ),
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Color(avatarColorValue),
-                child: Text(
-                  username.isNotEmpty ? username[0].toUpperCase() : '?',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold),
-                ),
+                backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                child: photoUrl == null
+                  ? Text(
+                      username.isNotEmpty ? username[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold),
+                    )
+                  : null,
               ),
             ),
             Container(

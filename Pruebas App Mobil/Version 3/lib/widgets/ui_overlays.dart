@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PokemonGoOverlay extends StatelessWidget {
-  const PokemonGoOverlay({super.key});
+class ARteGoOverlay extends StatelessWidget {
+  const ARteGoOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class PokemonGoOverlay extends StatelessWidget {
           child: _buildProfileAvatar(),
         ),
 
-        // Bottom Center - Main Menu (Pokeball style) (Item 10)
+        // Bottom Center - Main Menu (ARte style) (Item 10)
         Positioned(
           bottom: 30,
           left: 0,

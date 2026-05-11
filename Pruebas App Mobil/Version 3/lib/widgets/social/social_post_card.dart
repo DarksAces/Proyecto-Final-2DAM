@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import '../../services/chat_service.dart';
+import '../../services/user_service.dart';
+import '../../screens/features/profile_screen.dart';
 
 class SocialPostCard extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -20,15 +23,63 @@ class SocialPostCard extends StatefulWidget {
 
 class _SocialPostCardState extends State<SocialPostCard> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserService _userService = UserService();
   bool _isLiked = false;
+  bool _isFollowing = false;
   int _likeCount = 0;
   final ChatService _chatService = ChatService();
+  String? _authorPhotoUrl;
+  String? _authorTitle;
 
   @override
   void initState() {
     super.initState();
-    _likeCount = widget.data['likes'] ?? 0;
+    _likeCount = ((widget.data['likes'] ?? widget.data['likesCount'] ?? 0) as num).toInt();
+    if (_likeCount < 0) _likeCount = 0; // clamp, never show negatives
     _checkIfLiked();
+    _checkIfFollowing();
+  }
+
+  void _checkIfFollowing() async {
+    final user = _auth.currentUser;
+    final postUserId = widget.data['userId'];
+    if (user == null || postUserId == null) return;
+    
+    // Fetch author data for real-time photo and title
+    final authorData = await _userService.getUserData(postUserId);
+    if (mounted) {
+      setState(() {
+        _authorPhotoUrl = authorData?['photoUrl'];
+        _authorTitle = authorData?['userTitle'];
+      });
+    }
+
+    if (user.uid == postUserId) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('following')
+        .doc(postUserId)
+        .get();
+
+    if (mounted) {
+      setState(() {
+        _isFollowing = doc.exists;
+      });
+    }
+  }
+
+  void _toggleFollow() async {
+    final postUserId = widget.data['userId'];
+    if (postUserId == null) return;
+    
+    setState(() => _isFollowing = !_isFollowing);
+    if (_isFollowing) {
+      await _userService.followUser(postUserId);
+    } else {
+      await _userService.unfollowUser(postUserId);
+    }
   }
 
   void _checkIfLiked() async {
@@ -51,458 +102,259 @@ class _SocialPostCardState extends State<SocialPostCard> {
 
   void _toggleLike() async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null || _isLiked) return; // Can't unlike
 
-    final postRef =
-        FirebaseFirestore.instance.collection('sitios').doc(widget.postId);
+    final postRef = FirebaseFirestore.instance.collection('sitios').doc(widget.postId);
     final likeRef = postRef.collection('likes').doc(user.uid);
 
     setState(() {
-      _isLiked = !_isLiked;
-      _likeCount += _isLiked ? 1 : -1;
+      _isLiked = true;
+      _likeCount++;
     });
 
-    if (_isLiked) {
-      await likeRef.set({'timestamp': FieldValue.serverTimestamp()});
-      await postRef.update({'likes': FieldValue.increment(1)});
-    } else {
-      await likeRef.delete();
-      await postRef.update({'likes': FieldValue.increment(-1)});
+    await likeRef.set({'timestamp': FieldValue.serverTimestamp()});
+    await postRef.update({'likes': FieldValue.increment(1), 'likesCount': FieldValue.increment(1)});
+
+    // Award +3 points to the post author (not to the liker)
+    final authorId = widget.data['userId'] as String?;
+    if (authorId != null && authorId != user.uid) {
+      await _userService.addPoints(authorId, 3);
     }
   }
 
   void _shareToChat() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          height: 400,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Enviar a...",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _chatService.getUserChats(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                          child: Text("No tienes chats activos"));
-                    }
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))),
+                  const SizedBox(height: 20),
+                  const Text("Enviar publicación", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: _chatService.getUserChats(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                        final chats = snapshot.data!.docs;
+                        if (chats.isEmpty) return const Center(child: Text("No hay chats activos"));
+                        return ListView.builder(
+                          controller: scrollController,
+                          itemCount: chats.length,
+                          itemBuilder: (context, index) {
+                            final chat = chats[index];
+                            final data = chat.data() as Map<String, dynamic>;
+                            final currentUserId = _auth.currentUser?.uid ?? '';
+                            final participants = List<String>.from(data['participants'] ?? []);
+                            final otherUserId = participants.firstWhere((id) => id != currentUserId, orElse: () => '');
+                            final names = data['participantNames'] as Map<String, dynamic>?;
+                            final name = names?[otherUserId] ?? "Usuario";
+                            final avatars = data['participantAvatars'] as Map<String, dynamic>?;
+                            final avatarUrl = avatars?[otherUserId];
 
-                    final chats = snapshot.data!.docs;
-
-                    return ListView.builder(
-                      itemCount: chats.length,
-                      itemBuilder: (context, index) {
-                        final chat = chats[index];
-                        final data = chat.data() as Map<String, dynamic>;
-
-                        // Get name (simplified)
-                        final currentUserId = _auth.currentUser?.uid ?? '';
-                        final participants =
-                            List<String>.from(data['participants'] ?? []);
-                        final otherUserId = participants.firstWhere(
-                            (id) => id != currentUserId,
-                            orElse: () => '');
-                        final names =
-                            data['participantNames'] as Map<String, dynamic>?;
-                        final name = names?[otherUserId] ?? "Usuario";
-                        final avatars =
-                            data['participantAvatars'] as Map<String, dynamic>?;
-                        final avatarUrl = avatars?[otherUserId];
-
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: avatarUrl != null
-                                ? NetworkImage(avatarUrl)
-                                : null,
-                            child: avatarUrl == null ? Text(name[0]) : null,
-                          ),
-                          title: Text(name),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              _chatService.sendMessage(
-                                chat.id,
-                                '', // Empty text for post share
-                                postId: widget.postId,
-                                postImageUrl: widget.data['imageUrl'],
-                                postTitle:
-                                    widget.data['content'] ?? 'Publicación',
-                              );
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Enviado al chat")),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.arteRed,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text("Enviar"),
-                          ),
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: const Color(0xFFF0F0FF),
+                                backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                                child: avatarUrl == null ? Text(name[0], style: const TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.bold)) : null,
+                              ),
+                              title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              trailing: TextButton(
+                                onPressed: () async {
+                                  await _chatService.sendMessage(chat.id, '', postId: widget.postId, postImageUrl: widget.data['imageUrl'], postTitle: widget.data['title'] ?? 'Obra AR');
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Enviado correctamente")));
+                                  }
+                                },
+                                child: const Text("ENVIAR", style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF6C63FF))),
+                              ),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
+  String _getTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return "Hace un momento";
+    
+    DateTime dateTime;
+    if (timestamp is Timestamp) {
+      dateTime = timestamp.toDate();
+    } else if (timestamp is DateTime) {
+      dateTime = timestamp;
+    } else {
+      return "Hace un momento";
+    }
+
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 7) {
+      return DateFormat('dd/MM/yyyy').format(dateTime);
+    } else if (difference.inDays >= 1) {
+      return "Hace ${difference.inDays} ${difference.inDays == 1 ? 'día' : 'días'}";
+    } else if (difference.inHours >= 1) {
+      return "Hace ${difference.inHours} ${difference.inHours == 1 ? 'hora' : 'horas'}";
+    } else if (difference.inMinutes >= 1) {
+      return "Hace ${difference.inMinutes} ${difference.inMinutes == 1 ? 'minuto' : 'minutos'}";
+    } else if (difference.inSeconds >= 5) {
+      return "Hace ${difference.inSeconds} segundos";
+    } else {
+      return "Ahora mismo";
+    }
+  }
+
+  void _navigateToProfile() {
+    final postUserId = widget.data['userId'];
+    if (postUserId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(userId: postUserId),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Data extraction
-    final String username = widget.data['username'] ?? 'Usuario';
-    final String userTitle = widget.data['userTitle'] ?? 'Creator';
-    final String userDegree = widget.data['userDegree'] ?? '• 2º';
-    final int userAvatarColor = widget.data['userAvatarColor'] ?? 0xFFEEEEEE;
+    final String username = widget.data['username'] ?? 'Artista';
     final String? imageUrl = widget.data['imageUrl'];
-    final String content = widget.data['content'] ?? '';
-    final bool isVideo = widget.data['isVideo'] ?? false;
-    final String? videoDuration = widget.data['videoDuration'];
-    final String? reproCount = widget.data['reproCount'];
-    final String? badge = widget.data['badge'];
+    final String title = widget.data['title'] ?? '';
+    final String description = widget.data['description'] ?? widget.data['content'] ?? '';
+    final String userTitle = widget.data['userTitle'] ?? 'Creador AR';
+    final String degree = widget.data['userDegree'] ?? '• 1º';
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // Post Header (LinkedIn style)
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Color(userAvatarColor),
-                  child: Text(
-                    username[0].toUpperCase(),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18),
+                GestureDetector(
+                  onTap: _navigateToProfile,
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: AppTheme.arteGreen.withOpacity(0.1),
+                    backgroundImage: _authorPhotoUrl != null ? NetworkImage(_authorPhotoUrl!) : null,
+                    child: _authorPhotoUrl == null 
+                      ? Text(username[0].toUpperCase(), style: const TextStyle(color: AppTheme.arteGreen, fontWeight: FontWeight.bold, fontSize: 18))
+                      : null,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              username,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            userDegree,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (badge == null)
-                            const Icon(Icons.add,
-                                color: AppTheme.arteRed, size: 20),
-                          if (badge != null)
-                            const Icon(Icons.more_horiz,
-                                color: Colors.grey, size: 20),
-                        ],
-                      ),
-                      Text(
-                        userTitle,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
+                  child: GestureDetector(
+                    onTap: _navigateToProfile,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(username, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                            const SizedBox(width: 4),
+                            Text(degree, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "2 h • ",
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 11,
-                            ),
-                          ),
-                          Icon(Icons.public,
-                              size: 11, color: Colors.grey.shade500),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                if (badge == null) ...[
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text("Seguir"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.arteRed,
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        Text(_authorTitle ?? userTitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text("${_getTimeAgo(widget.data['timestamp'])} • 🌎", style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                      ],
                     ),
                   ),
-                ],
+                ),
+                if (widget.data['userId'] != _auth.currentUser?.uid)
+                  TextButton(
+                    onPressed: _toggleFollow,
+                    child: Text(_isFollowing ? "SIGUIENDO" : "+ SEGUIR", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppTheme.arteGreen)),
+                  ),
               ],
             ),
           ),
 
-          // Content Text with styled hashtags
-          if (content.isNotEmpty)
+          // Title & Description
+          if (title.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: _buildRichText(content),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+            ),
+          if (description.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+              child: Text(description, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.3)),
             ),
 
-          // Media Section (Image or Video)
+          // Image Content
           if (imageUrl != null)
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.network(
-                  imageUrl,
-                  height: 350,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 350,
-                    color: Colors.grey.shade200,
-                    child: const Center(
-                        child: Icon(Icons.broken_image, color: Colors.grey)),
-                  ),
-                ),
-                // Video Play Overlay
-                if (isVideo)
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.play_arrow,
-                        color: Colors.white, size: 45),
-                  ),
-                // AR Badge
-                if (!isVideo)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.visibility,
-                              color: Colors.white, size: 14),
-                          const SizedBox(width: 6),
-                          const Text(
-                            "VISTA AR ACTIVA",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                // EN VIVO tag
-                if (isVideo)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade700,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Text(
-                            "EN VIVO",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                // Duration Badge
-                if (isVideo && videoDuration != null)
-                  Positioned(
-                    bottom: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        videoDuration,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-              ],
+            Image.network(
+              imageUrl,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(height: 300, color: Colors.grey.shade100, child: const Center(child: CircularProgressIndicator()));
+              },
             ),
 
-          // Counts Row
+          // Engagement Stats
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                // Reaction icons
-                Stack(
-                  children: [
-                    _buildReactionIcon(Icons.thumb_up, Colors.blue),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: _buildReactionIcon(Icons.favorite, Colors.red),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    "Alejandro y $_likeCount más",
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                const Icon(Icons.favorite_rounded, color: AppTheme.arteGreen, size: 14),
                 const SizedBox(width: 4),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    "${widget.data['comments'] ?? 0} com. • ${isVideo ? reproCount : widget.data['shares'] ?? 0} ${isVideo ? 'repro.' : 'veces'}",
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    textAlign: TextAlign.end,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                Text("$_likeCount recomendaciones", style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
               ],
             ),
           ),
 
-          const Divider(height: 1, indent: 12, endIndent: 12),
+          const Divider(height: 1, thickness: 0.5),
 
-          // Simplified Action Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _ActionBarItem(
-                    icon: _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-                    label: "Recomendar",
-                    color: _isLiked ? AppTheme.arteRed : Colors.grey.shade700,
-                    onTap: _toggleLike,
-                  ),
-                ),
-                Expanded(
-                  child: _ActionBarItem(
-                    icon: Icons.send_outlined,
-                    label: "Enviar",
-                    color: Colors.grey.shade700,
-                    onTap: _shareToChat,
-                  ),
-                ),
-              ],
-            ),
+          // Action Bar - only Recommend and Send
+          Row(
+            children: [
+              _ActionBarItem(
+                icon: _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                label: "Recomendar",
+                active: _isLiked,
+                onTap: _toggleLike,
+              ),
+              _ActionBarItem(
+                icon: Icons.ios_share_rounded,
+                label: "Enviar",
+                onTap: _shareToChat,
+              ),
+            ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildReactionIcon(IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 1.5),
-      ),
-      child: Icon(icon, color: Colors.white, size: 8),
-    );
-  }
-
-  Widget _buildRichText(String text) {
-    final words = text.split(' ');
-    return Text.rich(
-      TextSpan(
-        children: words.map((word) {
-          final isHashtag = word.startsWith('#');
-          return TextSpan(
-            text: '$word ',
-            style: TextStyle(
-              color: isHashtag ? AppTheme.arteRed : Colors.black87,
-              fontWeight: isHashtag ? FontWeight.bold : FontWeight.normal,
-              fontSize: 14,
-              height: 1.4,
-            ),
-          );
-        }).toList(),
       ),
     );
   }
@@ -511,37 +363,26 @@ class _SocialPostCardState extends State<SocialPostCard> {
 class _ActionBarItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Color color;
+  final bool active;
   final VoidCallback onTap;
 
-  const _ActionBarItem({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _ActionBarItem({required this.icon, required this.label, this.active = false, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(4),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
-          ],
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: active ? AppTheme.arteGreen : Colors.grey.shade700, size: 20),
+              const SizedBox(width: 8),
+              Text(label, style: TextStyle(color: active ? AppTheme.arteGreen : Colors.grey.shade700, fontWeight: FontWeight.w600, fontSize: 13)),
+            ],
+          ),
         ),
       ),
     );
