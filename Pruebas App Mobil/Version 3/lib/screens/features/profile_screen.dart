@@ -10,6 +10,7 @@ import 'user_list_screen.dart';
 import '../../services/chat_service.dart';
 import 'chat_detail_screen.dart';
 import 'dart:io';
+import 'connections_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;

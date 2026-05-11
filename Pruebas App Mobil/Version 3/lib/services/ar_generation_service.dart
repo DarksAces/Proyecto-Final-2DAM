@@ -43,7 +43,18 @@ class ArGenerationService {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        return await saveBytesLocally(response.bodyBytes, fileName);
+        final directory = await getApplicationDocumentsDirectory();
+        final localPath = path.join(directory.path, 'ar_models');
+
+        final localDir = Directory(localPath);
+        if (!await localDir.exists()) {
+          await localDir.create(recursive: true);
+        }
+
+        final file = File(path.join(localPath, fileName));
+        await file.writeAsBytes(response.bodyBytes);
+        print("Model saved locally at: ${file.path}");
+        return file;
       }
       return null;
     } catch (e) {
@@ -88,10 +99,9 @@ class ArGenerationService {
         return null;
       }
 
-      final String flaskModelUrl =
-          data['model_url'].toString().startsWith('http')
-              ? data['model_url']
-              : '$_baseUrl${data['model_url']}';
+      final String flaskModelUrl = data['model_url'].toString().startsWith('http')
+          ? data['model_url']
+          : '$_baseUrl${data['model_url']}';
 
       // 2. Download model bytes for Firebase Storage
       final modelResponse = await http.get(Uri.parse(flaskModelUrl));
@@ -112,8 +122,7 @@ class ArGenerationService {
       print("DEBUG: Uploading to Firebase Storage...");
       final List<Future<String>> uploadTasks = [
         glbRef
-            .putData(
-                modelBytes, SettableMetadata(contentType: 'model/gltf-binary'))
+            .putData(modelBytes, SettableMetadata(contentType: 'model/gltf-binary'))
             .then((s) => s.ref.getDownloadURL()),
         imgRef
             .putFile(imageFile, SettableMetadata(contentType: 'image/jpeg'))

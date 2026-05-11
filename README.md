@@ -1,6 +1,6 @@
-# Aura AR - Sistema de Captura y Visualización 3D
+# ARte - Sistema de Captura y Visualización 3D
 
-Aura AR es un proyecto integral diseñado para cerrar la brecha entre el arte físico y el mundo digital. Utiliza tecnologías de Realidad Aumentada y procesamiento 3D para capturar objetos del mundo real y transformarlos en modelos digitales que pueden ser visualizados en múltiples plataformas.
+ARte es un proyecto integral diseñado para cerrar la brecha entre el arte físico y el mundo digital. Utiliza tecnologías de Realidad Aumentada y procesamiento 3D para capturar objetos del mundo real y transformarlos en modelos digitales que pueden ser visualizados en múltiples plataformas.
 
 ## 🚀 Descripción General
 
@@ -13,7 +13,7 @@ El repositorio está organizado en los siguientes componentes principales:
 *   **`object_capture_3d/mobile/`**: Aplicación móvil desarrollada en **Flutter**. Permite realizar la captura de fotos y visualizar el modelo 3D resultante.
 *   **`object_capture_3d/backend/`**: Servidor desarrollado en **Python (FastAPI)**. Se encarga de recibir las imágenes y realizar el procesamiento 3D.
 *   **`Aura3DReview/`**: Aplicación de escritorio diseñada en **C# (WPF)** para la revisión avanzada de los modelos 3D en PC.
-*   **`Web/`**: Una interfaz web sencilla (`nuestra_app.html`) que sirve como punto de entrada o landing page del proyecto.
+*   **`Web/`**: Interfaz web moderna (**ARte**) desarrollada con Vite que sirve como landing page y punto de entrada al sistema.
 *   **`Pruebas App Mobil/`** y **`Pruebas App Desktop/`**: Directorios que contienen prototipos previos y pruebas de concepto realizadas durante el desarrollo.
 
 ## 🛠️ Stack Tecnológico
