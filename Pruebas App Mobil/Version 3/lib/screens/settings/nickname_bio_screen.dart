@@ -130,6 +130,7 @@ class _NicknameBioScreenState extends State<NicknameBioScreen> {
               const SizedBox(height: 30),
             TextField(
               controller: _nameController,
+              maxLength: 10,
               decoration: const InputDecoration(
                 labelText: "Nickname / Nombre",
                 hintText: "Tu nombre público",

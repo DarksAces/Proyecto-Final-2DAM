@@ -177,6 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           _buildLabel("NOMBRE DE USUARIO"),
                           TextFormField(
                             controller: _nameController,
+                            maxLength: 10,
                             decoration: _inputDecoration(
                                 "Tu nombre artístico", Icons.person_outline),
                             validator: (value) {
@@ -185,6 +186,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               }
                               if (value.length < 3) {
                                 return 'El nombre debe tener al menos 3 caracteres';
+                              }
+                              if (value.length > 10) {
+                                return 'El nombre no puede tener más de 10 caracteres';
                               }
                               return null;
                             },

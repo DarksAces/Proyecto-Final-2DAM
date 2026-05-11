@@ -32,8 +32,8 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
   Future<void> _loadConnections() async {
     setState(() => _isLoading = true);
     try {
-      final followers = await _userService.getFollowersUsers(widget.userId);
-      final following = await _userService.getFollowingUsers(widget.userId);
+      final followers = await _userService.getFollowersDetails(widget.userId);
+      final following = await _userService.getFollowingDetails(widget.userId);
       if (mounted) {
         setState(() {
           _followers = followers;
