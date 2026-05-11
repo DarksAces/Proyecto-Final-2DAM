@@ -73,6 +73,7 @@
         
         <!-- ARCore metadata -->
         <meta-data android:name="com.google.ar.core" android:value="optional" tools:replace="android:value" />
+        <meta-data android:name="com.google.ar.core.min_apk_version" android:value="240120000" />
         
         <meta-data
             android:name="io.flutter.embedding.android.EnableImpeller"
