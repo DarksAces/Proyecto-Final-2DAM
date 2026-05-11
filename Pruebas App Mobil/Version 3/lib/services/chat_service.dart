@@ -178,13 +178,57 @@ class ChatService {
   Future<void> markChatAsRead(String chatId) async {
     if (currentUserId == null) return;
     try {
+      // 1. Mark in the chat document (lastReadTime)
       await _firestore.collection('chats').doc(chatId).set({
         'lastReadTime': {
           currentUserId: FieldValue.serverTimestamp(),
         }
       }, SetOptions(merge: true));
+
+      // 2. Mark all notifications for this chat as read
+      final unreadNotifications = await _firestore
+          .collection('notifications')
+          .where('userId', isEqualTo: currentUserId)
+          .where('chatId', isEqualTo: chatId)
+          .where('read', isEqualTo: false)
+          .get();
+
+      if (unreadNotifications.docs.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (var doc in unreadNotifications.docs) {
+          batch.update(doc.reference, {'read': true});
+        }
+        await batch.commit();
+      }
     } catch (e) {
       debugPrint('Error marking chat as read: $e');
     }
+  }
+
+  // Get unread chats count (source of truth for messages)
+  Stream<int> getUnreadChatCount() {
+    if (currentUserId == null) return Stream.value(0);
+    return _firestore
+        .collection('chats')
+        .where('participants', arrayContains: currentUserId)
+        .snapshots()
+        .map((snapshot) {
+      int count = 0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final timestamp = data['lastMessageTime'] as Timestamp?;
+        final lastSenderId = data['lastSenderId'];
+        final lastReadTimeMap = data['lastReadTime'] as Map<String, dynamic>?;
+        final myLastReadTime = lastReadTimeMap?[currentUserId] as Timestamp?;
+
+        if (lastSenderId != currentUserId && 
+            (myLastReadTime == null || 
+             (timestamp != null && timestamp.compareTo(myLastReadTime) > 0))) {
+          count++;
+        }
+      }
+      debugPrint('DEBUG: UnreadChatCount (source of truth): $count');
+      return count;
+    });
   }
 }

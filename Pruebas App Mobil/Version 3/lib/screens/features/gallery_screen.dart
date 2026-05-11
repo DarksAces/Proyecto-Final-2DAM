@@ -125,8 +125,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
         title: const Text("Mi Galería", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         centerTitle: false,
       ),
-      body: Column(
-        children: [
+      body: SafeArea(
+        child: Column(
+          children: [
           // Filters
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -237,6 +238,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
         ],
       ),
+     ),
     );
   }
 }

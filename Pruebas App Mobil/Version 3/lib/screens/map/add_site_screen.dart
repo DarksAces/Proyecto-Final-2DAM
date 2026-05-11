@@ -128,40 +128,43 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
         slivers: [
           _buildAppBar(),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildImagePicker(),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle("DETALLES DE LA OBRA"),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _titleCtrl,
-                      label: "Título del Proyecto",
-                      hint: "Dale un nombre a tu creación",
-                      icon: Icons.edit_note_rounded,
-                      validator: (v) => v!.isEmpty ? "El título es necesario" : null,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: _descCtrl,
-                      label: "Descripción",
-                      hint: "¿Qué significa esta obra para ti?",
-                      icon: Icons.description_outlined,
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle("GEOLOCALIZACIÓN"),
-                    const SizedBox(height: 16),
-                    _buildGPSCard(),
-                    const SizedBox(height: 40),
-                    _buildSubmitButton(),
-                    const SizedBox(height: 50),
-                  ],
+            child: SafeArea(
+              top: false, // AppBar already handles top
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildImagePicker(),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle("DETALLES DE LA OBRA"),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _titleCtrl,
+                        label: "Título del Proyecto",
+                        hint: "Dale un nombre a tu creación",
+                        icon: Icons.edit_note_rounded,
+                        validator: (v) => v!.isEmpty ? "El título es necesario" : null,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        controller: _descCtrl,
+                        label: "Descripción",
+                        hint: "¿Qué significa esta obra para ti?",
+                        icon: Icons.description_outlined,
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle("GEOLOCALIZACIÓN"),
+                      const SizedBox(height: 16),
+                      _buildGPSCard(),
+                      const SizedBox(height: 40),
+                      _buildSubmitButton(),
+                      const SizedBox(height: 50),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -234,20 +237,23 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       builder: (_) => Container(
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text("SELECCIONAR ORIGEN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSourceOption(Icons.camera_alt_rounded, "Cámara", () { Navigator.pop(context); _pickImage(ImageSource.camera); }),
-                _buildSourceOption(Icons.photo_library_rounded, "Galería", () { Navigator.pop(context); _pickImage(ImageSource.gallery); }),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("SELECCIONAR ORIGEN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSourceOption(Icons.camera_alt_rounded, "Cámara", () { Navigator.pop(context); _pickImage(ImageSource.camera); }),
+                  _buildSourceOption(Icons.photo_library_rounded, "Galería", () { Navigator.pop(context); _pickImage(ImageSource.gallery); }),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

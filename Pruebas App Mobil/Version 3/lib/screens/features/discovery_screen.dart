@@ -8,9 +8,10 @@ class DiscoveryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
+      body: SafeArea(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
           // Background - Simulated using gradient or image
           Container(
             decoration: BoxDecoration(
@@ -177,8 +178,7 @@ class DiscoveryScreen extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               width: double.infinity,
-              margin: const EdgeInsets.all(
-                  20), // Added explicit margin for card effect if needed, design shows full width bottom sheet though
+              margin: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 20),
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
                   color: const Color(
@@ -313,6 +313,7 @@ class DiscoveryScreen extends StatelessWidget {
           )
         ],
       ),
+     ),
     );
   }
 }

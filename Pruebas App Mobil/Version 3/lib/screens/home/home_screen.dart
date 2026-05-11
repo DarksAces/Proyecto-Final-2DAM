@@ -6,8 +6,10 @@ import '../features/contest_screen.dart';
 import '../features/notifications_screen.dart';
 import '../features/gallery_screen.dart';
 import '../features/ar_scanner_screen.dart';
+import '../features/ar_generation_screen.dart';
 import '../main_wrapper.dart';
 import '../map/add_site_screen.dart';
+import '../../services/user_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -49,29 +51,41 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const NotificationsScreen()),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 10)
-                            ]),
-                        child: const Icon(Icons.notifications,
-                            color: AppTheme.arteRed),
-                      ),
-                    )
+                    StreamBuilder<int>(
+                        stream: UserService()
+                            .getUnreadNotificationsCount(user?.uid ?? ''),
+                        builder: (context, snapshot) {
+                          final count = snapshot.data ?? 0;
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotificationsScreen()),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
+                                        blurRadius: 10)
+                                  ]),
+                              child: Badge.count(
+                                count: count,
+                                isLabelVisible: count > 0,
+                                backgroundColor: AppTheme.arteRed,
+                                child: const Icon(Icons.notifications,
+                                    color: AppTheme.arteRed),
+                              ),
+                            ),
+                          );
+                        })
                   ],
                 ),
                 const SizedBox(height: 30),
@@ -173,14 +187,10 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       ElevatedButton(
                           onPressed: () {
-                            final mainWrapper = MainWrapper.of(context);
-                            // 1. Switch to Map Tab (index 2)
-                            mainWrapper?.switchTab(2);
-                            // 2. Open AddSiteScreen directly
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const AddSiteScreen(),
+                                builder: (context) => const ArGenerationScreen(),
                               ),
                             );
                           },

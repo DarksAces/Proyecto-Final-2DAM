@@ -64,18 +64,20 @@ class _UserListScreenState extends State<UserListScreen> {
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 18),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
-          : _users.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _users.length,
-                  itemBuilder: (context, index) {
-                    final user = _users[index];
-                    return _buildUserTile(user, index);
-                  },
-                ),
+      body: SafeArea(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+            : _users.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: _users.length,
+                    itemBuilder: (context, index) {
+                      final user = _users[index];
+                      return _buildUserTile(user, index);
+                    },
+                  ),
+      ),
     );
   }
 

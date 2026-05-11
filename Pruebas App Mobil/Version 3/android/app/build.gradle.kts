@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pokemon_go_map"
+    namespace = "com.example.arte_go_map"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.pokemon_go_map"
+        applicationId = "com.example.arte_go_map"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24

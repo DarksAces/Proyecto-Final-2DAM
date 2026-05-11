@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_theme.dart';
 import '../../services/chat_service.dart';
 import '../../services/user_service.dart';
+import 'profile_screen.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -14,12 +15,14 @@ class ChatDetailScreen extends StatefulWidget {
   final String chatId;
   final String chatName;
   final String? avatarUrl;
+  final String? otherUserId;
 
   const ChatDetailScreen({
     super.key,
     required this.chatId,
     required this.chatName,
     this.avatarUrl,
+    this.otherUserId,
   });
 
   @override
@@ -239,35 +242,47 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundImage: widget.avatarUrl != null
-                  ? NetworkImage(widget.avatarUrl!)
-                  : null,
-              backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
-              child: widget.avatarUrl == null
-                  ? Text(widget.chatName[0].toUpperCase(),
-                      style: const TextStyle(color: AppTheme.arteRed))
-                  : null,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.chatName,
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-                ],
+        title: GestureDetector(
+          onTap: () {
+            if (widget.otherUserId != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(userId: widget.otherUserId),
+                ),
+              );
+            }
+          },
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundImage: widget.avatarUrl != null
+                    ? NetworkImage(widget.avatarUrl!)
+                    : null,
+                backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
+                child: widget.avatarUrl == null
+                    ? Text(widget.chatName[0].toUpperCase(),
+                        style: const TextStyle(color: AppTheme.arteRed))
+                    : null,
               ),
-            ),
-          ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.chatName,
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -292,8 +307,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
+      body: SafeArea(
+        child: Column(
+          children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _chatService.getChatMessages(widget.chatId),
@@ -329,6 +345,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           _buildInputArea(),
         ],
       ),
+     ),
     );
   }
 

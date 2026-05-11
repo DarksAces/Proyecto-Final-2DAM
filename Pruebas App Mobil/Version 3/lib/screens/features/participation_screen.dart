@@ -74,57 +74,83 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
     final Map<String, dynamic>? selected = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+      backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("MIS OBRAS", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: -0.5)),
-            const SizedBox(height: 16),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.8,
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(4)),
+                  ),
                 ),
-                itemCount: artworks.length,
-                itemBuilder: (context, index) {
-                  final item = artworks[index];
-                  final url = item['imageUrl'] ?? "";
-                  return GestureDetector(
-                    onTap: () => Navigator.pop(context, item),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [Colors.black.withAlpha(150), Colors.transparent],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("MIS OBRAS", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: -0.5)),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Text("Selecciona una de tus creaciones para el concurso", style: TextStyle(color: Colors.grey, fontSize: 13)),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.85,
+                    ),
+                    itemCount: artworks.length,
+                    itemBuilder: (context, index) {
+                      final item = artworks[index];
+                      final url = item['imageUrl'] ?? "";
+                      return GestureDetector(
+                        onTap: () => Navigator.pop(context, item),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 4))],
+                            image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [Colors.black.withAlpha(180), Colors.transparent],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(12),
+                            alignment: Alignment.bottomLeft,
+                            child: Text(item['title'] ?? item['content'] ?? "Sin título", 
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              maxLines: 2, overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
-                        padding: const EdgeInsets.all(8),
-                        alignment: Alignment.bottomLeft,
-                        child: Text(item['title'] ?? item['content'] ?? "Sin título", 
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                          maxLines: 1, overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -172,7 +198,7 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
         'description': _descriptionController.text,
         'category': _selectedCategory,
         'imageUrl': imageUrl,
-        'artistName': user?.name ?? "Artista Anónimo",
+        'artistName': user?.name ?? user?.id ?? "Genio Anónimo",
         'userId': user?.id ?? "anon_user",
         'scope': 'Global',
         'likes': 0,
@@ -180,10 +206,16 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
 
       await _contestService.addContestEntry(entry);
 
+      // Award +15 points for submitting a contest entry
+      final userId = user?.id;
+      if (userId != null) {
+        await _userService.addPoints(userId, 15);
+      }
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("¡Obra enviada con éxito!")),
+          const SnackBar(content: Text("¡Obra enviada con éxito! +15 puntos 🎨")),
         );
       }
     } catch (e) {
@@ -210,7 +242,9 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
-      body: CustomScrollView(
+      body: SafeArea(
+        top: false, // Let SliverAppBar handle the top
+        child: CustomScrollView(
         slivers: [
           // Premium Header
           SliverAppBar(
@@ -427,6 +461,7 @@ class _ParticipationScreenState extends State<ParticipationScreen> {
           ),
         ],
       ),
+     ),
     );
   }
 

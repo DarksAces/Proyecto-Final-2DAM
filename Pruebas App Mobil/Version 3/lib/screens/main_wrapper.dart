@@ -58,16 +58,19 @@ class MainWrapperState extends State<MainWrapper> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true, // el cuerpo se extiende detrás del nav bar
-      body: Stack(
-        fit: StackFit.expand,
-        children: List.generate(4, (index) {
-          final bool visited = _visitedTabs.contains(index);
-          final bool active = _currentIndex == index;
-          return Offstage(
-            offstage: !active,
-            child: visited ? _buildPage(index) : const SizedBox.shrink(),
-          );
-        }),
+      body: SafeArea(
+        bottom: true,
+        child: Stack(
+          fit: StackFit.expand,
+          children: List.generate(4, (index) {
+            final bool visited = _visitedTabs.contains(index);
+            final bool active = _currentIndex == index;
+            return Offstage(
+              offstage: !active,
+              child: visited ? _buildPage(index) : const SizedBox.shrink(),
+            );
+          }),
+        ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import '../../services/chat_service.dart';
 import '../../services/user_service.dart';
+import '../../screens/features/profile_screen.dart';
 
 class SocialPostCard extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -32,7 +34,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
   @override
   void initState() {
     super.initState();
-    _likeCount = (widget.data['likes'] ?? widget.data['likesCount'] ?? 0) as int;
+    _likeCount = ((widget.data['likes'] ?? widget.data['likesCount'] ?? 0) as num).toInt();
     if (_likeCount < 0) _likeCount = 0; // clamp, never show negatives
     _checkIfLiked();
     _checkIfFollowing();
@@ -112,6 +114,12 @@ class _SocialPostCardState extends State<SocialPostCard> {
 
     await likeRef.set({'timestamp': FieldValue.serverTimestamp()});
     await postRef.update({'likes': FieldValue.increment(1), 'likesCount': FieldValue.increment(1)});
+
+    // Award +3 points to the post author (not to the liker)
+    final authorId = widget.data['userId'] as String?;
+    if (authorId != null && authorId != user.uid) {
+      await _userService.addPoints(authorId, 3);
+    }
   }
 
   void _shareToChat() {
@@ -190,6 +198,48 @@ class _SocialPostCardState extends State<SocialPostCard> {
     );
   }
 
+  String _getTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return "Hace un momento";
+    
+    DateTime dateTime;
+    if (timestamp is Timestamp) {
+      dateTime = timestamp.toDate();
+    } else if (timestamp is DateTime) {
+      dateTime = timestamp;
+    } else {
+      return "Hace un momento";
+    }
+
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 7) {
+      return DateFormat('dd/MM/yyyy').format(dateTime);
+    } else if (difference.inDays >= 1) {
+      return "Hace ${difference.inDays} ${difference.inDays == 1 ? 'día' : 'días'}";
+    } else if (difference.inHours >= 1) {
+      return "Hace ${difference.inHours} ${difference.inHours == 1 ? 'hora' : 'horas'}";
+    } else if (difference.inMinutes >= 1) {
+      return "Hace ${difference.inMinutes} ${difference.inMinutes == 1 ? 'minuto' : 'minutos'}";
+    } else if (difference.inSeconds >= 5) {
+      return "Hace ${difference.inSeconds} segundos";
+    } else {
+      return "Ahora mismo";
+    }
+  }
+
+  void _navigateToProfile() {
+    final postUserId = widget.data['userId'];
+    if (postUserId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(userId: postUserId),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final String username = widget.data['username'] ?? 'Artista';
@@ -210,29 +260,35 @@ class _SocialPostCardState extends State<SocialPostCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: AppTheme.arteGreen.withOpacity(0.1),
-                  backgroundImage: _authorPhotoUrl != null ? NetworkImage(_authorPhotoUrl!) : null,
-                  child: _authorPhotoUrl == null 
-                    ? Text(username[0].toUpperCase(), style: const TextStyle(color: AppTheme.arteGreen, fontWeight: FontWeight.bold, fontSize: 18))
-                    : null,
+                GestureDetector(
+                  onTap: _navigateToProfile,
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: AppTheme.arteGreen.withOpacity(0.1),
+                    backgroundImage: _authorPhotoUrl != null ? NetworkImage(_authorPhotoUrl!) : null,
+                    child: _authorPhotoUrl == null 
+                      ? Text(username[0].toUpperCase(), style: const TextStyle(color: AppTheme.arteGreen, fontWeight: FontWeight.bold, fontSize: 18))
+                      : null,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(username, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-                          const SizedBox(width: 4),
-                          Text(degree, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                        ],
-                      ),
-                      Text(_authorTitle ?? userTitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text("Hace un momento • 🌎", style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
-                    ],
+                  child: GestureDetector(
+                    onTap: _navigateToProfile,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(username, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                            const SizedBox(width: 4),
+                            Text(degree, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                          ],
+                        ),
+                        Text(_authorTitle ?? userTitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text("${_getTimeAgo(widget.data['timestamp'])} • 🌎", style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                      ],
+                    ),
                   ),
                 ),
                 if (widget.data['userId'] != _auth.currentUser?.uid)

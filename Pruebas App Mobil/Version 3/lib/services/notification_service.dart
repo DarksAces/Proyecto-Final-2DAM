@@ -18,7 +18,11 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   Map<String, dynamic>? _pendingNotificationData;
 
+  bool _isInitialized = false;
+
   Future<void> initialize() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
     // 1. Request permissions
     NotificationSettings settings = await _fcm.requestPermission(
       alert: true,
@@ -115,9 +119,9 @@ class NotificationService {
     // 6. Monitor auth state to save token and start listeners
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user != null) {
-        debugPrint('User logged in, updating FCM token and starting chat listener');
+        debugPrint('User logged in, updating FCM token');
         saveTokenToFirestore();
-        startChatListener();
+        // startChatListener(); // Disabled to avoid duplicate notifications with FCM
       } else {
         debugPrint('User logged out, cancelling chat listener');
         _chatSubscription?.cancel();
@@ -160,7 +164,11 @@ class NotificationService {
           
           if (otherUserId.isNotEmpty) {
             final userDoc = await FirebaseFirestore.instance.collection('users').doc(otherUserId).get();
-            final userName = userDoc.data()?['userName'] ?? userDoc.data()?['fullName'] ?? 'Chat';
+            final userData = userDoc.data();
+            final userName = userData?['displayName'] ?? 
+                           userData?['username'] ?? 
+                           userData?['userName'] ?? 
+                           userData?['fullName'] ?? 'Chat';
             final avatarUrl = userDoc.data()?['profileImageUrl'] ?? userDoc.data()?['avatarUrl'];
 
             // Clear pending data as we are processing it

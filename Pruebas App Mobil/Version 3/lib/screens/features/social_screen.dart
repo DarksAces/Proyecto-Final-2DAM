@@ -6,6 +6,7 @@ import '../../services/user_service.dart';
 import '../../services/chat_service.dart';
 import 'chat_detail_screen.dart';
 import 'add_friends_screen.dart';
+import 'profile_screen.dart';
 import 'package:intl/intl.dart';
 
 class SocialScreen extends StatefulWidget {
@@ -25,6 +26,30 @@ class _SocialScreenState extends State<SocialScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+    _markChatNotificationsAsRead();
+  }
+
+  Future<void> _markChatNotificationsAsRead() async {
+    if (_currentUserId.isEmpty) return;
+    try {
+      final unreadChatNotifications = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: _currentUserId)
+          .where('type', isEqualTo: 'chat')
+          .where('read', isEqualTo: false)
+          .get();
+
+      if (unreadChatNotifications.docs.isNotEmpty) {
+        final batch = FirebaseFirestore.instance.batch();
+        for (var doc in unreadChatNotifications.docs) {
+          batch.update(doc.reference, {'read': true});
+        }
+        await batch.commit();
+        debugPrint('✅ SocialScreen: Marked ${unreadChatNotifications.docs.length} chat notifications as read');
+      }
+    } catch (e) {
+      debugPrint('Error marking chat notifications as read: $e');
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -114,46 +139,57 @@ class _SocialScreenState extends State<SocialScreen> {
                       final name = friend['displayName'] ?? 'Usuario';
                       final targetUserId = friend['id'];
                       
-                      return GestureDetector(
-                        onTap: () async {
-                           try {
-                             final chatId = await _chatService.createChat(targetUserId, name, avatarUrl ?? '');
-                             if (mounted) {
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(
-                                   builder: (context) => ChatDetailScreen(
-                                     chatId: chatId,
-                                     chatName: name,
-                                     avatarUrl: avatarUrl,
-                                   ),
-                                 ),
-                               );
-                             }
-                           } catch (e) {
-                             debugPrint("Error creating chat: $e");
-                           }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 16),
-                          width: 60,
-                          child: Column(
-                            children: [
-                              CircleAvatar(
+                      return Container(
+                        margin: const EdgeInsets.only(right: 16),
+                        width: 60,
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileScreen(userId: targetUserId),
+                                  ),
+                                );
+                              },
+                              child: CircleAvatar(
                                 radius: 28,
                                 backgroundColor: AppTheme.arteRed.withAlpha(50),
                                 backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
                                 child: avatarUrl == null ? Text(name[0].toUpperCase(), style: const TextStyle(color: AppTheme.arteRed, fontWeight: FontWeight.bold)) : null,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
+                            ),
+                            const SizedBox(height: 4),
+                            GestureDetector(
+                              onTap: () async {
+                                try {
+                                  final chatId = await _chatService.createChat(targetUserId, name, avatarUrl ?? '');
+                                  if (mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatDetailScreen(
+                                          chatId: chatId,
+                                          chatName: name,
+                                          avatarUrl: avatarUrl,
+                                          otherUserId: targetUserId,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  debugPrint("Error creating chat: $e");
+                                }
+                              },
+                              child: Text(
                                 name,
                                 style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -332,58 +368,82 @@ class _ChatTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundImage:
-                      (avatarUrl != null && avatarUrl.isNotEmpty) ? NetworkImage(avatarUrl) : null,
-                  backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
-                  child: (avatarUrl == null || avatarUrl.isEmpty)
-                      ? Text(name[0].toUpperCase(),
-                          style: const TextStyle(
-                              color: AppTheme.arteRed,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20))
-                      : null,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(userId: otherUserId),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 28,
+                    backgroundImage:
+                        (avatarUrl != null && avatarUrl.isNotEmpty) ? NetworkImage(avatarUrl) : null,
+                    backgroundColor: AppTheme.arteRed.withValues(alpha: 0.1),
+                    child: (avatarUrl == null || avatarUrl.isEmpty)
+                        ? Text(name[0].toUpperCase(),
+                            style: const TextStyle(
+                                color: AppTheme.arteRed,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20))
+                        : null,
+                  ),
                 ),
-                // DEBUG VERSION INDICATOR - REMOVE IN PRODUCTION
-                // Positioned(right: 0, bottom: 0, child: Icon(Icons.check_circle, size: 10, color: Colors.blue)), 
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: isUnread ? FontWeight.w900 : FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                  child: GestureDetector(
+                    onTap: () {
+                      debugPrint('👉 SocialScreen: Tapped on chat $chatId with $name');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatDetailScreen(
+                            chatId: chatId,
+                            chatName: name,
+                            avatarUrl: avatarUrl,
+                            otherUserId: otherUserId,
                           ),
-                          Text(
-                            timeStr,
-                            style: TextStyle(
-                              color: isUnread ? AppTheme.arteRed : Colors.grey,
-                              fontSize: 12,
-                              fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        lastMessage,
-                        style: TextStyle(
-                          color: isUnread ? Colors.black : Colors.grey.shade600,
-                          fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                      );
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              name,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: isUnread ? FontWeight.w900 : FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              timeStr,
+                              style: TextStyle(
+                                color: isUnread ? AppTheme.arteRed : Colors.grey,
+                                fontSize: 12,
+                                fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          lastMessage,
+                          style: TextStyle(
+                            color: isUnread ? Colors.black : Colors.grey.shade600,
+                            fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

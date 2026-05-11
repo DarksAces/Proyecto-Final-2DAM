@@ -1,6 +1,6 @@
-# Pokemon Go Map (mapa_flutter)
+# ARte Go Map
 
-A Flutter application featuring a MapLibre-based map with Pokémon-inspired elements, social feed, and AR capabilities.
+A Flutter application featuring a MapLibre-based map with ARte-inspired elements, social feed, and AR capabilities.
 
 ## Features
 

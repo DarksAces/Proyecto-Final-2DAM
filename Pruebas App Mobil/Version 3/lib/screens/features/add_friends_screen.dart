@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/user_service.dart';
+import 'profile_screen.dart';
 
 class AddFriendsScreen extends StatefulWidget {
   const AddFriendsScreen({super.key});
@@ -13,12 +14,43 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   final UserService _userService = UserService();
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _users = [];
+  List<Map<String, dynamic>> _filteredUsers = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    _filterUsers(_searchController.text);
+  }
+
+  void _filterUsers(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredUsers = List.from(_users);
+      });
+      return;
+    }
+
+    final lowerQuery = query.toLowerCase();
+    setState(() {
+      _filteredUsers = _users.where((user) {
+        final name = (user['displayName'] ?? '').toString().toLowerCase();
+        final username = (user['username'] ?? '').toString().toLowerCase();
+        return name.contains(lowerQuery) || username.contains(lowerQuery);
+      }).toList();
+    });
   }
 
   Future<void> _loadData() async {
@@ -28,6 +60,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
     if (mounted) {
       setState(() {
         _users = allUsers;
+        _filteredUsers = List.from(allUsers);
         _isLoading = false;
       });
     }
@@ -93,7 +126,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                 padding: EdgeInsets.all(40.0),
                 child: CircularProgressIndicator(color: AppTheme.arteRed),
               ))
-            else if (_users.isEmpty)
+            else if (_filteredUsers.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
@@ -114,9 +147,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _users.length,
+                itemCount: _filteredUsers.length,
                 itemBuilder: (context, index) {
-                  return _buildUserTile(_users[index], index);
+                  return _buildUserTile(_filteredUsers[index], index);
                 },
               ),
 
@@ -161,79 +194,97 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
 
   Widget _buildUserTile(Map<String, dynamic> user, int index) {
     final bool isFollowing = user['isFollowing'] ?? false;
+    final String? photoUrl = user['photoUrl'] ?? user['avatarUrl'];
+    final int avatarColor = user['avatarColor'] ?? 0xFF6C63FF;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: Colors.grey.shade200,
-            child: Text(
-              (user['displayName'] ?? user['username'] ?? 'U')[0].toUpperCase(),
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.black54),
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileScreen(userId: user['id']),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      user['displayName'] ?? "Usuario",
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 15),
-                    ),
-                    if (user['isVerified'] == true)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 4),
-                        child: Icon(Icons.check_circle,
-                            color: Colors.blue, size: 14),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: Color(avatarColor).withAlpha(40),
+              backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+              child: photoUrl == null
+                  ? Text(
+                      (user['displayName'] ?? user['username'] ?? 'U')[0]
+                          .toUpperCase(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(avatarColor),
                       ),
-                  ],
-                ),
-                Text(
-                  user['bio'] ?? user['level'] ?? "Explorador en ARte",
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                    )
+                  : null,
             ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            height: 32,
-            width: isFollowing ? 100 : 80,
-            child: ElevatedButton(
-              onPressed: () {
-                if (isFollowing) {
-                  _showUnfollowDialog(user, index);
-                } else {
-                  _followUser(user['id'], index);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isFollowing ? Colors.grey.shade200 : Colors.blue,
-                elevation: 0,
-                padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                isFollowing ? "Siguiendo" : "Seguir",
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: isFollowing ? Colors.black87 : Colors.white,
-                ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        user['displayName'] ?? "Usuario",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      if (user['isVerified'] == true)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.check_circle,
+                              color: Colors.blue, size: 14),
+                        ),
+                    ],
+                  ),
+                  Text(
+                    user['bio'] ?? user['level'] ?? "Explorador en ARte",
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            SizedBox(
+              height: 32,
+              width: isFollowing ? 100 : 80,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (isFollowing) {
+                    _showUnfollowDialog(user, index);
+                  } else {
+                    _followUser(user['id'], index);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isFollowing ? Colors.grey.shade200 : Colors.blue,
+                  elevation: 0,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text(
+                  isFollowing ? "Siguiendo" : "Seguir",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isFollowing ? Colors.black87 : Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -267,20 +318,14 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   Future<void> _followUser(String userId, int index) async {
     // Optimistic UI update
     setState(() {
-      _users[index]['isFollowing'] = true;
+      _filteredUsers[index]['isFollowing'] = true;
     });
 
     final success = await _userService.followUser(userId);
-    if (success) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Ahora sigues a este usuario")),
-        );
-      }
-    } else {
+    if (!success) {
       // Revert if failed
       setState(() {
-        _users[index]['isFollowing'] = false;
+        _filteredUsers[index]['isFollowing'] = false;
       });
     }
   }
@@ -288,20 +333,14 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   Future<void> _unfollowUser(String userId, int index) async {
     // Optimistic UI update
     setState(() {
-      _users[index]['isFollowing'] = false;
+      _filteredUsers[index]['isFollowing'] = false;
     });
 
     final success = await _userService.unfollowUser(userId);
-    if (success) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Has dejado de seguir a este usuario")),
-        );
-      }
-    } else {
+    if (!success) {
       // Revert if failed
       setState(() {
-        _users[index]['isFollowing'] = true;
+        _filteredUsers[index]['isFollowing'] = true;
       });
     }
   }

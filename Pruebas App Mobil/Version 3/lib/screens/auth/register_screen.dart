@@ -220,8 +220,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa una contraseña';
                               }
-                              if (value.length < 6) {
-                                return 'La contraseña debe tener al menos 6 caracteres';
+                              if (value.length < 8) {
+                                return 'Debe tener al menos 8 caracteres';
+                              }
+                              if (!value.contains(RegExp(r'[A-Z]'))) {
+                                return 'Debe incluir una mayúscula';
+                              }
+                              if (!value.contains(RegExp(r'[a-z]'))) {
+                                return 'Debe incluir una minúscula';
+                              }
+                              if (!value.contains(RegExp(r'[0-9]'))) {
+                                return 'Debe incluir un número';
+                              }
+                              if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+                                return 'Debe incluir un carácter especial';
                               }
                               return null;
                             },

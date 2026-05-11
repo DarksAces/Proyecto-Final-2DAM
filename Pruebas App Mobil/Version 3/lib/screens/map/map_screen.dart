@@ -55,12 +55,28 @@ class _MapScreenState extends State<MapScreen> {
   // Selected Detail
   Map<String, dynamic>? _selected;
 
+  Map<String, dynamic>? _currentUserPrivacy;
+
   @override
   void initState() {
     super.initState();
     _myUid = FirebaseAuth.instance.currentUser?.uid;
     _checkLocationStatus();
     _loadData();
+    _listenToPrivacy();
+  }
+
+  void _listenToPrivacy() {
+    _userService.currentUserDataStream.listen((snap) {
+      if (snap.exists && mounted) {
+        setState(() {
+          _currentUserPrivacy = snap.data();
+        });
+        // Force update radar/circles when visibility settings change
+        _updateUserRadar();
+        _drawCircles();
+      }
+    });
   }
 
   @override
@@ -88,16 +104,77 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _requestLocationPermission() async {
-    // Primero comprobamos el servicio
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Si el GPS está apagado, avisamos o intentamos abrir ajustes
-      await Geolocator.openLocationSettings();
+    // Primero comprobamos si el permiso ha sido denegado permanentemente
+    LocationPermission permission = await Geolocator.checkPermission();
+    
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Permiso Permanente Denegado"),
+            content: const Text("Has denegado el permiso de ubicación permanentemente. Debes activarlo manualmente en los ajustes de la aplicación para usar el mapa."),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("CANCELAR")),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Geolocator.openAppSettings();
+                },
+                child: const Text("ABRIR AJUSTES"),
+              ),
+            ],
+          ),
+        );
+      }
       return;
     }
 
-    // Solicitamos permiso (esto abrirá el diálogo del sistema si es necesario)
-    LocationPermission permission = await Geolocator.requestPermission();
+    // Si es denegado o no se ha pedido, mostramos un aviso amigable antes del sistema
+    if (permission == LocationPermission.denied || permission == LocationPermission.unableToDetermine) {
+      bool? proceed = await showModalBottomSheet<bool>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => Container(
+          padding: const EdgeInsets.all(30),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.location_on_rounded, color: Color(0xFF6C63FF), size: 50),
+              const SizedBox(height: 20),
+              const Text("Permitir Ubicación", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+              const SizedBox(height: 12),
+              const Text(
+                "Aura AR necesita tu ubicación para mostrarte las obras de arte que están cerca de ti en el radar.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6C63FF)),
+                  child: const Text("CONTINUAR", style: TextStyle(fontWeight: FontWeight.w900)),
+                ),
+              ),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("MÁS TARDE")),
+            ],
+          ),
+        ),
+      );
+      
+      if (proceed != true) return;
+    }
+
+    // Ahora sí, solicitamos permiso del sistema
+    permission = await Geolocator.requestPermission();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     
     if (mounted) {
       setState(() {
@@ -107,7 +184,11 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
-      _initGPS();
+      if (serviceEnabled) {
+        _initGPS();
+      } else {
+        await Geolocator.openLocationSettings();
+      }
     }
   }
 
@@ -189,6 +270,15 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
+    bool isVisible = _currentUserPrivacy?['isVisibleOnMap'] ?? true;
+    if (!isVisible) {
+      if (_userRadarFill != null) {
+        try { await _mapController!.removeFill(_userRadarFill!); } catch (_) {}
+        _userRadarFill = null;
+      }
+      return;
+    }
+
     _userRadarFill = await _mapController!.addFill(FillOptions(
       geometry: [points],
       fillColor: '#6C63FF',
@@ -241,8 +331,10 @@ class _MapScreenState extends State<MapScreen> {
           final isOwnPending = authorId == _myUid;
           if (!isAccepted && !isOwnPending) continue;
 
-          double jitterLat = (d['latitude'] as num).toDouble() + (_random.nextDouble() - 0.5) * 0.00008;
-          double jitterLng = (d['longitude'] as num).toDouble() + (_random.nextDouble() - 0.5) * 0.00008;
+          // Obfuscation jitter: A bit more significant so coordinates aren't exact
+          // (Approx 20-30 meters variance)
+          double jitterLat = (d['latitude'] as num).toDouble() + (_random.nextDouble() - 0.5) * 0.0003;
+          double jitterLng = (d['longitude'] as num).toDouble() + (_random.nextDouble() - 0.5) * 0.0003;
 
           _stops.add({
             'id': doc.id,
@@ -250,6 +342,8 @@ class _MapScreenState extends State<MapScreen> {
             'description': d['description'] ?? '',
             'lat': jitterLat,
             'lng': jitterLng,
+            'realLat': (d['latitude'] as num).toDouble(),
+            'realLng': (d['longitude'] as num).toDouble(),
             'author': d['username'] ?? 'Explorador',
             'authorId': authorId,
             'image': d['imageUrl'] ?? d['image'] ?? '',
@@ -304,8 +398,15 @@ class _MapScreenState extends State<MapScreen> {
     for (final s in _stops) {
       final id = s['authorId'] as String;
 
-      // Distance filter (radar)
-      final double distance = Geolocator.distanceBetween(_userLat, _userLng, s['lat'], s['lng']);
+      // Distance filter (radar): markers only appear IF they are near the user
+      // Use the real coordinates for accurate distance checking, but display the jittered ones
+      final double distance = Geolocator.distanceBetween(
+        _userLat, 
+        _userLng, 
+        s['realLat'] ?? s['lat'], 
+        s['realLng'] ?? s['lng']
+      );
+      
       if (distance > _radarRadiusMeters) continue;
 
       // Category filter
@@ -330,9 +431,11 @@ class _MapScreenState extends State<MapScreen> {
       final c = await _mapController!.addCircle(CircleOptions(
         geometry: LatLng(s['lat'], s['lng']),
         circleColor: color,
-        circleRadius: 7,
-        circleStrokeWidth: 2.0,
+        circleRadius: 10, // Larger for area feeling
+        circleOpacity: 0.7, // Semi-transparent
+        circleStrokeWidth: 3.0,
         circleStrokeColor: '#FFFFFF',
+        circleStrokeOpacity: 0.5,
       ));
       _circles.add(c);
     }
@@ -347,7 +450,13 @@ class _MapScreenState extends State<MapScreen> {
 
     // Apply category filter to nearby stops list
     final nearbyStops = _stops.where((s) {
-      final double dist = Geolocator.distanceBetween(_userLat, _userLng, s['lat'], s['lng']);
+      final double dist = Geolocator.distanceBetween(
+        _userLat, 
+        _userLng, 
+        s['realLat'] ?? s['lat'], 
+        s['realLng'] ?? s['lng']
+      );
+      
       if (dist > _radarRadiusMeters) return false;
       final id = s['authorId'] as String;
       if (_filter == 'me') return id == _myUid;
@@ -361,8 +470,8 @@ class _MapScreenState extends State<MapScreen> {
       nearbyStops.sort((a, b) => (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
     } else {
       nearbyStops.sort((a, b) {
-        double da = Geolocator.distanceBetween(_userLat, _userLng, a['lat'], a['lng']);
-        double db = Geolocator.distanceBetween(_userLat, _userLng, b['lat'], b['lng']);
+        double da = Geolocator.distanceBetween(_userLat, _userLng, a['realLat'] ?? a['lat'], a['realLng'] ?? a['lng']);
+        double db = Geolocator.distanceBetween(_userLat, _userLng, b['realLat'] ?? b['lat'], b['realLng'] ?? b['lng']);
         return da.compareTo(db);
       });
     }
@@ -385,6 +494,24 @@ class _MapScreenState extends State<MapScreen> {
           else if (!isBlocked)
             _buildLocationWaitingOverlay(),
 
+          // Ghost Mode Indicator
+          if (_currentUserPrivacy?['isGhostMode'] == true)
+            Positioned(
+              bottom: bottomNavHeight + 150,
+              left: 16,
+              child: _GlassOverlay(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.visibility_off, color: Colors.blue.shade400, size: 18),
+                    const SizedBox(width: 6),
+                    const Text("MODO FANTASMA", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue)),
+                  ],
+                ),
+              ),
+            ),
+
           if (_hasLocation && !_mapInitialized && !isBlocked) _buildLoadingOverlay(),
 
           if (_hasLocation && _mapInitialized && !isBlocked) ...[
@@ -398,7 +525,9 @@ class _MapScreenState extends State<MapScreen> {
                     Expanded(
                       child: _FilterBar(
                         selected: _filter,
-                        onSelect: (f) {
+                        onSelect: (f) async {
+                          // Refresh following list when changing to friends filter
+                          if (f == 'following') await _loadData();
                           setState(() => _filter = f);
                           _drawCircles();
                         }

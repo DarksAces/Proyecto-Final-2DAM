@@ -36,8 +36,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _userService.getNotifications(_currentUserId),
+      body: SafeArea(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _userService.getNotifications(_currentUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -130,6 +131,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           );
         },
       ),
+     ),
     );
   }
 }

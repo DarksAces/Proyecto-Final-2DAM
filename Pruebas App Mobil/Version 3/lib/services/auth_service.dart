@@ -114,6 +114,40 @@ class AuthService {
     await _auth.signOut();
   }
 
+  // Change password (requires re-authentication)
+  Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final User? user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        return AuthResult(success: false, errorMessage: 'Usuario no autenticado.');
+      }
+
+      // Re-authenticate user
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+
+      return AuthResult(success: true);
+    } on FirebaseAuthException catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: _getSpanishErrorMessage(e.code),
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error al cambiar la contraseña: $e',
+      );
+    }
+  }
+
   // Reset password
   Future<AuthResult> resetPassword(String email) async {
     try {
@@ -126,6 +160,42 @@ class AuthService {
       return AuthResult(
         success: false,
         errorMessage: _getSpanishErrorMessage(e.code),
+      );
+    }
+  }
+
+  // Delete account (requires re-authentication)
+  Future<AuthResult> deleteAccount({required String currentPassword}) async {
+    try {
+      final User? user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        return AuthResult(success: false, errorMessage: 'Usuario no autenticado.');
+      }
+
+      // Re-authenticate user
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      
+      // Delete user data from Firestore
+      await _firestore.collection('users').doc(user.uid).delete();
+      
+      // Delete user from Auth
+      await user.delete();
+
+      return AuthResult(success: true);
+    } on FirebaseAuthException catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: _getSpanishErrorMessage(e.code),
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error al eliminar la cuenta: $e',
       );
     }
   }

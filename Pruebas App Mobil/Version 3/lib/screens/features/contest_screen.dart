@@ -40,7 +40,9 @@ class _ContestScreenState extends State<ContestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
-      body: CustomScrollView(
+      body: SafeArea(
+        top: false, // Let SliverAppBar handle the top
+        child: CustomScrollView(
         slivers: [
           // Colorful Premium Header
           SliverAppBar(
@@ -53,16 +55,18 @@ class _ContestScreenState extends State<ContestScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text("GALERÍA DE GENIOS", 
-                style: TextStyle(
-                  color: Colors.white, 
-                  fontWeight: FontWeight.w900, 
-                  fontSize: 16, 
-                  letterSpacing: 1.5,
-                  shadows: [Shadow(color: Colors.black45, blurRadius: 10)]
-                )
-              ),
               centerTitle: true,
+              title: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("GALERÍA DE GENIOS", 
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5)
+                  ),
+                  Text("LAS MEJORES CREACIONES", 
+                    style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 6, letterSpacing: 0.5)
+                  ),
+                ],
+              ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -142,9 +146,10 @@ class _ContestScreenState extends State<ContestScreen> {
             sliver: _ArtworkGridSliver(stream: _contestService.getGlobalArtworks(category: _selectedCategory)),
           ),
           
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          const SliverToBoxAdapter(child: SizedBox(height: 130)),
         ],
       ),
+     ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const ParticipationScreen()));
@@ -192,7 +197,7 @@ class _ArtworkGridSliver extends StatelessWidget {
   void _showArtworkPopup(BuildContext context, String docId, Map<String, dynamic> data) {
     final imageUrl = data['imageUrl'] ?? '';
     final title = data['title'] ?? 'Obra Maestra';
-    final artist = data['artistName'] ?? 'Genio Anónimo';
+    final artist = data['artistName'] ?? data['userName'] ?? data['username'] ?? data['fullName'] ?? data['displayName'] ?? 'Genio Anónimo';
     final description = data['description'] ?? '';
     final votes = (data['votes'] ?? data['likes'] ?? 0) as int;
 
@@ -218,7 +223,34 @@ class _ArtworkGridSliver extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasError) return SliverToBoxAdapter(child: Center(child: Text('Error: ${snapshot.error}')));
         if (snapshot.connectionState == ConnectionState.waiting) return const SliverToBoxAdapter(child: Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator())));
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return const SliverToBoxAdapter(child: Center(child: Padding(padding: EdgeInsets.all(40), child: Text("No hay obras aún.", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)))));
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return SliverFillRemaining(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.palette_outlined, size: 80, color: Colors.grey.withAlpha(100)),
+                  const SizedBox(height: 16),
+                  const Text("¡AÚN NO HAY OBRAS!", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 18)),
+                  const SizedBox(height: 8),
+                  Text("Sé el primero en subir tu creación al concurso.", style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ParticipationScreen())),
+                    icon: const Icon(Icons.rocket_launch_rounded),
+                    label: const Text("PARTICIPAR AHORA"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6C63FF),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
 
         final docs = snapshot.data!.docs;
         docs.sort((a, b) {
@@ -230,9 +262,9 @@ class _ArtworkGridSliver extends StatelessWidget {
         return SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.7,
-            crossAxisSpacing: 15,
-            mainAxisSpacing: 15,
+            childAspectRatio: 0.78, // Adjusted for better adaptation
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -240,7 +272,10 @@ class _ArtworkGridSliver extends StatelessWidget {
               final data = doc.data() as Map<String, dynamic>;
               final imageUrl = data['imageUrl'] ?? 'https://picsum.photos/seed/art_$index/600/800';
               final title = data['title'] ?? 'Obra Maestra';
-              final artist = data['artistName'] ?? 'Genio Anónimo';
+              final category = data['category'] ?? 'General';
+              final votes = data['votes'] ?? data['likes'] ?? 0;
+              
+              final artist = data['artistName'] ?? data['userName'] ?? data['username'] ?? data['fullName'] ?? data['displayName'] ?? 'Genio Anónimo';
 
               return GestureDetector(
                 onTap: () => _showArtworkPopup(context, doc.id, data),
@@ -256,37 +291,77 @@ class _ArtworkGridSliver extends StatelessWidget {
                       fit: StackFit.expand,
                       children: [
                         Image.network(imageUrl, fit: BoxFit.cover),
-                        // Gradient overlay
-                        Positioned.fill(
+                        // Category Badge
+                        Positioned(
+                          top: 10, left: 10,
                           child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, Colors.black.withAlpha(190)],
-                                stops: const [0.55, 1.0],
-                              ),
+                              color: Colors.black.withAlpha(120),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(category.toUpperCase(), 
+                              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 0.5)
+                            ),
+                          ),
+                        ),
+                        // Votes Badge
+                        Positioned(
+                          top: 10, right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6C63FF).withAlpha(200),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.local_fire_department, color: Colors.white, size: 10),
+                                const SizedBox(width: 2),
+                                Text('$votes', 
+                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)
+                                ),
+                              ],
                             ),
                           ),
                         ),
                         // Info at bottom
                         Positioned(
-                          bottom: 12, left: 12, right: 12,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                          bottom: 0, left: 0, right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black.withAlpha(220)],
                               ),
-                              const SizedBox(height: 2),
-                              Text(artist,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: Colors.white.withAlpha(180), fontSize: 11, fontWeight: FontWeight.w500),
-                              ),
-                            ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(Icons.person, color: Colors.white.withAlpha(150), size: 10),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(artist,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(color: Colors.white.withAlpha(150), fontSize: 10, fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -360,12 +435,19 @@ class _ArtworkPopupState extends State<_ArtworkPopup> {
           .collection('contest_entries')
           .doc(widget.docId);
 
+      String? authorId;
       await FirebaseFirestore.instance.runTransaction((tx) async {
         final snap = await tx.get(entryRef);
         final currentVotes = (snap.data()?['votes'] ?? 0) as int;
+        authorId = snap.data()?['userId'] as String?;
         tx.update(entryRef, {'votes': currentVotes + 1});
         tx.set(entryRef.collection('voters').doc(uid), {'votedAt': FieldValue.serverTimestamp()});
       });
+
+      // Award +5 points to the artwork author (not to the voter)
+      if (authorId != null && authorId != uid) {
+        await UserService().addPoints(authorId!, 5);
+      }
 
       if (mounted) {
         setState(() {
@@ -388,119 +470,122 @@ class _ArtworkPopupState extends State<_ArtworkPopup> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      child: Column(
-        children: [
-          // Drag handle
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 6),
-            child: Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(4)),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            // Drag handle
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 6),
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(4)),
+              ),
             ),
-          ),
-
-          // Image
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: widget.imageUrl.isNotEmpty
-                  ? Image.network(
-                      widget.imageUrl,
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                      loadingBuilder: (ctx, child, prog) =>
-                          prog == null ? child : const Center(child: CircularProgressIndicator()),
-                    )
-                  : Container(
-                      color: Colors.grey.shade200,
-                      child: const Icon(Icons.image_outlined, size: 80, color: Colors.grey),
-                    ),
+  
+            // Image
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: widget.imageUrl.isNotEmpty
+                    ? Image.network(
+                        widget.imageUrl,
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        loadingBuilder: (ctx, child, prog) =>
+                            prog == null ? child : const Center(child: CircularProgressIndicator()),
+                      )
+                    : Container(
+                        color: Colors.grey.shade200,
+                        child: const Icon(Icons.image_outlined, size: 80, color: Colors.grey),
+                      ),
+              ),
             ),
-          ),
-
-          // Info + button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.title,
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(widget.artist,
-                            style: const TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                        ],
+  
+            // Info + button
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.title,
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(widget.artist,
+                              style: const TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // Vote counter chip
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF).withAlpha(20),
-                        borderRadius: BorderRadius.circular(20),
+                      // Vote counter chip
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6C63FF).withAlpha(20),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.local_fire_department, color: Color(0xFF6C63FF), size: 16),
+                            const SizedBox(width: 4),
+                            Text('$_votes', style: const TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.w900, fontSize: 14)),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.local_fire_department, color: Color(0xFF6C63FF), size: 16),
-                          const SizedBox(width: 4),
-                          Text('$_votes', style: const TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.w900, fontSize: 14)),
-                        ],
-                      ),
+                    ],
+                  ),
+                  if (widget.description.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(widget.description,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.5),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                ),
-                if (widget.description.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Text(widget.description,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.5),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 20),
+                  // Recommend button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _hasVoted || _isLoading ? null : _recommend,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _hasVoted ? Colors.grey.shade300 : const Color(0xFF6C63FF),
+                        foregroundColor: _hasVoted ? Colors.grey.shade600 : Colors.white,
+                        elevation: _hasVoted ? 0 : 8,
+                        shadowColor: const Color(0xFF6C63FF).withAlpha(80),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        disabledBackgroundColor: Colors.grey.shade200,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(_hasVoted ? Icons.check_rounded : Icons.recommend_rounded, size: 22),
+                                const SizedBox(width: 10),
+                                Text(
+                                  _hasVoted ? 'YA RECOMENDASTE ESTA OBRA' : 'RECOMENDAR ESTA OBRA',
+                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                                ),
+                              ],
+                            ),
+                    ),
                   ),
                 ],
-                const SizedBox(height: 20),
-                // Recommend button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _hasVoted || _isLoading ? null : _recommend,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _hasVoted ? Colors.grey.shade300 : const Color(0xFF6C63FF),
-                      foregroundColor: _hasVoted ? Colors.grey.shade600 : Colors.white,
-                      elevation: _hasVoted ? 0 : 8,
-                      shadowColor: const Color(0xFF6C63FF).withAlpha(80),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      disabledBackgroundColor: Colors.grey.shade200,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(_hasVoted ? Icons.check_rounded : Icons.recommend_rounded, size: 22),
-                              const SizedBox(width: 10),
-                              Text(
-                                _hasVoted ? 'YA RECOMENDASTE ESTA OBRA' : 'RECOMENDAR ESTA OBRA',
-                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

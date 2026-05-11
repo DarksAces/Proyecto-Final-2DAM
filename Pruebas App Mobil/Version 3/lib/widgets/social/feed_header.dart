@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../screens/features/add_friends_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/user_service.dart';
+import '../../services/chat_service.dart';
 
 class FeedHeader extends StatelessWidget {
   final String? avatarUrl;
@@ -18,6 +21,10 @@ class FeedHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final userService = UserService();
+    final chatService = ChatService();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: Colors.white,
@@ -31,7 +38,8 @@ class FeedHeader extends StatelessWidget {
               backgroundImage:
                   avatarUrl != null ? NetworkImage(avatarUrl!) : null,
               child: avatarUrl == null
-                  ? const Icon(Icons.person, color: AppTheme.arteGreen, size: 20)
+                  ? const Icon(Icons.person,
+                      color: AppTheme.arteGreen, size: 20)
                   : null,
             ),
           ),
@@ -74,18 +82,38 @@ class FeedHeader extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           // Notification Icon
-          GestureDetector(
-            onTap: onNotificationTap,
-            child: Icon(Icons.notifications_none,
-                color: Colors.grey.shade700, size: 24),
-          ),
+          StreamBuilder<int>(
+              stream: userService.getUnreadGeneralNotificationsCount(userId),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                return GestureDetector(
+                  onTap: onNotificationTap,
+                  child: Badge.count(
+                    count: count,
+                    isLabelVisible: count > 0,
+                    backgroundColor: AppTheme.arteRed,
+                    child: Icon(Icons.notifications_none,
+                        color: Colors.grey.shade700, size: 24),
+                  ),
+                );
+              }),
           const SizedBox(width: 12),
           // Chat Icon (Right)
-          GestureDetector(
-            onTap: onChatTap,
-            child: Icon(Icons.chat_bubble_outline,
-                color: Colors.grey.shade700, size: 24),
-          ),
+          StreamBuilder<int>(
+              stream: chatService.getUnreadChatCount(),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                return GestureDetector(
+                  onTap: onChatTap,
+                  child: Badge.count(
+                    count: count,
+                    isLabelVisible: count > 0,
+                    backgroundColor: AppTheme.arteRed,
+                    child: Icon(Icons.chat_bubble_outline,
+                        color: Colors.grey.shade700, size: 24),
+                  ),
+                );
+              }),
         ],
       ),
     );
