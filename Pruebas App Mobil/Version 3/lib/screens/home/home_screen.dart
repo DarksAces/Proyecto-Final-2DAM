@@ -211,7 +211,24 @@ class HomeScreen extends StatelessWidget {
 
                     ],
                   ),
-                )
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Botón temporal para pruebas
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('¡Botón de test presionado!')),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text("TEST BUTTON"),
+                  ),
+                ),
+                const SizedBox(height: 20),
               ],
             ),
           ),
