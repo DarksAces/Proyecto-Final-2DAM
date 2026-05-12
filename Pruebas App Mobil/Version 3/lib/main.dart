@@ -36,7 +36,9 @@ void main() async {
   );
 
   // Initialize Google Sign In for v7+
-  await GoogleSignIn.instance.initialize();
+  await GoogleSignIn.instance.initialize(
+    serverClientId: '30632730598-6h2hcsigc30ip6se5l6132gdcecd6equ.apps.googleusercontent.com',
+  );
 
   // Activate App Check for security (Update for Version 1.1)
   // This ensures only the official app can access Firebase
