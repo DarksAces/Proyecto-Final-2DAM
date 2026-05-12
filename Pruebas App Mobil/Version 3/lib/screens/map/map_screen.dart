@@ -301,16 +301,22 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _loadData() async {
     if (_myUid != null) {
       try {
-        final userData = await _userService.getUserData(_myUid!);
-        if (mounted && userData != null) {
+        // Correctly fetch the IDs of people we follow from the sub-collection
+        final followingSnap = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_myUid)
+            .collection('following')
+            .get();
+            
+        if (mounted) {
           setState(() {
             _following.clear();
-            final list = userData['followingList'] ?? userData['following'] ?? [];
-            if (list is List) _following.addAll(list.map((e) => e.toString()));
+            _following.addAll(followingSnap.docs.map((doc) => doc.id));
+            debugPrint('DEBUG: Map following list loaded: ${_following.length} users');
           });
         }
       } catch (e) {
-        debugPrint('Error loading following list: $e');
+        debugPrint('Error loading following list from sub-collection: $e');
       }
     }
 
@@ -420,8 +426,8 @@ class _MapScreenState extends State<MapScreen> {
         show = id == _myUid;
         color = '#FFD700';
       } else if (_filter == 'following') {
-        show = _following.contains(id) || id == _myUid;
-        color = id == _myUid ? '#FFD700' : '#4CAF50';
+        show = _following.contains(id);
+        color = '#4CAF50';
       } else {
         // 'all'
         show = true;
@@ -464,7 +470,7 @@ class _MapScreenState extends State<MapScreen> {
       if (dist > _radarRadiusMeters) return false;
       final id = s['authorId'] as String;
       if (_filter == 'me') return id == _myUid;
-      if (_filter == 'following') return _following.contains(id) || id == _myUid;
+      if (_filter == 'following') return _following.contains(id);
       return true; // 'all'
     }).toList();
 
