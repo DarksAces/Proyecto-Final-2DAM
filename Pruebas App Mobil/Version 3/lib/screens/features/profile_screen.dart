@@ -669,6 +669,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               hearts: "${item['likes'] ?? 0}",
                               isAr: item['contentType'] == 'ar_object',
                               initialIsLiked: item['isLiked'] ?? false,
+                              onDelete: isMyProfile ? () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Eliminar obra"),
+                                    content: const Text("¿Estás seguro de que quieres eliminar esta obra de tu portfolio?"),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCELAR")),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text("ELIMINAR", style: TextStyle(color: AppTheme.arteRed, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  final String collection = item['contentType'] == 'ar_object' ? 'ar_objects' : 'sitios';
+                                  await FirebaseFirestore.instance.collection(collection).doc(item['id']).delete();
+                                  _loadData(); // Refresh list
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Obra eliminada")));
+                                  }
+                                }
+                              } : null,
                               onTap: () async {
                                 if (item['contentType'] == 'ar_object') {
                                   final String url = item['url'];
@@ -853,6 +878,7 @@ class _UniquePortfolioItem extends StatefulWidget {
   final bool isAr;
   final bool initialIsLiked;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const _UniquePortfolioItem({
     super.key,
@@ -864,6 +890,7 @@ class _UniquePortfolioItem extends StatefulWidget {
     this.isAr = false,
     this.initialIsLiked = false,
     this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -984,6 +1011,25 @@ class _UniquePortfolioItemState extends State<_UniquePortfolioItem> {
                       SizedBox(width: 4),
                       Text("3D", style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
                     ],
+                  ),
+                ),
+              ),
+
+            // Delete Button (Only if onDelete is provided)
+            if (widget.onDelete != null)
+              Positioned(
+                top: 12,
+                left: 12,
+                child: GestureDetector(
+                  onTap: widget.onDelete,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                    ),
+                    child: const Icon(Icons.delete_outline, color: AppTheme.arteRed, size: 16),
                   ),
                 ),
               ),

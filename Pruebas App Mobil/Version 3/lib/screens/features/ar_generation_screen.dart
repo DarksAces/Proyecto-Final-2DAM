@@ -144,7 +144,7 @@ class _ArGenerationScreenState extends State<ArGenerationScreen> {
         title: const Text("Límite Alcanzado",
             style: TextStyle(color: Colors.white)),
         content: const Text(
-          "Has alcanzado el límite de 5 objetos AR generados. Elimina alguno en tu galería para crear más.",
+          "Has alcanzado el límite de 3 objetos AR diarios para ahorrar tokens. ¡Vuelve mañana para seguir creando!",
           style: TextStyle(color: Colors.white70),
         ),
         actions: [

@@ -228,6 +228,64 @@ class _SocialPostCardState extends State<SocialPostCard> {
     }
   }
 
+  void _showOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: AppTheme.arteRed),
+                title: const Text("Eliminar publicación", style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.arteRed)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deletePost();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.close),
+                title: const Text("Cancelar"),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _deletePost() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("¿Eliminar publicación?"),
+        content: const Text("Esta acción no se puede deshacer y el post desaparecerá del mapa y del feed."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCELAR")),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("ELIMINAR", style: TextStyle(color: AppTheme.arteRed, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await FirebaseFirestore.instance.collection('sitios').doc(widget.postId).delete();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Publicación eliminada correctamente")));
+      }
+    }
+  }
+
   void _navigateToProfile() {
     final postUserId = widget.data['userId'];
     if (postUserId != null) {
@@ -295,6 +353,11 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   TextButton(
                     onPressed: _toggleFollow,
                     child: Text(_isFollowing ? "SIGUIENDO" : "+ SEGUIR", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppTheme.arteGreen)),
+                  )
+                else
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, size: 20, color: Colors.grey),
+                    onPressed: () => _showOptions(context),
                   ),
               ],
             ),

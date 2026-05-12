@@ -9,7 +9,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class ArGenerationService {
-  final String _baseUrl = 'https://aura-bmqy.onrender.com';
+  final List<String> _baseUrls = [
+    'https://aura-bmqy.onrender.com',
+    'https://aura-backup-1.onrender.com', // Placeholder for actual backups
+    'https://aura-backup-2.onrender.com',
+  ];
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -63,51 +67,82 @@ class ArGenerationService {
     }
   }
 
-  /// Checks if the user has reached the limit of 5 AR objects.
+  /// Checks if the user has reached the daily limit.
   Future<bool> canGenerateMore() async {
-    // For now, always return true as requested (local focus)
-    return true;
+    if (currentUserId == null) return false;
+    
+    try {
+      // Limit: 3 generations per day to save tokens
+      final now = DateTime.now();
+      final startOfToday = DateTime(now.year, now.month, now.day);
+      
+      final snap = await _firestore
+          .collection('ar_objects')
+          .where('userId', isEqualTo: currentUserId)
+          .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfToday))
+          .get();
+          
+      return snap.docs.length < 3;
+    } catch (e) {
+      print("Error checking generation limit: $e");
+      return true; // Fallback to allow if error
+    }
   }
 
   /// Generates a 3D model, saves it locally, and syncs it to Firebase.
+  /// Now with multi-server fallback support.
   Future<File?> generateAndUpload3DModel(File imageFile) async {
     if (currentUserId == null) {
       throw Exception("Debes iniciar sesión para guardar objetos AR.");
     }
 
+    Uint8List? modelBytes;
+    String? flaskModelUrl;
+
+    // --- MULTI-SERVER FALLBACK LOOP ---
+    for (String baseUrl in _baseUrls) {
+      try {
+        print("DEBUG: Attempting generation with $baseUrl...");
+        
+        var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/generate'));
+        request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+        
+        var response = await request.send().timeout(const Duration(seconds: 45));
+
+        if (response.statusCode != 200) {
+          print("API Error on $baseUrl: Status ${response.statusCode}");
+          continue; // Try next server
+        }
+
+        final String jsonString = await response.stream.bytesToString();
+        final Map<String, dynamic> data = json.decode(jsonString);
+
+        if (data['success'] != true || data['model_url'] == null) {
+          continue; // Try next server
+        }
+
+        flaskModelUrl = data['model_url'].toString().startsWith('http')
+            ? data['model_url']
+            : '$baseUrl${data['model_url']}';
+
+        // Download model bytes
+        final modelResponse = await http.get(Uri.parse(flaskModelUrl!)).timeout(const Duration(seconds: 30));
+        if (modelResponse.statusCode == 200) {
+          modelBytes = modelResponse.bodyBytes;
+          print("DEBUG: Successfully generated model with $baseUrl");
+          break; // Success! Exit loop
+        }
+      } catch (e) {
+        print("Error with server $baseUrl: $e");
+        // Loop continues to next server
+      }
+    }
+
+    if (modelBytes == null) {
+      throw Exception("Todos los servidores de IA están ocupados o fuera de línea. Inténtalo de nuevo en unos minutos.");
+    }
+
     try {
-      // 1. Generate via Flask API
-      // We use the multipart request to get the model URL from Flask
-      var request =
-          http.MultipartRequest('POST', Uri.parse('$_baseUrl/generate'));
-      request.files
-          .add(await http.MultipartFile.fromPath('image', imageFile.path));
-
-      print("DEBUG: Sending request to $_baseUrl/generate");
-      var response = await request.send();
-
-      if (response.statusCode != 200) {
-        print("API Error: Status ${response.statusCode}");
-        return null;
-      }
-
-      final String jsonString = await response.stream.bytesToString();
-      print("DEBUG: API Response: $jsonString");
-      final Map<String, dynamic> data = json.decode(jsonString);
-
-      if (data['success'] != true || data['model_url'] == null) {
-        return null;
-      }
-
-      final String flaskModelUrl = data['model_url'].toString().startsWith('http')
-          ? data['model_url']
-          : '$_baseUrl${data['model_url']}';
-
-      // 2. Download model bytes for Firebase Storage
-      final modelResponse = await http.get(Uri.parse(flaskModelUrl));
-      if (modelResponse.statusCode != 200) return null;
-      final Uint8List modelBytes = modelResponse.bodyBytes;
-
       // 3. Prepare paths and names
       final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final String glbFileName = "ar_$timestamp.glb";
@@ -122,7 +157,7 @@ class ArGenerationService {
       print("DEBUG: Uploading to Firebase Storage...");
       final List<Future<String>> uploadTasks = [
         glbRef
-            .putData(modelBytes, SettableMetadata(contentType: 'model/gltf-binary'))
+            .putData(modelBytes!, SettableMetadata(contentType: 'model/gltf-binary'))
             .then((s) => s.ref.getDownloadURL()),
         imgRef
             .putFile(imageFile, SettableMetadata(contentType: 'image/jpeg'))
@@ -142,6 +177,7 @@ class ArGenerationService {
         'type': 'glb',
         'url': firebaseModelUrl,
         'userId': currentUserId,
+        'status': 'pending_review',
       });
 
       // 6. Award +10 points for generating an AR model
@@ -151,10 +187,9 @@ class ArGenerationService {
       print("DEBUG: +10 points awarded to $currentUserId for AR generation");
 
       // 7. Also save locally for the viewer (immediate performance)
-      // Using already downloaded modelBytes to avoid redundant request
-      return await saveBytesLocally(modelBytes, glbFileName);
+      return await saveBytesLocally(modelBytes!, glbFileName);
     } catch (e) {
-      print("Error in generateAndUpload3DModel: $e");
+      print("Error in finalizing AR upload: $e");
       rethrow;
     }
   }
@@ -168,7 +203,7 @@ class ArGenerationService {
   Future<Uint8List?> generate3DModel(File imageFile) async {
     try {
       var request =
-          http.MultipartRequest('POST', Uri.parse('$_baseUrl/generate'));
+          http.MultipartRequest('POST', Uri.parse('${_baseUrls[0]}/generate'));
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
       var response = await request.send();

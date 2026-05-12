@@ -327,7 +327,7 @@ class _MapScreenState extends State<MapScreen> {
           final d = doc.data();
           if (!d.containsKey('latitude') || !d.containsKey('longitude')) continue;
 
-          final status = (d['status'] ?? 'accepted').toString();
+          final status = (d['status'] ?? 'pending_review').toString();
           final authorId = (d['userId'] ?? '').toString();
 
           // Show: accepted/approved from anyone, OR own pending_review items

@@ -130,7 +130,7 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
                           // Client-side filtering to avoid index requirements
                           final approvedDocs = snapshot.data!.docs.where((doc) {
                             final data = doc.data() as Map<String, dynamic>;
-                            final status = data['status'] ?? 'accepted';
+                            final status = data['status'] ?? 'pending_review';
                             return status == 'approved' || status == 'accepted';
                           }).toList();
 
