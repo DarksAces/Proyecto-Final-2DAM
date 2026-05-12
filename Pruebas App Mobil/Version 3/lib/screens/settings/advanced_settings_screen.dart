@@ -7,6 +7,7 @@ import 'change_password_screen.dart';
 import 'two_factor_screen.dart';
 import 'language_screen.dart';
 import 'legal_screens.dart';
+import 'creators_screen.dart';
 import '../../services/settings_service.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
@@ -210,6 +211,15 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (_) => const SoftwareLicensesScreen())),
+                  ),
+                  _buildSettingsTile(
+                    icon: Icons.groups_rounded,
+                    title: "Creadores",
+                    subtitle: "Conoce al equipo de ARte",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CreatorsScreen())),
                   ),
                 ],
               ),

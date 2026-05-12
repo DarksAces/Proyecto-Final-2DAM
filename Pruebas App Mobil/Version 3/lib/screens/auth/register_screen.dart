@@ -96,6 +96,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isLoading = true);
+    final result = await _authService.signInWithGoogle();
+    setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    if (result.success) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else if (result.errorMessage != 'Inicio de sesión cancelado.') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.errorMessage ?? 'Error al registrarse con Google'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthBackground(
@@ -312,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         _socialButton(
                           Icons.g_mobiledata,
                           Colors.red.shade50,
-                          onTap: () => _showComingSoon("Google"),
+                          onTap: _handleGoogleLogin,
                         ),
                         const SizedBox(width: 20),
                         _socialButton(
