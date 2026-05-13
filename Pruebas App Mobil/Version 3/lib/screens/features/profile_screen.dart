@@ -10,6 +10,7 @@ import 'user_list_screen.dart';
 import '../../services/chat_service.dart';
 import 'chat_detail_screen.dart';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart'; // Added image_picker
 import 'connections_screen.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -138,6 +139,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
 
+    }
+  }
+
+  Future<void> _changeProfileImage() async {
+    final picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      setState(() => _isLoading = true);
+      
+      final String? newUrl = await _userService.uploadProfileImage(File(image.path));
+      
+      if (newUrl != null) {
+        await _loadData(); // Refresh profile
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Imagen de perfil actualizada"), backgroundColor: Colors.green),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll("Exception: ", "")), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -279,19 +308,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
                               color: Colors.white, shape: BoxShape.circle),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Color(avatarColor),
-                            backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                            child: photoUrl == null 
-                              ? Text(
-                                  username.isNotEmpty ? username[0].toUpperCase() : '?',
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              : null,
+                          child: GestureDetector(
+                            onTap: isMyProfile ? _changeProfileImage : null,
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Color(avatarColor),
+                              backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                              child: photoUrl == null 
+                                ? Text(
+                                    username.isNotEmpty ? username[0].toUpperCase() : '?',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                : isMyProfile 
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.3),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                                    )
+                                  : null,
+                            ),
                           ),
                         ),
                       ),

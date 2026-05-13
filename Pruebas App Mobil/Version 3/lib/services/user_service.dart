@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
+import 'moderation_service.dart';
 
 class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -74,6 +75,12 @@ class UserService {
   Future<String?> uploadProfileImage(File imageFile) async {
     if (currentUserId == null) return null;
     try {
+      // 1. Check for inappropriate content
+      final isSafe = await ModerationService().isImageSafe(imageFile);
+      if (!isSafe) {
+        throw Exception("La imagen de perfil ha sido bloqueada por contenido inapropiado.");
+      }
+
       final ref =
           _storage.ref().child('profile_images').child('$currentUserId.jpg');
       await ref.putFile(imageFile);
@@ -89,15 +96,26 @@ class UserService {
     }
   }
 
-  // Upload any file to a specific path
+  // Upload any file to a specific path (with automatic moderation for images)
   Future<String?> uploadFile(File file, String folder, String fileName) async {
     try {
+      // 1. If it's an image, moderate it first
+      final String extension = fileName.split('.').last.toLowerCase();
+      final bool isImage = ['jpg', 'jpeg', 'png', 'webp'].contains(extension);
+      
+      if (isImage) {
+        final isSafe = await ModerationService().isImageSafe(file);
+        if (!isSafe) {
+          throw Exception("El archivo ha sido bloqueado por contenido inapropiado.");
+        }
+      }
+
       final ref = _storage.ref().child(folder).child(fileName);
       await ref.putFile(file);
       return await ref.getDownloadURL();
     } catch (e) {
       debugPrint('Error uploading file: $e');
-      return null;
+      rethrow; // Rethrow to let the UI handle the error message
     }
   }
 

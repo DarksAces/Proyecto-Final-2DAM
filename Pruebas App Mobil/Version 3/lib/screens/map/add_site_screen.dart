@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/user_service.dart';
 
 
 class AddSiteScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+  final _userService = UserService();
 
   File? _imageFile;
   bool _loading = false;
@@ -91,10 +93,9 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       final user = FirebaseAuth.instance.currentUser;
       String imageUrl = '';
 
-      // Upload to Storage
-      final storageRef = FirebaseStorage.instance.ref().child('sitios/${user!.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg');
-      await storageRef.putFile(_imageFile!);
-      imageUrl = await storageRef.getDownloadURL();
+      // Upload using UserService (includes automatic moderation)
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      imageUrl = await _userService.uploadFile(_imageFile!, 'sitios/${user!.uid}', fileName) ?? '';
 
       // Get Username
       String username = user.displayName ?? 'Artista';
@@ -121,7 +122,8 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        String msg = e.toString().replaceAll('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         setState(() => _loading = false);
       }
     }
