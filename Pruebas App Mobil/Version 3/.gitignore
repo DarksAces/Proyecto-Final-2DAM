@@ -88,3 +88,6 @@ database-debug.log
 # Environment variables
 .env
 .env.*
+
+# API Secrets
+lib/config/secrets.dart

@@ -7,13 +7,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import '../config/secrets.dart';
 
 class ArGenerationService {
-  final List<String> _baseUrls = [
-    'https://aura-bmqy.onrender.com',
-    'https://aura-backup-1.onrender.com', // Placeholder for actual backups
-    'https://aura-backup-2.onrender.com',
-  ];
+  final String _renderUrl = 'https://aura-bmqy.onrender.com';
+  final String _hfUrl = 'https://api-inference.huggingface.co/models/Tencent/Hunyuan3D-2';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -72,7 +70,6 @@ class ArGenerationService {
     if (currentUserId == null) return false;
     
     try {
-      // Limit: 3 generations per day to save tokens
       final now = DateTime.now();
       final startOfToday = DateTime(now.year, now.month, now.day);
       
@@ -85,135 +82,116 @@ class ArGenerationService {
       return snap.docs.length < 3;
     } catch (e) {
       print("Error checking generation limit: $e");
-      return true; // Fallback to allow if error
+      return true;
     }
   }
 
-  /// Generates a 3D model, saves it locally, and syncs it to Firebase.
-  /// Now with multi-server fallback support.
+  /// Generates a 3D model with failover support.
   Future<File?> generateAndUpload3DModel(File imageFile) async {
     if (currentUserId == null) {
       throw Exception("Debes iniciar sesión para guardar objetos AR.");
     }
 
     Uint8List? modelBytes;
-    String? flaskModelUrl;
 
-    // --- MULTI-SERVER FALLBACK LOOP ---
-    for (String baseUrl in _baseUrls) {
+    // --- 1. Intentar con Render ---
+    try {
+      print("DEBUG: Intentando generación con Render ($_renderUrl)...");
+      modelBytes = await _generateFromRender(imageFile);
+    } catch (e) {
+      print("⚠️ Render falló o tardó demasiado: $e");
+    }
+
+    // --- 2. Si falla Render, intentar con Hugging Face ---
+    if (modelBytes == null) {
       try {
-        print("DEBUG: Attempting generation with $baseUrl...");
-        
-        var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/generate'));
-        request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
-        
-        var response = await request.send().timeout(const Duration(seconds: 45));
-
-        if (response.statusCode != 200) {
-          print("API Error on $baseUrl: Status ${response.statusCode}");
-          continue; // Try next server
-        }
-
-        final String jsonString = await response.stream.bytesToString();
-        final Map<String, dynamic> data = json.decode(jsonString);
-
-        if (data['success'] != true || data['model_url'] == null) {
-          continue; // Try next server
-        }
-
-        flaskModelUrl = data['model_url'].toString().startsWith('http')
-            ? data['model_url']
-            : '$baseUrl${data['model_url']}';
-
-        // Download model bytes
-        final modelResponse = await http.get(Uri.parse(flaskModelUrl!)).timeout(const Duration(seconds: 30));
-        if (modelResponse.statusCode == 200) {
-          modelBytes = modelResponse.bodyBytes;
-          print("DEBUG: Successfully generated model with $baseUrl");
-          break; // Success! Exit loop
-        }
+        print("DEBUG: Render falló. Intentando con Hugging Face Backup...");
+        modelBytes = await _generateFromHuggingFace(imageFile);
       } catch (e) {
-        print("Error with server $baseUrl: $e");
-        // Loop continues to next server
+        print("⚠️ Hugging Face falló: $e");
       }
     }
 
     if (modelBytes == null) {
-      throw Exception("Todos los servidores de IA están ocupados o fuera de línea. Inténtalo de nuevo en unos minutos.");
+      throw Exception("Todos los servidores de IA están saturados. Inténtalo de nuevo en unos minutos.");
     }
 
+    // --- 3. Finalizar subida ---
+    return await _finalizeAndUpload(modelBytes, imageFile);
+  }
+
+  Future<Uint8List?> _generateFromRender(File imageFile) async {
+    var request = http.MultipartRequest('POST', Uri.parse('$_renderUrl/generate'));
+    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    
+    var streamedResponse = await request.send().timeout(const Duration(seconds: 50));
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode != 200) return null;
+
+    final Map<String, dynamic> data = json.decode(response.body);
+    if (data['success'] == true && data['model_url'] != null) {
+      String fullModelUrl = data['model_url'].toString().startsWith('http')
+          ? data['model_url']
+          : '$_renderUrl${data['model_url']}';
+      
+      final modelRes = await http.get(Uri.parse(fullModelUrl)).timeout(const Duration(seconds: 30));
+      if (modelRes.statusCode == 200) return modelRes.bodyBytes;
+    }
+    return null;
+  }
+
+  Future<Uint8List?> _generateFromHuggingFace(File imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    final response = await http.post(
+      Uri.parse(_hfUrl),
+      headers: {
+        "Authorization": "Bearer ${Secrets.hfToken}",
+        "Content-Type": "application/octet-stream",
+      },
+      body: bytes,
+    ).timeout(const Duration(seconds: 90));
+
+    if (response.statusCode == 200) {
+      print("✅ Éxito con Hugging Face");
+      return response.bodyBytes;
+    }
+    print("❌ Error HF: ${response.statusCode}");
+    return null;
+  }
+
+  Future<File?> _finalizeAndUpload(Uint8List modelBytes, File thumbFile) async {
     try {
-      // 3. Prepare paths and names
       final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final String glbFileName = "ar_$timestamp.glb";
       final String imgFileName = "thumb_$timestamp.jpg";
 
-      // 4. Upload to Firebase Storage
-      final Reference glbRef =
-          _storage.ref().child('users/$currentUserId/ar_models/$glbFileName');
-      final Reference imgRef =
-          _storage.ref().child('users/$currentUserId/ar_models/$imgFileName');
+      final Reference glbRef = _storage.ref().child('users/$currentUserId/ar_models/$glbFileName');
+      final Reference imgRef = _storage.ref().child('users/$currentUserId/ar_models/$imgFileName');
 
-      print("DEBUG: Uploading to Firebase Storage...");
-      final List<Future<String>> uploadTasks = [
-        glbRef
-            .putData(modelBytes!, SettableMetadata(contentType: 'model/gltf-binary'))
-            .then((s) => s.ref.getDownloadURL()),
-        imgRef
-            .putFile(imageFile, SettableMetadata(contentType: 'image/jpeg'))
-            .then((s) => s.ref.getDownloadURL()),
-      ];
+      final List<String> urls = await Future.wait([
+        glbRef.putData(modelBytes, SettableMetadata(contentType: 'model/gltf-binary')).then((s) => s.ref.getDownloadURL()),
+        imgRef.putFile(thumbFile, SettableMetadata(contentType: 'image/jpeg')).then((s) => s.ref.getDownloadURL()),
+      ]);
 
-      final List<String> urls = await Future.wait(uploadTasks);
-      final String firebaseModelUrl = urls[0];
-      final String thumbnailUrl = urls[1];
-
-      // 5. Save to Firestore (matching the requested schema)
-      print("DEBUG: Saving to Firestore ar_objects...");
       await _firestore.collection('ar_objects').add({
         'name': glbFileName,
-        'thumbnailUrl': thumbnailUrl,
+        'thumbnailUrl': urls[1],
         'timestamp': FieldValue.serverTimestamp(),
         'type': 'glb',
-        'url': firebaseModelUrl,
+        'url': urls[0],
         'userId': currentUserId,
         'status': 'pending_review',
       });
 
-      // 6. Award +10 points for generating an AR model
       await _firestore.collection('users').doc(currentUserId).update({
         'points': FieldValue.increment(10),
       });
-      print("DEBUG: +10 points awarded to $currentUserId for AR generation");
 
-      // 7. Also save locally for the viewer (immediate performance)
-      return await saveBytesLocally(modelBytes!, glbFileName);
+      return await saveBytesLocally(modelBytes, glbFileName);
     } catch (e) {
-      print("Error in finalizing AR upload: $e");
+      print("Error en el proceso final: $e");
       rethrow;
-    }
-  }
-
-  /// Legacy helper for local-only saving if needed
-  Future<File?> generateAndSaveLocal(File imageFile) async {
-    return await generateAndUpload3DModel(imageFile);
-  }
-
-  /// Legacy method for backward compatibility if needed
-  Future<Uint8List?> generate3DModel(File imageFile) async {
-    try {
-      var request =
-          http.MultipartRequest('POST', Uri.parse('${_baseUrls[0]}/generate'));
-      request.files
-          .add(await http.MultipartFile.fromPath('image', imageFile.path));
-      var response = await request.send();
-      if (response.statusCode == 200) {
-        return await response.stream.toBytes();
-      }
-      return null;
-    } catch (e) {
-      print("Error in generating 3D model: $e");
-      return null;
     }
   }
 }
