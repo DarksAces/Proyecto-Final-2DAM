@@ -1,0 +1,63 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    
+    <!-- Login View -->
+    <system:String x:Key="StrBienvenido">Bienvenido</system:String>
+    <system:String x:Key="StrIniciaSesion">Inicia sesión para continuar</system:String>
+    <system:String x:Key="StrEmailHint">Correo Electrónico</system:String>
+    <system:String x:Key="StrPasswordHint">Contraseña</system:String>
+    <system:String x:Key="StrOlvidastePassword">¿Olvidaste tu contraseña?</system:String>
+    <system:String x:Key="StrIniciarSesionBtn">INICIAR SESIÓN</system:String>
+    <system:String x:Key="StrNoTienesCuenta">¿No tienes cuenta?</system:String>
+    <system:String x:Key="StrContactaSoporte">Contacta al soporte</system:String>
+    <system:String x:Key="StrRevisionSistema">SISTEMA DE REVISIÓN</system:String>
+    <system:String x:Key="StrGestionRapida">Gestión Rápida</system:String>
+    
+    <!-- Settings View -->
+    <system:String x:Key="StrConfiguracion">Configuración</system:String>
+    <system:String x:Key="StrCuenta">Cuenta</system:String>
+    <system:String x:Key="StrApariencia">Apariencia</system:String>
+    <system:String x:Key="StrModoOscuro">Modo Oscuro</system:String>
+    <system:String x:Key="StrIdioma">Idioma</system:String>
+    <system:String x:Key="StrIdiomaInterfaz">Idioma de la Interfaz</system:String>
+    <system:String x:Key="StrCerrarApp">Cerrar Aplicación</system:String>
+    
+    <!-- Dashboard -->
+    <system:String x:Key="StrDashboard">Dashboard</system:String>
+    <system:String x:Key="StrModelosPendientes">Modelos Pendientes</system:String>
+    <system:String x:Key="StrPendientes">Pendientes</system:String>
+    <system:String x:Key="StrAprobados">Aprobados</system:String>
+    <system:String x:Key="StrRechazados">Rechazados</system:String>
+    <system:String x:Key="StrTodos">Todos</system:String>
+    <system:String x:Key="StrRefrescar">Refrescar</system:String>
+    <system:String x:Key="StrAceptar">ACEPTAR</system:String>
+    <system:String x:Key="StrRechazar">RECHAZAR</system:String>
+    
+    <!-- Format Strings -->
+    <system:String x:Key="StrHeaderCountFormat">Hay {0} obras esperando tu aprobación hoy.</system:String>
+    <system:String x:Key="StrHay">Hay </system:String>
+    <system:String x:Key="StrObrasEsperando"> obras esperando tu aprobación hoy.</system:String>
+    <system:String x:Key="StrPaginationFormat">Mostrando {0} obras ({1})</system:String>
+    
+    <!-- Sidebar -->
+    <system:String x:Key="StrMenuPrincipal">MENÚ PRINCIPAL</system:String>
+    <system:String x:Key="StrBiblioteca">Biblioteca</system:String>
+    <system:String x:Key="StrUsuarios">Usuarios</system:String>
+    <system:String x:Key="StrReportes">Reportes</system:String>
+    <system:String x:Key="StrSoporte">SOPORTE</system:String>
+    <system:String x:Key="StrAyuda">Ayuda</system:String>
+    <system:String x:Key="StrAdministrador">Administrador</system:String>
+    
+    <!-- Headers -->
+    <system:String x:Key="StrRevisionModelos">Revisión de Modelos</system:String>
+    <system:String x:Key="StrBuscarHint">Buscar por modelo o creador...</system:String>
+    <system:String x:Key="StrMantenimiento">Mantenimiento y Datos</system:String>
+    <system:String x:Key="StrLimpiarCache">Limpiar Caché 3D</system:String>
+    <system:String x:Key="StrLimpiarCacheDesc">Borra los archivos GLB descargados para liberar espacio en disco.</system:String>
+    <system:String x:Key="StrAcercaDe">Acerca de</system:String>
+    <system:String x:Key="StrVersion">Versión</system:String>
+    <system:String x:Key="StrCopyright">© 2026 Jovi3D S.A. Todos los derechos reservados.</system:String>
+    <system:String x:Key="StrDescripcionApp">Sistema de Gestión de Calidad para Modelos 3D de Jovi S.A.</system:String>
+
+</ResourceDictionary>
