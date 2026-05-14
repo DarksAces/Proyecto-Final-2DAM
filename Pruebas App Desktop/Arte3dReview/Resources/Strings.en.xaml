@@ -1,0 +1,63 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    
+    <!-- Login View -->
+    <system:String x:Key="StrBienvenido">Welcome Back</system:String>
+    <system:String x:Key="StrIniciaSesion">Sign in to continue</system:String>
+    <system:String x:Key="StrEmailHint">Email Address</system:String>
+    <system:String x:Key="StrPasswordHint">Password</system:String>
+    <system:String x:Key="StrOlvidastePassword">Forgot your password?</system:String>
+    <system:String x:Key="StrIniciarSesionBtn">SIGN IN</system:String>
+    <system:String x:Key="StrNoTienesCuenta">Don't have an account?</system:String>
+    <system:String x:Key="StrContactaSoporte">Contact support</system:String>
+    <system:String x:Key="StrRevisionSistema">REVIEW SYSTEM</system:String>
+    <system:String x:Key="StrGestionRapida">Fast Management</system:String>
+
+    <!-- Settings View -->
+    <system:String x:Key="StrConfiguracion">Settings</system:String>
+    <system:String x:Key="StrCuenta">Account</system:String>
+    <system:String x:Key="StrApariencia">Appearance</system:String>
+    <system:String x:Key="StrModoOscuro">Dark Mode</system:String>
+    <system:String x:Key="StrIdioma">Language</system:String>
+    <system:String x:Key="StrIdiomaInterfaz">Interface Language</system:String>
+    <system:String x:Key="StrCerrarApp">Close Application</system:String>
+    
+    <!-- Dashboard -->
+    <system:String x:Key="StrDashboard">Dashboard</system:String>
+    <system:String x:Key="StrModelosPendientes">Pending Models</system:String>
+    <system:String x:Key="StrPendientes">Pending</system:String>
+    <system:String x:Key="StrAprobados">Approved</system:String>
+    <system:String x:Key="StrRechazados">Rejected</system:String>
+    <system:String x:Key="StrTodos">All</system:String>
+    <system:String x:Key="StrRefrescar">Refresh</system:String>
+    <system:String x:Key="StrAceptar">ACCEPT</system:String>
+    <system:String x:Key="StrRechazar">REJECT</system:String>
+
+    <!-- Format Strings -->
+    <system:String x:Key="StrHeaderCountFormat">There are {0} works waiting for your approval today.</system:String>
+    <system:String x:Key="StrHay">There are </system:String>
+    <system:String x:Key="StrObrasEsperando"> works waiting for your approval today.</system:String>
+    <system:String x:Key="StrPaginationFormat">Showing {0} works ({1})</system:String>
+
+    <!-- Sidebar -->
+    <system:String x:Key="StrMenuPrincipal">MAIN MENU</system:String>
+    <system:String x:Key="StrBiblioteca">Library</system:String>
+    <system:String x:Key="StrUsuarios">Users</system:String>
+    <system:String x:Key="StrReportes">Reports</system:String>
+    <system:String x:Key="StrSoporte">SUPPORT</system:String>
+    <system:String x:Key="StrAyuda">Help</system:String>
+    <system:String x:Key="StrAdministrador">Administrator</system:String>
+
+    <!-- Headers -->
+    <system:String x:Key="StrRevisionModelos">Model Review</system:String>
+    <system:String x:Key="StrBuscarHint">Search by model or creator...</system:String>
+    <system:String x:Key="StrMantenimiento">Maintenance &amp; Data</system:String>
+    <system:String x:Key="StrLimpiarCache">Clear 3D Cache</system:String>
+    <system:String x:Key="StrLimpiarCacheDesc">Deletes downloaded GLB files to free up disk space.</system:String>
+    <system:String x:Key="StrAcercaDe">About</system:String>
+    <system:String x:Key="StrVersion">Version</system:String>
+    <system:String x:Key="StrCopyright">© 2026 Jovi3D S.A. All rights reserved.</system:String>
+    <system:String x:Key="StrDescripcionApp">Quality Management System for Jovi 3D Models.</system:String>
+
+</ResourceDictionary>
