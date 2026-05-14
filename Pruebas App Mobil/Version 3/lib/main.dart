@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
+
+
 
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
@@ -26,6 +33,18 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize Google Sign In for v7+
+  await GoogleSignIn.instance.initialize(
+    serverClientId: '30632730598-6h2hcsigc30ip6se5l6132gdcecd6equ.apps.googleusercontent.com',
+  );
+
+  // Activate App Check for security (Update for Version 1.1)
+  // This ensures only the official app can access Firebase
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    appleProvider: AppleProvider.deviceCheck,
   );
 
   final settingsService = SettingsService();
@@ -64,7 +83,19 @@ class MyApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: settingsService.themeMode,
             locale: settingsService.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('es'),
+              Locale('en'),
+            ],
+
             home: const SplashScreen(),
+
             routes: {
               '/auth': (context) => const AuthWrapper(),
               '/welcome': (context) => const WelcomeScreen(),

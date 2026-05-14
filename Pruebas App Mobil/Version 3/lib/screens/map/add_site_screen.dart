@@ -7,6 +7,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
+import '../../services/user_service.dart';
+
 
 class AddSiteScreen extends StatefulWidget {
   const AddSiteScreen({super.key});
@@ -19,6 +22,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+  final _userService = UserService();
 
   File? _imageFile;
   bool _loading = false;
@@ -45,20 +49,23 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
     try {
       bool enabled = await Geolocator.isLocationServiceEnabled();
       if (!enabled) {
-        setState(() { _gpsLoading = false; _gpsError = 'Activa el GPS'; });
+        setState(() { _gpsLoading = false; _gpsError = AppLocalizations.of(context)!.add_site_gps_off; });
         return;
       }
+
       var perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
       if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
-        setState(() { _gpsLoading = false; _gpsError = 'Permiso denegado'; });
+        setState(() { _gpsLoading = false; _gpsError = AppLocalizations.of(context)!.add_site_perm_denied; });
         return;
       }
+
       final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
       setState(() { _lat = pos.latitude; _lng = pos.longitude; _gpsLoading = false; });
     } catch (e) {
-      setState(() { _gpsLoading = false; _gpsError = 'Error GPS'; });
+      setState(() { _gpsLoading = false; _gpsError = AppLocalizations.of(context)!.add_site_gps_error; });
     }
+
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -70,13 +77,15 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
   Future<void> _publish() async {
     if (!_formKey.currentState!.validate()) return;
     if (_imageFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, añade una imagen de tu obra.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.add_site_img_err)));
       return;
     }
+
     if (_lat == null || _lng == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Esperando coordenadas GPS...')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.add_site_gps_err)));
       return;
     }
+
 
     setState(() => _loading = true);
 
@@ -84,10 +93,9 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       final user = FirebaseAuth.instance.currentUser;
       String imageUrl = '';
 
-      // Upload to Storage
-      final storageRef = FirebaseStorage.instance.ref().child('sitios/${user!.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg');
-      await storageRef.putFile(_imageFile!);
-      imageUrl = await storageRef.getDownloadURL();
+      // Upload using UserService (includes automatic moderation)
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      imageUrl = await _userService.uploadFile(_imageFile!, 'sitios/${user!.uid}', fileName) ?? '';
 
       // Get Username
       String username = user.displayName ?? 'Artista';
@@ -114,7 +122,8 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        String msg = e.toString().replaceAll('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         setState(() => _loading = false);
       }
     }
@@ -139,25 +148,29 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                     children: [
                       _buildImagePicker(),
                       const SizedBox(height: 32),
-                      _buildSectionTitle("DETALLES DE LA OBRA"),
+                      _buildSectionTitle(AppLocalizations.of(context)!.add_site_section_details),
+
                       const SizedBox(height: 16),
                       _buildTextField(
                         controller: _titleCtrl,
-                        label: "Título del Proyecto",
-                        hint: "Dale un nombre a tu creación",
+                        label: AppLocalizations.of(context)!.add_site_proj_title,
+                        hint: AppLocalizations.of(context)!.add_site_proj_hint,
                         icon: Icons.edit_note_rounded,
-                        validator: (v) => v!.isEmpty ? "El título es necesario" : null,
+                        validator: (v) => v!.isEmpty ? AppLocalizations.of(context)!.add_site_title_err : null,
                       ),
+
                       const SizedBox(height: 20),
                       _buildTextField(
                         controller: _descCtrl,
-                        label: "Descripción",
-                        hint: "¿Qué significa esta obra para ti?",
+                        label: AppLocalizations.of(context)!.add_site_desc,
+                        hint: AppLocalizations.of(context)!.add_site_desc_hint,
+
                         icon: Icons.description_outlined,
                         maxLines: 3,
                       ),
                       const SizedBox(height: 32),
-                      _buildSectionTitle("GEOLOCALIZACIÓN"),
+                      _buildSectionTitle(AppLocalizations.of(context)!.add_site_section_geo),
+
                       const SizedBox(height: 16),
                       _buildGPSCard(),
                       const SizedBox(height: 40),
@@ -182,7 +195,8 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
       backgroundColor: Colors.white,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
-        title: const Text("Nueva Obra AR", style: TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.w900, fontSize: 18)),
+        title: Text(AppLocalizations.of(context)!.add_site_new_title, style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.w900, fontSize: 18)),
+
         centerTitle: true,
         background: Container(color: Colors.white),
       ),
@@ -221,9 +235,10 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
                     child: const Icon(Icons.add_a_photo_rounded, color: AppTheme.arteRed, size: 32),
                   ),
                   const SizedBox(height: 16),
-                  const Text("SUBIR CAPTURA DE OBRA", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)),
+                  Text(AppLocalizations.of(context)!.add_site_upload_capture, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)),
                   const SizedBox(height: 4),
-                  Text("Toca para elegir de tu galería", style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                  Text(AppLocalizations.of(context)!.add_site_gallery_hint, style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+
                 ],
               ),
       ),
@@ -242,13 +257,15 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("SELECCIONAR ORIGEN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+              Text(AppLocalizations.of(context)!.add_site_select_source, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildSourceOption(Icons.camera_alt_rounded, "Cámara", () { Navigator.pop(context); _pickImage(ImageSource.camera); }),
-                  _buildSourceOption(Icons.photo_library_rounded, "Galería", () { Navigator.pop(context); _pickImage(ImageSource.gallery); }),
+                  _buildSourceOption(Icons.camera_alt_rounded, AppLocalizations.of(context)!.add_site_camera, () { Navigator.pop(context); _pickImage(ImageSource.camera); }),
+                  _buildSourceOption(Icons.photo_library_rounded, AppLocalizations.of(context)!.add_site_gallery, () { Navigator.pop(context); _pickImage(ImageSource.gallery); }),
+
                 ],
               ),
               const SizedBox(height: 20),
@@ -322,10 +339,11 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_lat != null ? "COORDENADAS FIJADAS" : "BUSCANDO SEÑAL...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: _lat != null ? Colors.green : Colors.grey)),
+                Text(_lat != null ? AppLocalizations.of(context)!.add_site_coords_fixed : AppLocalizations.of(context)!.add_site_searching_signal, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: _lat != null ? Colors.green : Colors.grey)),
                 const SizedBox(height: 2),
-                Text(_lat != null ? "${_lat!.toStringAsFixed(6)}, ${_lng!.toStringAsFixed(6)}" : "Mantente en un lugar despejado", style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
+                Text(_lat != null ? "${_lat!.toStringAsFixed(6)}, ${_lng!.toStringAsFixed(6)}" : AppLocalizations.of(context)!.add_site_stay_clear, style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
               ],
+
             ),
           ),
           if (_gpsError != null) IconButton(onPressed: _getLocation, icon: const Icon(Icons.refresh_rounded, color: AppTheme.arteRed)),
@@ -352,7 +370,8 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
         ),
         child: _loading
             ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-            : const Text("ENVIAR A REVISIÓN", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+            : Text(AppLocalizations.of(context)!.add_site_submit, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+
       ),
     );
   }

@@ -7,9 +7,13 @@ import 'change_password_screen.dart';
 import 'two_factor_screen.dart';
 import 'language_screen.dart';
 import 'legal_screens.dart';
+import 'creators_screen.dart';
 import '../../services/settings_service.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
+
+
 
 class AdvancedSettingsScreen extends StatefulWidget {
   const AdvancedSettingsScreen({super.key});
@@ -44,8 +48,18 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
     }
   }
 
+  String _getLanguageName(String code) {
+    switch (code) {
+      case 'es': return 'Español';
+      case 'en': return 'English';
+      default: return code.toUpperCase();
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
+
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(color: Colors.red)),
@@ -62,13 +76,14 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Configuración Avanzada",
+          AppLocalizations.of(context)!.settings_title,
           style: GoogleFonts.outfit(
             color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
+
         centerTitle: true,
       ),
       body: ListenableBuilder(
@@ -107,7 +122,22 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                 ],
               ),
               _buildSection(
-                "SEGURIDAD",
+                AppLocalizations.of(context)!.privacy.toUpperCase(),
+                [
+                  _buildSettingsTile(
+                    icon: Icons.language,
+                    title: AppLocalizations.of(context)!.language,
+                    trailingText: _getLanguageName(SettingsService().locale.languageCode),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const LanguageScreen())),
+                  ),
+                ],
+              ),
+              _buildSection(
+                AppLocalizations.of(context)!.security,
+
                 [
                   _buildSettingsTile(
                     icon: Icons.lock_outline,
@@ -181,6 +211,15 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (_) => const SoftwareLicensesScreen())),
+                  ),
+                  _buildSettingsTile(
+                    icon: Icons.groups_rounded,
+                    title: "Creadores",
+                    subtitle: "Conoce al equipo de ARte",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CreatorsScreen())),
                   ),
                 ],
               ),

@@ -4,6 +4,8 @@ import '../../theme/app_theme.dart';
 import '../../services/user_service.dart';
 import '../../utils/sync_util.dart';
 import 'profile_screen.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class RankingScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -63,11 +65,11 @@ class _RankingScreenState extends State<RankingScreen> {
                           icon: const Icon(Icons.arrow_back, color: Colors.black),
                           onPressed: () => Navigator.pop(context),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            "RANKING DE ARTISTAS",
+                            AppLocalizations.of(context)!.rank_title,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black,
                               fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.w900,
@@ -76,18 +78,22 @@ class _RankingScreenState extends State<RankingScreen> {
                             ),
                           ),
                         ),
+
                         IconButton(
                           icon: const Icon(Icons.sync_rounded, color: AppTheme.arteRed, size: 24),
-                          tooltip: "Sincronizar puntos",
+                          tooltip: AppLocalizations.of(context)!.rank_sync_tooltip,
+
                           onPressed: () async {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Sincronizando puntos de todos los usuarios...")),
+                              SnackBar(content: Text(AppLocalizations.of(context)!.rank_syncing)),
                             );
+
                             await syncAllUsersPoints();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("¡Sincronización global completada!")),
+                                SnackBar(content: Text(AppLocalizations.of(context)!.rank_sync_done)),
                               );
+
                             }
                           },
                         ),
@@ -112,13 +118,14 @@ class _RankingScreenState extends State<RankingScreen> {
                         }
 
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(
+                          return Center(
                             child: Text(
-                              'Aún no hay artistas en el ranking.',
-                              style: TextStyle(color: Colors.grey),
+                              AppLocalizations.of(context)!.rank_no_artists,
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           );
                         }
+
 
                         final docs = snapshot.data!.docs.toList();
                         
@@ -297,9 +304,10 @@ class _TopRankCard extends StatelessWidget {
                             : AppTheme.arteBlue,
                         fontWeight: FontWeight.w900,
                         fontSize: 20)),
-                const Text('PTS',
-                    style: TextStyle(
+                Text(AppLocalizations.of(context)!.rank_points,
+                    style: const TextStyle(
                         color: Colors.grey, fontSize: 9, fontWeight: FontWeight.bold)),
+
               ],
             ),
           ],
@@ -390,11 +398,12 @@ class _RankingListItem extends StatelessWidget {
                         color: AppTheme.arteBlue,
                         fontWeight: FontWeight.w900,
                         fontSize: 16)),
-                const Text('PTS',
-                    style: TextStyle(
+                Text(AppLocalizations.of(context)!.rank_points,
+                    style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 8,
                         fontWeight: FontWeight.bold)),
+
               ],
             ),
           ],
@@ -484,13 +493,14 @@ class _MyPositionCard extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                     fontSize: 18),
               ),
-              const Text(
-                'PUNTOS',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.rank_points,
+                style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 8,
                     fontWeight: FontWeight.bold),
               ),
+
             ],
           ),
         ],
@@ -543,10 +553,10 @@ class _PointsGuideState extends State<_PointsGuide> {
                   children: [
                     const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 22),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        '¿CÓMO GANAR PUNTOS?',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.rank_how_earn,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 13,
                           letterSpacing: 0.5,
@@ -554,6 +564,7 @@ class _PointsGuideState extends State<_PointsGuide> {
                         ),
                       ),
                     ),
+
                     Icon(
                       _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                       color: Colors.grey.shade500,
@@ -580,10 +591,11 @@ class _PointsGuideState extends State<_PointsGuide> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          item['label'] as String,
+                          _getGuideItemLabel(context, item['label'] as String),
                           style: const TextStyle(fontSize: 12.5, color: Colors.black87),
                         ),
                       ),
+
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(
@@ -610,7 +622,20 @@ class _PointsGuideState extends State<_PointsGuide> {
       ),
     );
   }
+
+  String _getGuideItemLabel(BuildContext context, String originalLabel) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (originalLabel) {
+      case 'Like en tu obra del concurso': return l10n.rank_item_contest_like;
+      case 'Like en tu publicación': return l10n.rank_item_post_like;
+      case 'Generar modelo AR': return l10n.rank_item_ar_gen;
+      case 'Subir obra al concurso': return l10n.rank_item_contest_upload;
+      case 'Crear nueva publicación': return l10n.rank_item_new_post;
+      default: return originalLabel;
+    }
+  }
 }
+
 
 // ── SHARED AVATAR WIDGET ──────────────────────────────────────────────────────
 

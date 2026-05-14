@@ -30,7 +30,9 @@ function loadModels() {
         allModels = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            if (data.url && data.type === 'glb') {
+            const isApproved = data.status === 'accepted' || data.status === 'approved';
+            
+            if (data.url && data.type === 'glb' && isApproved) {
                 allModels.push({ id: doc.id, name: data.name || "Objeto 3D", url: data.url });
             }
         });

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
+
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -24,24 +26,28 @@ class CustomBottomNavBar extends StatelessWidget {
         children: [
           _NavItem(
               icon: Icons.home_rounded,
-              label: 'Inicio',
+              label: AppLocalizations.of(context)!.nav_home,
               isSelected: currentIndex == 0,
               onTap: () => onTap(0)),
+
           _NavItem(
               icon: Icons.people_alt_rounded,
-              label: 'Social',
+              label: AppLocalizations.of(context)!.nav_social,
               isSelected: currentIndex == 1,
               onTap: () => onTap(1)),
+
           _NavItem(
               icon: Icons.map_rounded,
-              label: 'Mapa',
+              label: AppLocalizations.of(context)!.nav_map,
               isSelected: currentIndex == 2,
               onTap: () => onTap(2)),
+
           _NavItem(
               icon: Icons.person_rounded,
-              label: 'Perfil',
+              label: AppLocalizations.of(context)!.nav_profile,
               isSelected: currentIndex == 3,
               onTap: () => onTap(3)),
+
         ],
       ),
     );

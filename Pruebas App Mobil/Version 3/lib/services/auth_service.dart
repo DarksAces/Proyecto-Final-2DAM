@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -107,6 +108,47 @@ class AuthService {
       'timestamp': FieldValue.serverTimestamp(),
       'read': false,
     });
+  }
+
+  // Sign in with Google (Updated for v7+)
+  Future<AuthResult> signInWithGoogle() async {
+    try {
+      // 1. Authenticate (Identity)
+      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+
+      if (googleUser == null) return AuthResult(success: false, errorMessage: 'Inicio de sesión cancelado.');
+
+      // 2. Authorize (Permissions/Scopes) to get Access Token
+      final clientAuth = await googleUser.authorizationClient.authorizeScopes(['email', 'profile']);
+
+      // 3. Create Credential
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: clientAuth.accessToken,
+        idToken: googleUser.authentication.idToken,
+      );
+
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        // Check if user document exists, if not create it
+        final userDoc = await _firestore.collection('users').doc(user.uid).get();
+        if (!userDoc.exists) {
+          await _createUserDocument(
+            user, 
+            user.displayName ?? 'Artista AR', 
+            user.email ?? ''
+          );
+        }
+      }
+
+      return AuthResult(success: true, user: user);
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error al conectar con Google: $e',
+      );
+    }
   }
 
   // Sign out

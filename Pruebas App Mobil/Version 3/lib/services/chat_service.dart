@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'moderation_service.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -70,7 +71,13 @@ class ChatService {
   Future<void> sendImageMessage(String chatId, File imageFile) async {
     if (currentUserId == null) return;
     
-    // Upload image
+    // 1. Check for inappropriate content
+    final isSafe = await ModerationService().isImageSafe(imageFile);
+    if (!isSafe) {
+      throw Exception("La imagen contiene contenido inapropiado y ha sido bloqueada.");
+    }
+
+    // 2. Upload image
     final fileName = DateTime.now().millisecondsSinceEpoch.toString();
     final ref = FirebaseStorage.instance.ref().child('chat_images').child(chatId).child('$fileName.jpg');
     

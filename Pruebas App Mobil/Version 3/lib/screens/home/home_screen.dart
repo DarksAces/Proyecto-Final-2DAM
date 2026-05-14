@@ -10,6 +10,8 @@ import '../features/ar_generation_screen.dart';
 import '../main_wrapper.dart';
 import '../map/add_site_screen.dart';
 import '../../services/user_service.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -36,19 +38,20 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Hola, $userName",
+                          AppLocalizations.of(context)!.home_hello(userName),
                           style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                               color: Colors.black.withValues(alpha: 0.8)),
                         ),
-                        const Text(
-                          "Mundo AR Creativo",
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.home_creative_world,
+                          style: const TextStyle(
                               color: AppTheme.arteRed,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.0),
                         ),
+
                       ],
                     ),
                     StreamBuilder<int>(
@@ -91,9 +94,10 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 30),
 
                 // Grid - Title
-                const Text("Tu Aventura",
+                Text(AppLocalizations.of(context)!.home_your_adventure,
                     style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
                 const SizedBox(height: 15),
 
                 // Responsive Grid Area
@@ -106,31 +110,32 @@ class HomeScreen extends StatelessWidget {
                     mainAxisSpacing: 15,
                     crossAxisSpacing: 10,
                     childAspectRatio: 0.9,
-                    children: const [
+                    children: [
                       _DashboardItem(
                           icon: Icons.map,
                           color: AppTheme.arteBlue,
-                          label: "Ver Mapa"),
+                          label: AppLocalizations.of(context)!.home_view_map),
                       _DashboardItem(
                           icon: Icons.emoji_events,
                           color: AppTheme.arteYellow,
-                          label: "Concurso"),
+                          label: AppLocalizations.of(context)!.home_contest),
                       _DashboardItem(
                           icon: Icons.qr_code_scanner,
                           color: AppTheme.arteRed,
-                          label: "Escanear AR"),
+                          label: AppLocalizations.of(context)!.home_scan_ar),
                       _DashboardItem(
                           icon: Icons.public,
-                          color: Color(0xFF2ECC71),
-                          label: "Feed Social"),
+                          color: const Color(0xFF2ECC71),
+                          label: AppLocalizations.of(context)!.home_feed_social),
                       _DashboardItem(
                           icon: Icons.collections,
-                          color: Color(0xFF9B59B6),
-                          label: "Mi Galería"),
+                          color: const Color(0xFF9B59B6),
+                          label: AppLocalizations.of(context)!.home_my_gallery),
                       _DashboardItem(
                           icon: Icons.person,
-                          color: Color(0xFFF39C12),
-                          label: "Mi Perfil"),
+                          color: const Color(0xFFF39C12),
+                          label: AppLocalizations.of(context)!.home_my_profile),
+
                     ],
                   );
                 }),
@@ -164,26 +169,29 @@ class HomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20)),
-                        child: const Text("NOVEDAD EXCLUSIVA",
-                            style: TextStyle(
+                        child: Text(AppLocalizations.of(context)!.home_exclusive_news,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold)),
+
                       ),
                       const SizedBox(height: 15),
-                      const Text(
-                        "Pinta tu\nRealidad",
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.home_paint_reality,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
                             height: 1.0),
                       ),
+
                       const SizedBox(height: 10),
-                      const Text(
-                        "Explora el mundo y añade color con nuestra AR creativa.",
-                        style: TextStyle(color: Colors.white70),
+                      Text(
+                        AppLocalizations.of(context)!.home_explore_desc,
+                        style: const TextStyle(color: Colors.white70),
                       ),
+
                       const SizedBox(height: 20),
                       ElevatedButton(
                           onPressed: () {
@@ -199,10 +207,12 @@ class HomeScreen extends StatelessWidget {
                               foregroundColor: AppTheme.arteRed,
                               textStyle:
                                   const TextStyle(fontWeight: FontWeight.w900)),
-                          child: const Text("EMPEZAR"))
+                          child: Text(AppLocalizations.of(context)!.home_start_button))
+
                     ],
                   ),
-                )
+                ),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -229,35 +239,30 @@ class _DashboardItem extends StatelessWidget {
       onTap: () {
         final mainWrapper = MainWrapper.of(context);
 
-        switch (label) {
-          case "Ver Mapa":
-            mainWrapper?.switchTab(2); // Map Tab
-            break;
-          case "Concurso":
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ContestScreen()),
-            );
-            break;
-          case "Escanear AR":
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ArScannerScreen()),
-            );
-            break;
-          case "Feed Social":
-            mainWrapper?.switchTab(1); // Social Tab
-            break;
-          case "Mi Galería":
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const GalleryScreen()),
-            );
-            break;
-          case "Mi Perfil":
-            mainWrapper?.switchTab(3); // Profile Tab
-            break;
+        final l10n = AppLocalizations.of(context)!;
+        if (label == l10n.home_view_map) {
+          mainWrapper?.switchTab(2); // Map Tab
+        } else if (label == l10n.home_contest) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ContestScreen()),
+          );
+        } else if (label == l10n.home_scan_ar) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ArScannerScreen()),
+          );
+        } else if (label == l10n.home_feed_social) {
+          mainWrapper?.switchTab(1); // Social Tab
+        } else if (label == l10n.home_my_gallery) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GalleryScreen()),
+          );
+        } else if (label == l10n.home_my_profile) {
+          mainWrapper?.switchTab(3); // Profile Tab
         }
+
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -10,7 +10,10 @@ import 'user_list_screen.dart';
 import '../../services/chat_service.dart';
 import 'chat_detail_screen.dart';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart'; // Added image_picker
 import 'connections_screen.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;
@@ -91,12 +94,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isFollowing ? "Ahora sigues a este usuario" : "Has dejado de seguir a este usuario"),
+            content: Text(_isFollowing 
+              ? AppLocalizations.of(context)!.profile_following_btn 
+              : AppLocalizations.of(context)!.profile_follow_btn),
             backgroundColor: AppTheme.arteBlue,
             behavior: SnackBarBehavior.floating,
           ),
         );
       }
+
     }
   }
 
@@ -129,7 +135,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         setState(() => _isActionLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error al iniciar el chat"), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.profile_user_not_found), backgroundColor: Colors.red),
+        );
+      }
+
+    }
+  }
+
+  Future<void> _changeProfileImage() async {
+    final picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      setState(() => _isLoading = true);
+      
+      final String? newUrl = await _userService.uploadProfileImage(File(image.path));
+      
+      if (newUrl != null) {
+        await _loadData(); // Refresh profile
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Imagen de perfil actualizada"), backgroundColor: Colors.green),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll("Exception: ", "")), backgroundColor: Colors.red),
         );
       }
     }
@@ -143,7 +178,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (_) => UserListScreen(
           userId: targetId,
           type: type,
-          title: type == 'followers' ? "Seguidores" : "Seguidos",
+        title: type == 'followers' 
+          ? AppLocalizations.of(context)!.profile_followers 
+          : AppLocalizations.of(context)!.profile_following,
+
         ),
       ),
     );
@@ -169,8 +207,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final displayData = data ?? _userData;
 
         if (displayData == null) {
-          return const Scaffold(body: Center(child: Text("Usuario no encontrado")));
+          return Scaffold(body: Center(child: Text(AppLocalizations.of(context)!.profile_user_not_found)));
         }
+
 
         final bool isMyProfile =
             widget.userId == null || widget.userId == _userService.currentUserId;
@@ -193,10 +232,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              isMyProfile ? "MI PERFIL PRO" : "PERFIL",
+              isMyProfile 
+                ? AppLocalizations.of(context)!.profile_my_pro 
+                : AppLocalizations.of(context)!.profile_title,
               style: const TextStyle(
                   fontWeight: FontWeight.w900, color: Colors.black, fontSize: 18),
             ),
+
             backgroundColor: Colors.white,
             elevation: 0,
             leading: isMyProfile
@@ -266,19 +308,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
                               color: Colors.white, shape: BoxShape.circle),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Color(avatarColor),
-                            backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                            child: photoUrl == null 
-                              ? Text(
-                                  username.isNotEmpty ? username[0].toUpperCase() : '?',
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              : null,
+                          child: GestureDetector(
+                            onTap: isMyProfile ? _changeProfileImage : null,
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Color(avatarColor),
+                              backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                              child: photoUrl == null 
+                                ? Text(
+                                    username.isNotEmpty ? username[0].toUpperCase() : '?',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                : isMyProfile 
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.3),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                                    )
+                                  : null,
+                            ),
                           ),
                         ),
                       ),
@@ -333,8 +386,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: _isActionLoading 
                             ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                            : Text(_isFollowing ? "SIGUIENDO" : "SEGUIR",
+                            : Text(_isFollowing 
+                                ? AppLocalizations.of(context)!.profile_following_btn 
+                                : AppLocalizations.of(context)!.profile_follow_btn,
                               style: const TextStyle(fontWeight: FontWeight.bold)),
+
                         ),
                         const SizedBox(width: 12),
                         OutlinedButton(
@@ -371,6 +427,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final nextLevelName = isMaxLevel
                         ? 'NIVEL MÁXIMO'
                         : _userService.getLevelName(lvlMax);
+                    
+                    final l10n = AppLocalizations.of(context)!;
+
 
                     return Container(
                       padding: const EdgeInsets.all(22),
@@ -396,12 +455,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('PUNTOS TOTALES',
+                                    Text(l10n.profile_total_points,
                                         style: TextStyle(
                                             color: Colors.grey.shade500,
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 1)),
+
                                     const SizedBox(height: 4),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -649,6 +709,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               hearts: "${item['likes'] ?? 0}",
                               isAr: item['contentType'] == 'ar_object',
                               initialIsLiked: item['isLiked'] ?? false,
+                              onDelete: isMyProfile ? () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Eliminar obra"),
+                                    content: const Text("¿Estás seguro de que quieres eliminar esta obra de tu portfolio?"),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCELAR")),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text("ELIMINAR", style: TextStyle(color: AppTheme.arteRed, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  final String collection = item['contentType'] == 'ar_object' ? 'ar_objects' : 'sitios';
+                                  await FirebaseFirestore.instance.collection(collection).doc(item['id']).delete();
+                                  _loadData(); // Refresh list
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Obra eliminada")));
+                                  }
+                                }
+                              } : null,
                               onTap: () async {
                                 if (item['contentType'] == 'ar_object') {
                                   final String url = item['url'];
@@ -833,6 +918,7 @@ class _UniquePortfolioItem extends StatefulWidget {
   final bool isAr;
   final bool initialIsLiked;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const _UniquePortfolioItem({
     super.key,
@@ -844,6 +930,7 @@ class _UniquePortfolioItem extends StatefulWidget {
     this.isAr = false,
     this.initialIsLiked = false,
     this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -964,6 +1051,25 @@ class _UniquePortfolioItemState extends State<_UniquePortfolioItem> {
                       SizedBox(width: 4),
                       Text("3D", style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
                     ],
+                  ),
+                ),
+              ),
+
+            // Delete Button (Only if onDelete is provided)
+            if (widget.onDelete != null)
+              Positioned(
+                top: 12,
+                left: 12,
+                child: GestureDetector(
+                  onTap: widget.onDelete,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                    ),
+                    child: const Icon(Icons.delete_outline, color: AppTheme.arteRed, size: 16),
                   ),
                 ),
               ),

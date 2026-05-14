@@ -225,6 +225,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                     imageUrl: data['imageUrl'] ?? "https://picsum.photos/seed/$docId/600/600",
                                     docId: docId,
                                     contentType: contentType,
+                                    status: (data['status'] ?? 'pending_review').toString(),
                                     modelUrl: data['url'],
                                     onDelete: () => _deleteItem(docId, contentType),
                                   );
@@ -248,6 +249,7 @@ class _GalleryCard extends StatefulWidget {
   final String imageUrl;
   final String docId;
   final String contentType;
+  final String status;
   final String? modelUrl;
   final VoidCallback onDelete;
 
@@ -256,6 +258,7 @@ class _GalleryCard extends StatefulWidget {
     required this.imageUrl,
     required this.docId,
     required this.contentType,
+    required this.status,
     this.modelUrl,
     required this.onDelete,
   });
@@ -299,24 +302,41 @@ class _GalleryCardState extends State<_GalleryCard> {
                 ),
               ),
               
-              // Badge based on contentType
+              // Badge based on contentType & Status
               Positioned(
                 top: 12,
+                left: 12,
                 right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(150),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(widget.contentType == 'ar_object' ? Icons.view_in_ar : Icons.image, color: Colors.white, size: 12),
-                      const SizedBox(width: 4),
-                      Text(widget.contentType == 'ar_object' ? '3D' : 'IMG', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Content Type Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(150),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(widget.contentType == 'ar_object' ? Icons.view_in_ar : Icons.image, color: Colors.white, size: 12),
+                          const SizedBox(width: 4),
+                          Text(widget.contentType == 'ar_object' ? '3D' : 'IMG', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    // Status Badge
+                    if (widget.status != 'accepted' && widget.status != 'approved')
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.arteYellow.withAlpha(230),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text('PENDIENTE', style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.w900)),
+                      ),
+                  ],
                 ),
               ),
               
@@ -332,59 +352,71 @@ class _GalleryCardState extends State<_GalleryCard> {
                 ),
               ),
               
-              // Glassmorphism Overlay
-              if (_showOverlay)
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(
-                      color: Colors.black.withAlpha(80),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (widget.contentType == 'ar_object' && widget.modelUrl != null) ...[
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ArModelViewerScreen(
-                                        modelUrl: widget.modelUrl,
-                                        title: widget.title,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: const BoxDecoration(color: AppTheme.arteYellow, shape: BoxShape.circle),
-                                  child: const Icon(Icons.view_in_ar, color: Colors.black87, size: 28),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text("Ver en AR", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                              const SizedBox(height: 20),
-                            ],
-                            GestureDetector(
-                              onTap: widget.onDelete,
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                child: const Icon(Icons.delete_outline, color: AppTheme.arteRed, size: 28),
+              // Permanent Action Buttons
+              Positioned(
+                top: 50,
+                right: 12,
+                child: Column(
+                  children: [
+                    if (widget.contentType == 'ar_object' && widget.modelUrl != null)
+                      _CardActionButton(
+                        icon: Icons.view_in_ar,
+                        color: AppTheme.arteYellow,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ArModelViewerScreen(
+                                modelUrl: widget.modelUrl,
+                                title: widget.title,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            const Text("Eliminar", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                          ],
-                        ),
+                          );
+                        },
                       ),
+                    const SizedBox(height: 8),
+                    _CardActionButton(
+                      icon: Icons.delete_outline,
+                      color: Colors.white,
+                      iconColor: AppTheme.arteRed,
+                      onTap: widget.onDelete,
                     ),
-                  ),
-                )
+                  ],
+                ),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CardActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color? iconColor;
+  final VoidCallback onTap;
+
+  const _CardActionButton({
+    required this.icon,
+    required this.color,
+    this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(0, 2))],
+        ),
+        child: Icon(icon, color: iconColor ?? Colors.black87, size: 20),
       ),
     );
   }

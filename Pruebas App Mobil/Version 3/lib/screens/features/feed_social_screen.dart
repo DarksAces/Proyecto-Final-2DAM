@@ -9,6 +9,8 @@ import 'social_screen.dart';
 import 'create_post_screen.dart';
 import 'profile_screen.dart';
 import '../../services/user_service.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class FeedSocialScreen extends StatefulWidget {
   const FeedSocialScreen({super.key});
@@ -128,7 +130,7 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
                           // Client-side filtering to avoid index requirements
                           final approvedDocs = snapshot.data!.docs.where((doc) {
                             final data = doc.data() as Map<String, dynamic>;
-                            final status = data['status'] ?? 'accepted';
+                            final status = data['status'] ?? 'pending_review';
                             return status == 'approved' || status == 'accepted';
                           }).toList();
 
@@ -173,10 +175,11 @@ class _FeedSocialScreenState extends State<FeedSocialScreen> {
           children: [
             Icon(Icons.style, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
-            const Text(
-              'Aún no hay publicaciones de amigos',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+            Text(
+              AppLocalizations.of(context)!.social_no_posts,
+              style: const TextStyle(color: Colors.grey, fontSize: 16),
             ),
+
           ],
         ),
       ),
