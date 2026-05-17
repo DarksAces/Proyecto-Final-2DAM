@@ -889,6 +889,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create new post'**
   String get rank_item_new_post;
+
+  /// No description provided for @tutorial_skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorial_skip;
+
+  /// No description provided for @tutorial_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tutorial_next;
+
+  /// No description provided for @tutorial_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started!'**
+  String get tutorial_start;
+
+  /// No description provided for @tutorial_title_1.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the AR World'**
+  String get tutorial_title_1;
+
+  /// No description provided for @tutorial_desc_1.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover augmented reality artwork around you and notice every magical detail.'**
+  String get tutorial_desc_1;
+
+  /// No description provided for @tutorial_title_2.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint your Own Reality'**
+  String get tutorial_title_2;
+
+  /// No description provided for @tutorial_desc_2.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and share your own 3D models and artistic captures with our powerful artificial intelligence.'**
+  String get tutorial_desc_2;
+
+  /// No description provided for @tutorial_title_3.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with the Community'**
+  String get tutorial_title_3;
+
+  /// No description provided for @tutorial_desc_3.
+  ///
+  /// In en, this message translates to:
+  /// **'Level up in the artist ranking, earn medals and share your creations on the social feed.'**
+  String get tutorial_desc_3;
 }
 
 class _AppLocalizationsDelegate

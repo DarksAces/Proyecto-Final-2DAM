@@ -102,23 +102,42 @@ class _SocialPostCardState extends State<SocialPostCard> {
 
   void _toggleLike() async {
     final user = _auth.currentUser;
-    if (user == null || _isLiked) return; // Can't unlike
+    if (user == null) return;
 
     final postRef = FirebaseFirestore.instance.collection('sitios').doc(widget.postId);
     final likeRef = postRef.collection('likes').doc(user.uid);
 
-    setState(() {
-      _isLiked = true;
-      _likeCount++;
-    });
+    if (_isLiked) {
+      // Unlike / Quitar recomendación
+      setState(() {
+        _isLiked = false;
+        _likeCount--;
+        if (_likeCount < 0) _likeCount = 0;
+      });
 
-    await likeRef.set({'timestamp': FieldValue.serverTimestamp()});
-    await postRef.update({'likes': FieldValue.increment(1), 'likesCount': FieldValue.increment(1)});
+      await likeRef.delete();
+      await postRef.update({'likes': FieldValue.increment(-1), 'likesCount': FieldValue.increment(-1)});
 
-    // Award +3 points to the post author (not to the liker)
-    final authorId = widget.data['userId'] as String?;
-    if (authorId != null && authorId != user.uid) {
-      await _userService.addPoints(authorId, 3);
+      // Remove the +3 points from the post author
+      final authorId = widget.data['userId'] as String?;
+      if (authorId != null && authorId != user.uid) {
+        await _userService.addPoints(authorId, -3);
+      }
+    } else {
+      // Like / Añadir recomendación
+      setState(() {
+        _isLiked = true;
+        _likeCount++;
+      });
+
+      await likeRef.set({'timestamp': FieldValue.serverTimestamp()});
+      await postRef.update({'likes': FieldValue.increment(1), 'likesCount': FieldValue.increment(1)});
+
+      // Award +3 points to the post author (not to the liker)
+      final authorId = widget.data['userId'] as String?;
+      if (authorId != null && authorId != user.uid) {
+        await _userService.addPoints(authorId, 3);
+      }
     }
   }
 

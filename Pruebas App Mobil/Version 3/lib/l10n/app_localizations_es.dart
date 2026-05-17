@@ -413,4 +413,34 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rank_item_new_post => 'Crear nueva publicación';
+
+  @override
+  String get tutorial_skip => 'Omitir';
+
+  @override
+  String get tutorial_next => 'Siguiente';
+
+  @override
+  String get tutorial_start => '¡Empezar!';
+
+  @override
+  String get tutorial_title_1 => 'Explora el Mundo AR';
+
+  @override
+  String get tutorial_desc_1 =>
+      'Descubre obras de arte en realidad aumentada a tu alrededor y fíjate en cada detalle mágico.';
+
+  @override
+  String get tutorial_title_2 => 'Pinta tu Propia Realidad';
+
+  @override
+  String get tutorial_desc_2 =>
+      'Crea y comparte tus propios modelos 3D y capturas artísticas con nuestra potente inteligencia artificial.';
+
+  @override
+  String get tutorial_title_3 => 'Conecta con la Comunidad';
+
+  @override
+  String get tutorial_desc_3 =>
+      'Sube de nivel en el ranking de artistas, consigue medallas y comparte tus creaciones en el feed social.';
 }

@@ -22,6 +22,7 @@ import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/auth_wrapper.dart';
 import 'screens/features/gallery_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/tutorial/tutorial_screen.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -103,6 +104,7 @@ class MyApp extends StatelessWidget {
               '/register': (context) => const RegisterScreen(),
               '/home': (context) => const MainWrapper(),
               '/gallery': (context) => const GalleryScreen(),
+              '/tutorial': (context) => const TutorialScreen(),
             },
           );
         });

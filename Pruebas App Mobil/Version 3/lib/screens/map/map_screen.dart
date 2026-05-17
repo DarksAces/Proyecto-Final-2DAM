@@ -38,7 +38,9 @@ class _MapScreenState extends State<MapScreen> {
   bool _initialCenteringDone = false;
   StreamSubscription<Position>? _locationSub;
   double _radarRadiusMeters = 150.0; 
+  bool _showAllWorld = false; // Modo Global: Ver todas las obras del mundo
   Timer? _radarDebounce;
+  int _drawCircleGeneration = 0;
 
   // Firestore
   final List<Map<String, dynamic>> _stops = [];
@@ -341,19 +343,20 @@ class _MapScreenState extends State<MapScreen> {
           final isOwnPending = authorId == _myUid;
           if (!isAccepted && !isOwnPending) continue;
 
-          // Obfuscation jitter: A bit more significant so coordinates aren't exact
-          // (Approx 20-30 meters variance)
-          double jitterLat = (d['latitude'] as num).toDouble() + (_random.nextDouble() - 0.5) * 0.0003;
-          double jitterLng = (d['longitude'] as num).toDouble() + (_random.nextDouble() - 0.5) * 0.0003;
+          // Usamos las coordenadas ofuscadas fijas generadas al subir la obra
+          double displayLat = (d['latitude'] as num).toDouble();
+          double displayLng = (d['longitude'] as num).toDouble();
+          double realLat = ((d['realLatitude'] ?? d['latitude']) as num).toDouble();
+          double realLng = ((d['realLongitude'] ?? d['longitude']) as num).toDouble();
 
           _stops.add({
             'id': doc.id,
             'title': d['title'] ?? 'Sin título',
             'description': d['description'] ?? '',
-            'lat': jitterLat,
-            'lng': jitterLng,
-            'realLat': (d['latitude'] as num).toDouble(),
-            'realLng': (d['longitude'] as num).toDouble(),
+            'lat': displayLat,
+            'lng': displayLng,
+            'realLat': realLat,
+            'realLng': realLng,
             'author': d['username'] ?? 'Explorador',
             'authorId': authorId,
             'image': d['imageUrl'] ?? d['image'] ?? '',
@@ -399,17 +402,26 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _drawCircles() async {
     if (_mapController == null || !mounted || !_styleLoaded) return;
+    
+    final int currentGen = ++_drawCircleGeneration;
 
-    for (final c in List.from(_circles)) {
-      try { await _mapController!.removeCircle(c); } catch (_) {}
+    // Primero limpiamos todos los círculos existentes en el mapa de forma robusta
+    try {
+      await _mapController!.clearCircles();
+    } catch (_) {
+      for (final c in List.from(_circles)) {
+        try { await _mapController!.removeCircle(c); } catch (_) {}
+      }
     }
     _circles.clear();
 
     for (final s in _stops) {
+      // Si se llamó a _drawCircles otra vez mientras esperábamos, abortamos este bucle viejo al instante
+      if (currentGen != _drawCircleGeneration || !mounted) return;
+
       final id = s['authorId'] as String;
 
-      // Distance filter (radar): markers only appear IF they are near the user
-      // Use the real coordinates for accurate distance checking, but display the jittered ones
+      // Distance filter (radar): markers only appear IF they are near the user (o si estamos en modo Global)
       final double distance = Geolocator.distanceBetween(
         _userLat, 
         _userLng, 
@@ -417,7 +429,7 @@ class _MapScreenState extends State<MapScreen> {
         s['realLng'] ?? s['lng']
       );
       
-      if (distance > _radarRadiusMeters) continue;
+      if (!_showAllWorld && distance > _radarRadiusMeters) continue;
 
       // Category filter
       bool show;
@@ -447,6 +459,12 @@ class _MapScreenState extends State<MapScreen> {
         circleStrokeColor: '#FFFFFF',
         circleStrokeOpacity: 0.5,
       ));
+
+      if (currentGen != _drawCircleGeneration || !mounted) {
+        // Si cambió la generación mientras esperábamos el addCircle, eliminamos este círculo huérfano
+        try { await _mapController!.removeCircle(c); } catch (_) {}
+        return;
+      }
       _circles.add(c);
     }
   }
@@ -467,7 +485,7 @@ class _MapScreenState extends State<MapScreen> {
         s['realLng'] ?? s['lng']
       );
       
-      if (dist > _radarRadiusMeters) return false;
+      if (!_showAllWorld && dist > _radarRadiusMeters) return false;
       final id = s['authorId'] as String;
       if (_filter == 'me') return id == _myUid;
       if (_filter == 'following') return _following.contains(id);
@@ -530,27 +548,64 @@ class _MapScreenState extends State<MapScreen> {
               top: topPadding + 10,
               left: 12, right: 12,
               child: _GlassOverlay(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                child: Row(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: _FilterBar(
-                        selected: _filter,
-                        onSelect: (f) async {
-                          // Refresh following list when changing to friends filter
-                          if (f == 'following') await _loadData();
-                          setState(() => _filter = f);
-                          _drawCircles();
-                        }
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _FilterBar(
+                            selected: _filter,
+                            onSelect: (f) async {
+                              if (f == 'following') await _loadData();
+                              setState(() => _filter = f);
+                              _drawCircles();
+                            }
+                          ),
+                        ),
+                        Container(width: 1, height: 20, color: Colors.black12, margin: const EdgeInsets.symmetric(horizontal: 8)),
+                        // Botón Ver Todas (Global Mode)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() => _showAllWorld = !_showAllWorld);
+                            _updateUserRadarWithDebounce();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _showAllWorld ? AppTheme.arteRed : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: _showAllWorld ? AppTheme.arteRed : Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.public_rounded, size: 14, color: _showAllWorld ? Colors.white : Colors.black87),
+                                const SizedBox(width: 4),
+                                Text("Ver Todas", style: TextStyle(color: _showAllWorld ? Colors.white : Colors.black87, fontWeight: FontWeight.w900, fontSize: 10)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Container(width: 1, height: 20, color: Colors.black12, margin: const EdgeInsets.symmetric(horizontal: 8)),
-                    _RadarMiniControl(
-                      radius: _radarRadiusMeters,
-                      onChanged: (v) {
-                        setState(() => _radarRadiusMeters = v);
-                        _updateUserRadarWithDebounce();
-                      },
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const SizedBox(width: 8),
+                        Text("Radio Radar:", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _RadarMiniControl(
+                            radius: _radarRadiusMeters,
+                            maxRadius: 5000,
+                            onChanged: (v) {
+                              setState(() => _radarRadiusMeters = v);
+                              _updateUserRadarWithDebounce();
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -558,7 +613,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
 
             Positioned(
-              top: topPadding + 65,
+              top: topPadding + 95,
               left: 0, right: 0,
               child: NearbySitesBar(
                 stops: nearbyStops,
@@ -672,13 +727,13 @@ class _MapScreenState extends State<MapScreen> {
 
 class _RadarMiniControl extends StatelessWidget {
   final double radius;
+  final double maxRadius;
   final ValueChanged<double> onChanged;
-  const _RadarMiniControl({required this.radius, required this.onChanged});
+  const _RadarMiniControl({required this.radius, this.maxRadius = 500, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 140,
       child: Row(
         children: [
           const Icon(Icons.radar_rounded, size: 14, color: AppTheme.arteRed),
@@ -691,10 +746,10 @@ class _RadarMiniControl extends StatelessWidget {
                 trackHeight: 2,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6, elevation: 2),
               ),
-              child: Slider(value: radius, min: 50, max: 500, onChanged: onChanged),
+              child: Slider(value: radius, min: 50, max: maxRadius, onChanged: onChanged),
             ),
           ),
-          Text("${radius.round()}m", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, color: AppTheme.arteRed)),
+          Text(radius >= 1000 ? "${(radius/1000).toStringAsFixed(1)}km" : "${radius.round()}m", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, color: AppTheme.arteRed)),
           const SizedBox(width: 8),
         ],
       ),

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
 import '../services/simulation_service.dart';
+import '../services/settings_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

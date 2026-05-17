@@ -131,7 +131,16 @@
   "rank_item_post_like": "Like en tu publicación",
   "rank_item_ar_gen": "Generar modelo AR",
   "rank_item_contest_upload": "Subir obra al concurso",
-  "rank_item_new_post": "Crear nueva publicación"
+  "rank_item_new_post": "Crear nueva publicación",
+  "tutorial_skip": "Omitir",
+  "tutorial_next": "Siguiente",
+  "tutorial_start": "¡Empezar!",
+  "tutorial_title_1": "Explora el Mundo AR",
+  "tutorial_desc_1": "Descubre obras de arte en realidad aumentada a tu alrededor y fíjate en cada detalle mágico.",
+  "tutorial_title_2": "Pinta tu Propia Realidad",
+  "tutorial_desc_2": "Crea y comparte tus propios modelos 3D y capturas artísticas con nuestra potente inteligencia artificial.",
+  "tutorial_title_3": "Conecta con la Comunidad",
+  "tutorial_desc_3": "Sube de nivel en el ranking de artistas, consigue medallas y comparte tus creaciones en el feed social."
 }
 
 

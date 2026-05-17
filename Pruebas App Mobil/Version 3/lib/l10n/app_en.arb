@@ -131,7 +131,16 @@
   "rank_item_post_like": "Like on your post",
   "rank_item_ar_gen": "Generate AR model",
   "rank_item_contest_upload": "Upload contest work",
-  "rank_item_new_post": "Create new post"
+  "rank_item_new_post": "Create new post",
+  "tutorial_skip": "Skip",
+  "tutorial_next": "Next",
+  "tutorial_start": "Get Started!",
+  "tutorial_title_1": "Explore the AR World",
+  "tutorial_desc_1": "Discover augmented reality artwork around you and notice every magical detail.",
+  "tutorial_title_2": "Paint your Own Reality",
+  "tutorial_desc_2": "Create and share your own 3D models and artistic captures with our powerful artificial intelligence.",
+  "tutorial_title_3": "Connect with the Community",
+  "tutorial_desc_3": "Level up in the artist ranking, earn medals and share your creations on the social feed."
 }
 
 

@@ -8,14 +8,17 @@ class SettingsService extends ChangeNotifier {
 
   ThemeMode _themeMode = ThemeMode.light;
   Locale _locale = const Locale('es', 'ES');
+  bool _hasSeenTutorial = false;
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
+  bool get hasSeenTutorial => _hasSeenTutorial;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final isDark = prefs.getBool('isDarkMode') ?? false;
     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    _hasSeenTutorial = prefs.getBool('hasSeenTutorial') ?? false;
     
     // Detect system language if no preference is saved
     final String defaultSystemLocale = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
@@ -24,6 +27,13 @@ class SettingsService extends ChangeNotifier {
     
     _locale = Locale(langCode);
     notifyListeners();
+  }
+
+  Future<void> completeTutorial() async {
+    _hasSeenTutorial = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenTutorial', true);
   }
 
 

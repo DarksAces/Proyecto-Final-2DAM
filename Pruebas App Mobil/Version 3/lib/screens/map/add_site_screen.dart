@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -30,6 +32,7 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
   double? _lat;
   double? _lng;
   String? _gpsError;
+  double _privacyDistance = 25.0; // Distancia de privacidad en metros (1 a 50)
 
   @override
   void initState() {
@@ -42,6 +45,23 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
     _titleCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
+  }
+
+  double _getDeterministicAngle(String userId, String title, double lat, double lng) {
+    // Combinar los datos con una sal secreta para que nadie pueda predecir o calcular el ángulo
+    final String raw = "$userId|$title|$lat|$lng|ARte_Secret_Salt_#2026";
+    final bytes = utf8.encode(raw);
+    
+    // Calcular un hash FNV-1a (algoritmo de hash determinista muy robusto y rápido)
+    int hash = 0x811c9dc5;
+    for (int i = 0; i < bytes.length; i++) {
+      hash ^= bytes[i];
+      hash = (hash * 0x01000193) & 0xFFFFFFFF; // 32-bit FNV prime
+    }
+    
+    // Convertir el hash a un valor double entre 0 y 2*pi
+    double normalized = hash / 0xFFFFFFFF;
+    return normalized * 2 * pi;
   }
 
   Future<void> _getLocation() async {
@@ -104,13 +124,25 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
         username = uDoc.data()?['username'] ?? uDoc.data()?['displayName'] ?? username;
       } catch (_) {}
 
+      // Calcular el ángulo determinista e irreversible
+      double theta = _getDeterministicAngle(user.uid, _titleCtrl.text.trim(), _lat!, _lng!);
+      const double earthRadius = 6378137.0;
+      double dLat = (_privacyDistance * cos(theta)) / earthRadius * (180 / pi);
+      double dLng = (_privacyDistance * sin(theta)) / (earthRadius * cos(_lat! * pi / 180)) * (180 / pi);
+      
+      double obfuscatedLat = _lat! + dLat;
+      double obfuscatedLng = _lng! + dLng;
+
       // Save to Firestore
       await FirebaseFirestore.instance.collection('sitios').add({
         'title': _titleCtrl.text.trim(),
         'description': _descCtrl.text.trim(),
         'imageUrl': imageUrl,
-        'latitude': _lat,
-        'longitude': _lng,
+        'latitude': obfuscatedLat,
+        'longitude': obfuscatedLng,
+        'realLatitude': _lat,
+        'realLongitude': _lng,
+        'privacyDistance': _privacyDistance.round(),
         'status': 'pending_review',
         'userId': user.uid,
         'username': username,
@@ -173,6 +205,12 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
 
                       const SizedBox(height: 16),
                       _buildGPSCard(),
+                      
+                      const SizedBox(height: 32),
+                      _buildSectionTitle("PRIVACIDAD DE UBICACIÓN"),
+                      const SizedBox(height: 16),
+                      _buildPrivacySlider(),
+
                       const SizedBox(height: 40),
                       _buildSubmitButton(),
                       const SizedBox(height: 50),
@@ -347,6 +385,73 @@ class _AddSiteScreenState extends State<AddSiteScreen> {
             ),
           ),
           if (_gpsError != null) IconButton(onPressed: _getLocation, icon: const Icon(Icons.refresh_rounded, color: AppTheme.arteRed)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrivacySlider() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(3), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: AppTheme.arteRed.withAlpha(20), shape: BoxShape.circle),
+                child: const Icon(Icons.security_rounded, color: AppTheme.arteRed, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Distancia de Desplazamiento", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppTheme.textBlack)),
+                    const SizedBox(height: 2),
+                    Text("Aleja el marcador de la foto por privacidad", style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: AppTheme.arteRed, borderRadius: BorderRadius.circular(12)),
+                child: Text("${_privacyDistance.round()} m", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: AppTheme.arteRed,
+              inactiveTrackColor: AppTheme.arteRed.withAlpha(20),
+              thumbColor: Colors.white,
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 4),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+            ),
+            child: Slider(
+              value: _privacyDistance,
+              min: 1,
+              max: 50,
+              divisions: 49,
+              onChanged: (val) => setState(() => _privacyDistance = val),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("1 m (Cerca)", style: TextStyle(color: Colors.grey.shade500, fontSize: 10, fontWeight: FontWeight.bold)),
+              Text("50 m (Máx privacidad)", style: TextStyle(color: Colors.grey.shade500, fontSize: 10, fontWeight: FontWeight.bold)),
+            ],
+          ),
         ],
       ),
     );

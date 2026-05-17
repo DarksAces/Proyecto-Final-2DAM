@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../theme/app_theme.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../screens/home/home_screen.dart';
@@ -7,6 +8,7 @@ import 'map/map_screen.dart';
 
 import '../screens/features/profile_screen.dart';
 import '../services/notification_service.dart';
+import '../services/settings_service.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -22,6 +24,12 @@ class MainWrapper extends StatefulWidget {
 class MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
   final Set<int> _visitedTabs = {0};
+
+  final GlobalKey _homeKey = GlobalKey();
+  final GlobalKey _socialKey = GlobalKey();
+  final GlobalKey _mapKey = GlobalKey();
+  final GlobalKey _profileKey = GlobalKey();
+  bool _tutorialStarted = false;
 
   @override
   void initState() {
@@ -56,31 +64,59 @@ class MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true, // el cuerpo se extiende detrás del nav bar
-      body: SafeArea(
-        bottom: true,
-        child: Stack(
-          fit: StackFit.expand,
-          children: List.generate(4, (index) {
-            final bool visited = _visitedTabs.contains(index);
-            final bool active = _currentIndex == index;
-            return Offstage(
-              offstage: !active,
-              child: visited ? _buildPage(index) : const SizedBox.shrink(),
-            );
-          }),
-        ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-            _visitedTabs.add(index);
+    return ShowCaseWidget(
+      onFinish: () async {
+        await SettingsService().completeTutorial();
+      },
+      builder: (showcaseContext) {
+        if (!SettingsService().hasSeenTutorial && !_tutorialStarted) {
+          _tutorialStarted = true;
+          SettingsService().completeTutorial();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future.delayed(const Duration(milliseconds: 600), () {
+              if (mounted) {
+                ShowCaseWidget.of(showcaseContext).startShowCase([
+                  _homeKey,
+                  _socialKey,
+                  _mapKey,
+                  _profileKey,
+                ]);
+              }
+            });
           });
-        },
-      ),
+        }
+
+        return Scaffold(
+          extendBody: true, // el cuerpo se extiende detrás del nav bar
+          body: SafeArea(
+            bottom: true,
+            child: Stack(
+              fit: StackFit.expand,
+              children: List.generate(4, (index) {
+                final bool visited = _visitedTabs.contains(index);
+                final bool active = _currentIndex == index;
+                return Offstage(
+                  offstage: !active,
+                  child: visited ? _buildPage(index) : const SizedBox.shrink(),
+                );
+              }),
+            ),
+          ),
+          bottomNavigationBar: CustomBottomNavBar(
+            currentIndex: _currentIndex,
+            homeKey: _homeKey,
+            socialKey: _socialKey,
+            mapKey: _mapKey,
+            profileKey: _profileKey,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+                _visitedTabs.add(index);
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }
