@@ -16,6 +16,10 @@ namespace Jovi3DReview.Views
             _authService = AuthService.Instance;
             _firebaseService = new FirebaseService();
             this.Loaded += ProfileView_Loaded;
+
+            ThemeService.Instance.LanguageChanged += (s, lang) => {
+                if (this.IsLoaded) ProfileView_Loaded(null, null);
+            };
         }
 
         private async void ProfileView_Loaded(object sender, RoutedEventArgs e)
@@ -28,14 +32,16 @@ namespace Jovi3DReview.Views
                     var user = await _firebaseService.GetUserAsync(userId);
                     if (user != null)
                     {
-                        UserNameText.Text = user.Name ?? "Usuario";
+                        UserNameText.Text = user.Name ?? (Application.Current?.Resources["StrUsuario"]?.ToString() ?? "User");
                         UserEmailText.Text = user.Email ?? "Sin email";
-                        UserRoleText.Text = (user.IsAdmin ? "ADMINISTRADOR" : user.Role ?? "INVITADO").ToUpper();
+                        UserRoleText.Text = (user.IsAdmin 
+                            ? (Application.Current?.Resources["StrAdministrador"]?.ToString() ?? "Administrator") 
+                            : user.Role ?? (Application.Current?.Resources["StrInvitado"]?.ToString() ?? "Guest")).ToUpper();
                     }
                 }
                 catch
                 {
-                    UserNameText.Text = "Error al cargar";
+                    UserNameText.Text = Application.Current?.Resources["StrErrorAlCargar"]?.ToString() ?? "Error loading";
                 }
             }
         }
@@ -45,25 +51,33 @@ namespace Jovi3DReview.Views
             string newPass = NewPasswordBox.Password;
             if (string.IsNullOrWhiteSpace(newPass))
             {
-                MessageBox.Show("Ingresa una nueva contraseña.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                string msg = Application.Current?.Resources["StrNuevaContrasenaError"]?.ToString() ?? "Please enter a new password.";
+                string title = Application.Current?.Resources["StrError"]?.ToString() ?? "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (newPass.Length < 6)
             {
-                MessageBox.Show("La contraseña debe tener al menos 6 caracteres.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                string msg = Application.Current?.Resources["StrContrasenaCortaError"]?.ToString() ?? "Password must be at least 6 characters.";
+                string title = Application.Current?.Resources["StrError"]?.ToString() ?? "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             bool success = await _authService.ChangePasswordAsync(newPass);
             if (success)
             {
-                MessageBox.Show("Contraseña actualizada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                string msg = Application.Current?.Resources["StrContrasenaActualizada"]?.ToString() ?? "Password updated successfully.";
+                string title = Application.Current?.Resources["StrExito"]?.ToString() ?? "Success";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Information);
                 NewPasswordBox.Password = "";
             }
             else
             {
-                MessageBox.Show("Error al actualizar la contraseña. Es posible que debas volver a iniciar sesión.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                string msg = Application.Current?.Resources["StrContrasenaError"]?.ToString() ?? "Error updating password. You may need to log in again.";
+                string title = Application.Current?.Resources["StrError"]?.ToString() ?? "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

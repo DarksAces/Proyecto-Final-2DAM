@@ -27,14 +27,14 @@ namespace Jovi3DReview.Views
         {
             if (sender is Button btn)
             {
-                string filter = btn.Content.ToString() ?? "Todos";
+                string filter = btn.Tag?.ToString() ?? "All";
                 ViewModel.ChangeFilter(filter);
                 
                 // Manual style update because triggers are complex for this specific case
-                FilterPending.Style = (Style)FindResource(filter == "Pendientes" ? "FilterPillButtonActive" : "FilterPillButton");
-                FilterApproved.Style = (Style)FindResource(filter == "Aprobados" ? "FilterPillButtonActive" : "FilterPillButton");
-                FilterDenied.Style = (Style)FindResource(filter == "Rechazados" ? "FilterPillButtonActive" : "FilterPillButton");
-                FilterAll.Style = (Style)FindResource(filter == "Todos" ? "FilterPillButtonActive" : "FilterPillButton");
+                FilterPending.Style = (Style)FindResource(filter == "Pending" ? "FilterPillButtonActive" : "FilterPillButton");
+                FilterApproved.Style = (Style)FindResource(filter == "Approved" ? "FilterPillButtonActive" : "FilterPillButton");
+                FilterRejected.Style = (Style)FindResource(filter == "Rejected" ? "FilterPillButtonActive" : "FilterPillButton");
+                FilterAll.Style = (Style)FindResource(filter == "All" ? "FilterPillButtonActive" : "FilterPillButton");
             }
         }
 

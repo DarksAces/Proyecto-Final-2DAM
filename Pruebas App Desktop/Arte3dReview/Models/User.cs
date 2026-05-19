@@ -17,7 +17,9 @@ namespace Jovi3DReview.Models
                                Admin?.Trim().ToLower() == "true"; 
         public bool IsNotAdmin => !IsAdmin;
         
-        public string AdminDisplay => IsAdmin ? "ADMINISTRADOR" : "USUARIO";
+        public string AdminDisplay => IsAdmin 
+            ? (System.Windows.Application.Current?.Resources["StrAdministrador"]?.ToString() ?? "ADMINISTRATOR").ToUpper() 
+            : (System.Windows.Application.Current?.Resources["StrUsuario"]?.ToString() ?? "USER").ToUpper();
         public string AdminBackground => IsAdmin ? "#1AB22222" : "#F0F0F0"; // Light Red or Grey
         public string AdminForeground => IsAdmin ? "#D32F2F" : "#757575";
     }

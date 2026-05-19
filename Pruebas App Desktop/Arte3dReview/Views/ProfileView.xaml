@@ -16,7 +16,7 @@
         <!-- Header -->
         <Border Height="200" Background="{StaticResource ARtePrimaryBrush}" CornerRadius="0,0,0,0">
              <Grid>
-                 <TextBlock Text="Mi Perfil" FontSize="32" FontWeight="Bold" Foreground="White" Margin="48,0,0,48" VerticalAlignment="Bottom"/>
+                 <TextBlock Text="{DynamicResource StrMiPerfil}" FontSize="32" FontWeight="Bold" Foreground="White" Margin="48,0,0,48" VerticalAlignment="Bottom"/>
              </Grid>
         </Border>
 
@@ -50,33 +50,33 @@
                                 <TextBlock x:Name="UserEmailText" Text="user@example.com" FontSize="14" Foreground="#64748b"/>
                             </StackPanel>
 
-                            <Button Content="Editar Perfil" Style="{StaticResource MaterialDesignOutlinedButton}" Width="120" HorizontalAlignment="Left" IsEnabled="False" ToolTip="Proximamente"/>
+                            <Button Content="{DynamicResource StrEditarPerfil}" Style="{StaticResource MaterialDesignOutlinedButton}" Width="120" HorizontalAlignment="Left" IsEnabled="False" ToolTip="{DynamicResource StrProximamente}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
                 
                  <!-- Settings Section -->
-                 <TextBlock Text="Configuración de Cuenta" FontSize="18" FontWeight="Bold" Margin="0,32,0,16" Foreground="{StaticResource TextPrimaryBrush}"/>
+                 <TextBlock Text="{DynamicResource StrConfiguracionCuenta}" FontSize="18" FontWeight="Bold" Margin="0,32,0,16" Foreground="{StaticResource TextPrimaryBrush}"/>
                  <Border Background="White" CornerRadius="12" Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                      <StackPanel>
                          <!-- Password Change -->
-                         <TextBlock Text="Cambiar Contraseña" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                         <TextBlock Text="{DynamicResource StrCambiarContrasena}" FontWeight="SemiBold" Margin="0,0,0,12"/>
                          <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                             <PasswordBox x:Name="NewPasswordBox" Width="200" Height="40" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,12,0" materialDesign:HintAssist.Hint="Nueva Contraseña" Style="{StaticResource MaterialDesignOutlinedPasswordBox}"/>
-                             <Button Content="Actualizar" Click="ChangePassword_Click" Style="{StaticResource MaterialDesignFlatButton}" Height="40"/>
+                             <PasswordBox x:Name="NewPasswordBox" Width="200" Height="40" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,12,0" materialDesign:HintAssist.Hint="{DynamicResource StrNuevaContrasenaHint}" Style="{StaticResource MaterialDesignOutlinedPasswordBox}"/>
+                             <Button Content="{DynamicResource StrActualizarBtn}" Click="ChangePassword_Click" Style="{StaticResource MaterialDesignFlatButton}" Height="40"/>
                          </StackPanel>
 
                          <Separator Margin="0,0,0,24"/>
 
                          <!-- Notifications -->
-                         <TextBlock Text="Notificaciones" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                         <TextBlock Text="{DynamicResource StrNotificaciones}" FontWeight="SemiBold" Margin="0,0,0,12"/>
                          <StackPanel>
                              <DockPanel Margin="0,0,0,12">
-                                 <TextBlock Text="Notificaciones por Correo" VerticalAlignment="Center" Foreground="#666"/>
+                                 <TextBlock Text="{DynamicResource StrNotificacionesCorreo}" VerticalAlignment="Center" Foreground="#666"/>
                                  <ToggleButton HorizontalAlignment="Right" IsChecked="True" Style="{StaticResource MaterialDesignSwitchToggleButton}"/>
                              </DockPanel>
                              <DockPanel>
-                                 <TextBlock Text="Notificaciones en la App" VerticalAlignment="Center" Foreground="#666"/>
+                                 <TextBlock Text="{DynamicResource StrNotificacionesApp}" VerticalAlignment="Center" Foreground="#666"/>
                                  <ToggleButton HorizontalAlignment="Right" IsChecked="True" Style="{StaticResource MaterialDesignSwitchToggleButton}"/>
                              </DockPanel>
                          </StackPanel>
@@ -84,7 +84,7 @@
                  </Border>
 
                  <!-- Sign Out -->
-                 <Button Style="{StaticResource MaterialDesignFlatButton}" Content="Cerrar Sesión" HorizontalAlignment="Left" Foreground="Red" Margin="0,32,0,0" Click="SignOut_Click"/>
+                 <Button Style="{StaticResource MaterialDesignFlatButton}" Content="{DynamicResource StrCerrarSesion}" HorizontalAlignment="Left" Foreground="Red" Margin="0,32,0,0" Click="SignOut_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

@@ -15,7 +15,7 @@
 
         <!-- HEADER -->
         <Border Grid.Row="0" Background="{StaticResource ARteBackgroundLightBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="32,16">
-            <TextBlock Text="Biblioteca de Modelos" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <TextBlock Text="{DynamicResource StrBibliotecaModelos}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
         </Border>
 
         <!-- CONTENT -->
@@ -37,7 +37,7 @@
                                         </Grid.Clip>
                                         <Image Source="{Binding ImageUrl}" Stretch="UniformToFill"/>
                                         <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8" Background="{StaticResource ARteGreenBrush}" CornerRadius="4" Padding="6,2">
-                                            <TextBlock Text="APROBADO" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                            <TextBlock Text="{DynamicResource StrAprobadoBadge}" FontSize="10" FontWeight="Bold" Foreground="White"/>
                                         </Border>
                                     </Grid>
                                     <StackPanel Margin="16">

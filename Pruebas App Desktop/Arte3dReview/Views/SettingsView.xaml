@@ -29,7 +29,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="{DynamicResource StrModoOscuro}" FontWeight="Bold"/>
-                            <TextBlock Text="Cambia el tema visual de la aplicación para reducir la fatiga visual." FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{DynamicResource StrModoOscuroDesc}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                         <ToggleButton Grid.Column="1" IsChecked="{Binding IsDarkMode}" Style="{StaticResource MaterialDesignSwitchToggleButton}"/>
                     </Grid>
@@ -38,7 +38,7 @@
                 <!-- Preferences Section -->
                 <GroupBox Header="{DynamicResource StrIdioma}" Style="{StaticResource MaterialDesignCardGroupBox}" Margin="0,0,0,24">
                     <StackPanel Margin="16">
-                        <TextBlock Text="{DynamicResource StrIdiomaInterfaz}" FontWeight="Bold" Margin="0,0,0,8"/>
+                         <TextBlock Text="{DynamicResource StrIdiomaInterfaz}" FontWeight="Bold" Margin="0,0,0,8"/>
                         <ComboBox SelectedValue="{Binding SelectedLanguage}" SelectedValuePath="Content" Style="{StaticResource MaterialDesignOutlinedComboBox}" Width="200" HorizontalAlignment="Left">
                             <ComboBoxItem Content="Español"/>
                             <ComboBoxItem Content="English"/>
@@ -62,7 +62,7 @@
                                 <TextBlock Text="{DynamicResource StrLimpiarCache}" FontWeight="Bold"/>
                                 <TextBlock Text="{DynamicResource StrLimpiarCacheDesc}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
                             </StackPanel>
-                            <Button DockPanel.Dock="Right" Content="LIMPIAR" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ClearCacheCommand}"/>
+                            <Button DockPanel.Dock="Right" Content="{DynamicResource StrLimpiar}" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ClearCacheCommand}"/>
                         </DockPanel>
                     </StackPanel>
                 </GroupBox>

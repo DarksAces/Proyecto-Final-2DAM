@@ -10,6 +10,8 @@ namespace Jovi3DReview.Views
         {
             InitializeComponent();
             ActiveContent.Content = new LoginView();
+
+            Services.ThemeService.Instance.LanguageChanged += (s, lang) => LoadUserProfile();
         }
 
         private void Profile_Click(object sender, MouseButtonEventArgs e)
@@ -33,8 +35,12 @@ namespace Jovi3DReview.Views
                 var user = await firebase.GetUserAsync(userId);
                 if (user != null)
                 {
-                    CurrentUserName.Text = !string.IsNullOrEmpty(user.Name) ? user.Name : "Usuario";
-                    CurrentUserRole.Text = (user.IsAdmin ? "Administrador" : user.Role ?? "Usuario");
+                    CurrentUserName.Text = !string.IsNullOrEmpty(user.Name) 
+                        ? user.Name 
+                        : (Application.Current?.Resources["StrUsuario"]?.ToString() ?? "User");
+                    CurrentUserRole.Text = (user.IsAdmin 
+                        ? (Application.Current?.Resources["StrAdministrador"]?.ToString() ?? "Administrator") 
+                        : user.Role ?? (Application.Current?.Resources["StrUsuario"]?.ToString() ?? "User"));
                 }
             }
         }

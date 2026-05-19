@@ -13,6 +13,11 @@
     <system:String x:Key="StrContactaSoporte">Contact support</system:String>
     <system:String x:Key="StrRevisionSistema">REVIEW SYSTEM</system:String>
     <system:String x:Key="StrGestionRapida">Fast Management</system:String>
+    <system:String x:Key="StrLoginCredencialesVacias">Please enter email and password.</system:String>
+    <system:String x:Key="StrLoginErrorDesconocido">Unknown error during login.</system:String>
+    <system:String x:Key="StrLoginCredencialesIncorrectas">Incorrect email or password.</system:String>
+    <system:String x:Key="StrLoginErrorConexion">Connection error. Check your internet.</system:String>
+    <system:String x:Key="StrLoginErrorInicio">Error logging in. Try again.</system:String>
 
     <!-- Settings View -->
     <system:String x:Key="StrConfiguracion">Settings</system:String>
@@ -26,6 +31,9 @@
     <!-- Dashboard -->
     <system:String x:Key="StrDashboard">Dashboard</system:String>
     <system:String x:Key="StrModelosPendientes">Pending Models</system:String>
+    <system:String x:Key="StrModelosAprobados">Approved Models</system:String>
+    <system:String x:Key="StrModelosRechazados">Rejected Models</system:String>
+    <system:String x:Key="StrTodosLosModelos">All Models</system:String>
     <system:String x:Key="StrPendientes">Pending</system:String>
     <system:String x:Key="StrAprobados">Approved</system:String>
     <system:String x:Key="StrRechazados">Rejected</system:String>
@@ -39,6 +47,8 @@
     <system:String x:Key="StrHay">There are </system:String>
     <system:String x:Key="StrObrasEsperando"> works waiting for your approval today.</system:String>
     <system:String x:Key="StrPaginationFormat">Showing {0} works ({1})</system:String>
+    <system:String x:Key="StrAnterior">Previous</system:String>
+    <system:String x:Key="StrSiguiente">Next</system:String>
 
     <!-- Sidebar -->
     <system:String x:Key="StrMenuPrincipal">MAIN MENU</system:String>
@@ -59,5 +69,119 @@
     <system:String x:Key="StrVersion">Version</system:String>
     <system:String x:Key="StrCopyright">© 2026 Jovi3D S.A. All rights reserved.</system:String>
     <system:String x:Key="StrDescripcionApp">Quality Management System for Jovi 3D Models.</system:String>
+
+    <!-- Profile View -->
+    <system:String x:Key="StrMiPerfil">My Profile</system:String>
+    <system:String x:Key="StrConfiguracionCuenta">Account Settings</system:String>
+    <system:String x:Key="StrCambiarContrasena">Change Password</system:String>
+    <system:String x:Key="StrNuevaContrasenaHint">New Password</system:String>
+    <system:String x:Key="StrActualizarBtn">Update</system:String>
+    <system:String x:Key="StrNotificaciones">Notifications</system:String>
+    <system:String x:Key="StrNotificacionesCorreo">Email Notifications</system:String>
+    <system:String x:Key="StrNotificacionesApp">In-App Notifications</system:String>
+    <system:String x:Key="StrCerrarSesion">Logout</system:String>
+    <system:String x:Key="StrEditarPerfil">Edit Profile</system:String>
+    <system:String x:Key="StrProximamente">Coming Soon</system:String>
+    <system:String x:Key="StrUsuario">User</system:String>
+    <system:String x:Key="StrInvitado">Guest</system:String>
+    <system:String x:Key="StrErrorAlCargar">Error loading</system:String>
+    <system:String x:Key="StrNuevaContrasenaError">Please enter a new password.</system:String>
+    <system:String x:Key="StrContrasenaCortaError">Password must be at least 6 characters.</system:String>
+    <system:String x:Key="StrContrasenaActualizada">Password updated successfully.</system:String>
+    <system:String x:Key="StrContrasenaError">Error updating password. You may need to log in again.</system:String>
+
+    <!-- Settings View Extra -->
+    <system:String x:Key="StrModoOscuroDesc">Change the application visual theme to reduce eye strain.</system:String>
+    <system:String x:Key="StrLimpiar">CLEAR</system:String>
+
+    <!-- Reports View -->
+    <system:String x:Key="StrReportesEstadisticas">Reports &amp; Statistics</system:String>
+    <system:String x:Key="StrFiltrarPor">Filter by:</system:String>
+    <system:String x:Key="StrSemanal">Weekly</system:String>
+    <system:String x:Key="StrMensual">Monthly</system:String>
+    <system:String x:Key="StrAnual">Yearly</system:String>
+    <system:String x:Key="StrTotalModelos">Total Models</system:String>
+    <system:String x:Key="StrActividadRevisiones">Review Activity</system:String>
+    
+    <!-- Weekdays & Months (for charts) -->
+    <system:String x:Key="StrChartLun">Mon</system:String>
+    <system:String x:Key="StrChartMar">Tue</system:String>
+    <system:String x:Key="StrChartMie">Wed</system:String>
+    <system:String x:Key="StrChartJue">Thu</system:String>
+    <system:String x:Key="StrChartVie">Fri</system:String>
+    <system:String x:Key="StrChartSab">Sat</system:String>
+    <system:String x:Key="StrChartDom">Sun</system:String>
+    
+    <system:String x:Key="StrChartSem">Wk</system:String>
+    
+    <system:String x:Key="StrChartEne">Jan</system:String>
+    <system:String x:Key="StrChartFeb">Feb</system:String>
+    <system:String x:Key="StrChartMarMonth">Mar</system:String>
+    <system:String x:Key="StrChartAbr">Apr</system:String>
+    <system:String x:Key="StrChartMay">May</system:String>
+    <system:String x:Key="StrChartJun">Jun</system:String>
+    <system:String x:Key="StrChartJul">Jul</system:String>
+    <system:String x:Key="StrChartAgo">Aug</system:String>
+    <system:String x:Key="StrChartSep">Sep</system:String>
+    <system:String x:Key="StrChartOct">Oct</system:String>
+    <system:String x:Key="StrChartNov">Nov</system:String>
+    <system:String x:Key="StrChartDic">Dec</system:String>
+
+    <!-- Users View -->
+    <system:String x:Key="StrGestionUsuarios">User Management</system:String>
+    <system:String x:Key="StrGestionUsuariosDesc">Manage registered user roles and permissions.</system:String>
+    <system:String x:Key="StrHeaderUsuario">USER</system:String>
+    <system:String x:Key="StrHeaderRol">ROLE</system:String>
+    <system:String x:Key="StrHeaderAdministrador">ADMINISTRATOR</system:String>
+    <system:String x:Key="StrHeaderAcciones">ACTIONS</system:String>
+    <system:String x:Key="StrHacerAdmin">Make Admin</system:String>
+    <system:String x:Key="StrQuitarAdmin">Remove Admin</system:String>
+
+    <!-- Library View -->
+    <system:String x:Key="StrBibliotecaModelos">Model Library</system:String>
+    <system:String x:Key="StrAprobadoBadge">APPROVED</system:String>
+
+    <!-- Help View -->
+    <system:String x:Key="StrCentroAyuda">Help Center</system:String>
+    <system:String x:Key="StrPreguntasFrecuentes">Frequently Asked Questions</system:String>
+    
+    <system:String x:Key="StrFaq1Pregunta">How do I approve a model?</system:String>
+    <system:String x:Key="StrFaq1Respuesta">To approve a model, go to the Dashboard, select a 'Pending' model and click on the green 'ACCEPT' button in the model details.</system:String>
+    
+    <system:String x:Key="StrFaq2Pregunta">What happens if I reject a model?</system:String>
+    <system:String x:Key="StrFaq2Respuesta">When rejecting a model, you must provide a reason. The model will change its status to 'Rejected' and the creator will be notified with the reason for the rejection so they can make corrections.</system:String>
+    
+    <system:String x:Key="StrFaq3Pregunta">Can I change my password?</system:String>
+    <system:String x:Key="StrFaq3Respuesta">Yes, go to your Profile (click on your name in the sidebar) and use the 'Change Password' section.</system:String>
+    
+    <system:String x:Key="StrSoporteTecnico">Technical Support</system:String>
+    <system:String x:Key="StrSoporteDesc">If you experience technical issues, contact the system administrator.</system:String>
+    <!-- Model Details View -->
+    <system:String x:Key="StrModelos">Models</system:String>
+    <system:String x:Key="StrEstadoHeader">Status:</system:String>
+    <system:String x:Key="StrPantallaCompleta">Fullscreen</system:String>
+    <system:String x:Key="StrDescargarOBJ">Download .OBJ</system:String>
+    <system:String x:Key="StrCargandoModelo">Downloading and preparing 3D model...</system:String>
+    <system:String x:Key="StrCargandoModeloDesc">This may take a few seconds depending on size...</system:String>
+    <system:String x:Key="StrCargarPrevisualizacion">Load 3D Preview</system:String>
+    <system:String x:Key="StrControlCalidad">QUALITY CONTROL</system:String>
+    <system:String x:Key="StrPreguntaControlCalidad">Does the model meet the texture and geometry standards?</system:String>
+    <system:String x:Key="StrAceptarModelo">Approve Model</system:String>
+    <system:String x:Key="StrCreador">CREATOR</system:String>
+    <system:String x:Key="StrColaborador">Contributor</system:String>
+    <system:String x:Key="StrMetadatosModelo">MODEL METADATA</system:String>
+    <system:String x:Key="StrVertices">VERTICES</system:String>
+    <system:String x:Key="StrTamano">SIZE</system:String>
+    <system:String x:Key="StrFormato">FORMAT</system:String>
+    <system:String x:Key="StrSubido">UPLOADED</system:String>
+    <system:String x:Key="StrFeedbackInterno">INTERNAL FEEDBACK</system:String>
+    <system:String x:Key="StrMensajesLabel">Messages</system:String>
+    <system:String x:Key="StrNoFeedback">No feedback messages for this model.</system:String>
+    <system:String x:Key="StrEscribeComentario">Write a comment...</system:String>
+    
+    <!-- Model3D helpers -->
+    <system:String x:Key="StrDesconocido">Unknown</system:String>
+    <system:String x:Key="StrRevisado">Reviewed</system:String>
+    <system:String x:Key="StrCreado">Created</system:String>
 
 </ResourceDictionary>

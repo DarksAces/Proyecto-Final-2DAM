@@ -15,16 +15,16 @@
 
         <Border Grid.Row="0" Background="{StaticResource ARteBackgroundLightBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="32,16">
             <Grid>
-                <TextBlock Text="Reportes y Estadísticas" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource StrReportesEstadisticas}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
                 
                 <!-- Time Filters -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <TextBlock Text="Filtrar por:" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" FontWeight="Bold"/>
+                    <TextBlock Text="{DynamicResource StrFiltrarPor}" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" FontWeight="Bold"/>
                     <Border Background="White" CornerRadius="8" Padding="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="FilterWeekly" Style="{StaticResource MaterialDesignTabRadioButton}" Content="Semanal" IsChecked="True" Padding="12,4" Checked="Filter_Checked"/>
-                            <RadioButton x:Name="FilterMonthly" Style="{StaticResource MaterialDesignTabRadioButton}" Content="Mensual" Padding="12,4" Checked="Filter_Checked"/>
-                            <RadioButton x:Name="FilterYearly" Style="{StaticResource MaterialDesignTabRadioButton}" Content="Anual" Padding="12,4" Checked="Filter_Checked"/>
+                            <RadioButton x:Name="FilterWeekly" Style="{StaticResource MaterialDesignTabRadioButton}" Content="{DynamicResource StrSemanal}" IsChecked="True" Padding="12,4" Checked="Filter_Checked"/>
+                            <RadioButton x:Name="FilterMonthly" Style="{StaticResource MaterialDesignTabRadioButton}" Content="{DynamicResource StrMensual}" Padding="12,4" Checked="Filter_Checked"/>
+                            <RadioButton x:Name="FilterYearly" Style="{StaticResource MaterialDesignTabRadioButton}" Content="{DynamicResource StrAnual}" Padding="12,4" Checked="Filter_Checked"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -37,7 +37,7 @@
                     <!-- Card Total -->
                     <Border Width="220" Background="White" CornerRadius="12" Padding="20" Margin="0,0,16,16" Effect="{StaticResource MaterialDesignShadowDepth1}">
                         <StackPanel>
-                            <TextBlock Text="Total Modelos" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{DynamicResource StrTotalModelos}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
                             <TextBlock x:Name="TotalCount" Text="0" FontSize="32" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Border>
@@ -45,7 +45,7 @@
                     <!-- Card Approved -->
                     <Border Width="220" Background="White" CornerRadius="12" Padding="20" Margin="0,0,16,16" Effect="{StaticResource MaterialDesignShadowDepth1}">
                         <StackPanel>
-                            <TextBlock Text="Aprobados" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{DynamicResource StrAprobados}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
                             <TextBlock x:Name="ApprovedCount" Text="0" FontSize="32" FontWeight="Bold" Foreground="{StaticResource ARteGreenBrush}" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Border>
@@ -53,7 +53,7 @@
                     <!-- Card Rejected -->
                     <Border Width="220" Background="White" CornerRadius="12" Padding="20" Margin="0,0,16,16" Effect="{StaticResource MaterialDesignShadowDepth1}">
                         <StackPanel>
-                            <TextBlock Text="Rechazados" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{DynamicResource StrRechazados}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
                             <TextBlock x:Name="RejectedCount" Text="0" FontSize="32" FontWeight="Bold" Foreground="{StaticResource ARtePrimaryBrush}" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Border>
@@ -61,7 +61,7 @@
                     <!-- Card Pending -->
                     <Border Width="220" Background="White" CornerRadius="12" Padding="20" Margin="0,0,16,16" Effect="{StaticResource MaterialDesignShadowDepth1}">
                         <StackPanel>
-                            <TextBlock Text="Pendientes" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{DynamicResource StrPendientes}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
                             <TextBlock x:Name="PendingCount" Text="0" FontSize="32" FontWeight="Bold" Foreground="{StaticResource ARteSecondaryBrush}" Margin="0,8,0,0"/>
                         </StackPanel>
                     </Border>
@@ -70,7 +70,7 @@
                 <!-- CHART SECTION -->
                 <Border Background="White" CornerRadius="16" Padding="24" Margin="0,8,0,0" Effect="{StaticResource MaterialDesignShadowDepth1}">
                     <StackPanel>
-                        <TextBlock Text="Actividad de Revisiones" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,24"/>
+                        <TextBlock Text="{DynamicResource StrActividadRevisiones}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,24"/>
                         <Grid Height="400">
                             <lvc:CartesianChart x:Name="MainChart" Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" LegendPosition="Right"/>
                         </Grid>

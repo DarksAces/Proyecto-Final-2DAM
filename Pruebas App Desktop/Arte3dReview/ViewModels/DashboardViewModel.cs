@@ -1,3 +1,4 @@
+// MODIFICADO POR ANTIGRAVITY - CAMBIO DINÁMICO DE TÍTULOS
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Jovi3DReview.Models;
@@ -20,7 +21,7 @@ namespace Jovi3DReview.ViewModels
         private ObservableCollection<Model3D> _models = new ObservableCollection<Model3D>();
 
         [ObservableProperty]
-        private string _currentFilter = "Pendientes";
+        private string _currentFilter = "Pending";
 
         [ObservableProperty]
         private string _headerCountText = string.Empty;
@@ -41,6 +42,9 @@ namespace Jovi3DReview.ViewModels
         public DashboardViewModel(IFirebaseService firebaseService)
         {
             _firebaseService = firebaseService;
+            UpdateCounters(); // Initialize localized strings
+
+            ThemeService.Instance.LanguageChanged += (s, lang) => UpdateCounters();
         }
 
         [RelayCommand]
@@ -81,18 +85,23 @@ namespace Jovi3DReview.ViewModels
             Models.Clear();
             IEnumerable<Model3D> filtered = _allModels;
 
+            // Use internal names for logic, matching what comes from the buttons
             switch (CurrentFilter)
             {
                 case "Pendientes":
+                case "Pending":
                     filtered = _allModels.Where(m => m.Status == "pending_review");
                     break;
                 case "Aprobados":
+                case "Approved":
                     filtered = _allModels.Where(m => m.Status == "approved");
                     break;
                 case "Rechazados":
+                case "Rejected":
                     filtered = _allModels.Where(m => m.Status == "denied");
                     break;
                 case "Todos":
+                case "All":
                     break;
             }
 
@@ -110,15 +119,21 @@ namespace Jovi3DReview.ViewModels
             int totalPending = _allModels.Count(m => m.Status == "pending_review");
             TotalPendingCount = totalPending;
             
-            string headerFormat = Application.Current.Resources["StrHeaderCountFormat"] as string ?? "Hay {0} obras...";
-            string paginationFormat = Application.Current.Resources["StrPaginationFormat"] as string ?? "Mostrando {0} obras...";
+            // Check for Application.Current to avoid NullReferenceException in Unit Tests
+            var resources = Application.Current?.Resources;
             
-            // Map internal filter names to localized names for the pagination text
+            string headerFormat = resources?["StrHeaderCountFormat"] as string ?? "Hay {0} obras esperando tu aprobación hoy.";
+            string paginationFormat = resources?["StrPaginationFormat"] as string ?? "Mostrando {0} obras ({1})";
+            
+            // For pagination text, we still need a localized filter name
             string localizedFilter = CurrentFilter;
-            if (CurrentFilter == "Pendientes") localizedFilter = Application.Current.Resources["StrPendientes"] as string ?? "Pendientes";
-            else if (CurrentFilter == "Aprobados") localizedFilter = Application.Current.Resources["StrAprobados"] as string ?? "Aprobados";
-            else if (CurrentFilter == "Rechazados") localizedFilter = Application.Current.Resources["StrRechazados"] as string ?? "Rechazados";
-            else if (CurrentFilter == "Todos") localizedFilter = Application.Current.Resources["StrTodos"] as string ?? "Todos";
+            if (resources != null)
+            {
+                if (CurrentFilter == "Pending") localizedFilter = resources["StrPendientes"] as string ?? "Pendientes";
+                else if (CurrentFilter == "Approved") localizedFilter = resources["StrAprobados"] as string ?? "Aprobados";
+                else if (CurrentFilter == "Rejected") localizedFilter = resources["StrRechazados"] as string ?? "Rechazados";
+                else if (CurrentFilter == "All") localizedFilter = resources["StrTodos"] as string ?? "Todos";
+            }
 
             HeaderCountText = string.Format(headerFormat, totalPending);
             PaginationText = string.Format(paginationFormat, count, localizedFilter);
