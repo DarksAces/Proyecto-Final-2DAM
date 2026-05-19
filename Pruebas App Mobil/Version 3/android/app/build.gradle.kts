@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "es.arte.app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -56,6 +56,12 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
+    packaging {
+        jniLibs {
+            keepDebugSymbols.add("**/*.so")
         }
     }
 }

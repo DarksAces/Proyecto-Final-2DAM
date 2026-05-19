@@ -573,9 +573,14 @@ class _ArtworkPopupState extends State<_ArtworkPopup> {
                               children: [
                                 Icon(_hasVoted ? Icons.check_rounded : Icons.recommend_rounded, size: 22),
                                 const SizedBox(width: 10),
-                                Text(
-                                  _hasVoted ? 'YA RECOMENDASTE ESTA OBRA' : 'RECOMENDAR ESTA OBRA',
-                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      _hasVoted ? 'YA RECOMENDASTE ESTA OBRA' : 'RECOMENDAR ESTA OBRA',
+                                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
