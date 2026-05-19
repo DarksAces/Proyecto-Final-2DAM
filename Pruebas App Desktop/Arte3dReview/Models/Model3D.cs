@@ -33,17 +33,21 @@ namespace Jovi3DReview.Models
         // Helpers for UI
         public string StatusDisplay => Status switch 
         {
-            "pending_review" => "Pendiente",
-            "accepted" => "Aprobado",
-            "denied" => "Rechazado",
-            _ => Status ?? "Desconocido"
+            "pending_review" => System.Windows.Application.Current?.Resources["StrPendientes"]?.ToString() ?? "Pending",
+            "accepted" or "approved" => System.Windows.Application.Current?.Resources["StrAprobado"]?.ToString() ?? "Approved",
+            "denied" or "rejected" => System.Windows.Application.Current?.Resources["StrRechazado"]?.ToString() ?? "Rejected",
+            _ => Status ?? (System.Windows.Application.Current?.Resources["StrDesconocido"]?.ToString() ?? "Unknown")
         };
 
         public bool IsPending => Status == "pending_review";
         public bool IsNotPending => !IsPending;
 
         public string ReviewsDateDisplay => ReviewedAt.HasValue 
-            ? $"Revisado: {ReviewedAt.Value.ToShortDateString()}" 
-            : (CreatedAt.HasValue ? $"Creado: {CreatedAt.Value.ToShortDateString()}" : "");
+            ? $"{(System.Windows.Application.Current?.Resources["StrRevisado"]?.ToString() ?? "Reviewed")}: {ReviewedAt.Value.ToShortDateString()}" 
+            : (CreatedAt.HasValue ? $"{(System.Windows.Application.Current?.Resources["StrCreado"]?.ToString() ?? "Created")}: {CreatedAt.Value.ToShortDateString()}" : "");
+
+        public string AuthorRoleDisplay => AuthorRole == "Colaborador" 
+            ? (System.Windows.Application.Current?.Resources["StrColaborador"]?.ToString() ?? "Contributor")
+            : AuthorRole;
     }
 }

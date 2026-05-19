@@ -13,6 +13,11 @@
     <system:String x:Key="StrContactaSoporte">Contacta al soporte</system:String>
     <system:String x:Key="StrRevisionSistema">SISTEMA DE REVISIÓN</system:String>
     <system:String x:Key="StrGestionRapida">Gestión Rápida</system:String>
+    <system:String x:Key="StrLoginCredencialesVacias">Por favor, introduce email y contraseña.</system:String>
+    <system:String x:Key="StrLoginErrorDesconocido">Error desconocido al iniciar sesión.</system:String>
+    <system:String x:Key="StrLoginCredencialesIncorrectas">Correo o contraseña incorrectos.</system:String>
+    <system:String x:Key="StrLoginErrorConexion">Error de conexión. Revisa tu internet.</system:String>
+    <system:String x:Key="StrLoginErrorInicio">Error al iniciar sesión. Inténtalo de nuevo.</system:String>
     
     <!-- Settings View -->
     <system:String x:Key="StrConfiguracion">Configuración</system:String>
@@ -26,6 +31,9 @@
     <!-- Dashboard -->
     <system:String x:Key="StrDashboard">Dashboard</system:String>
     <system:String x:Key="StrModelosPendientes">Modelos Pendientes</system:String>
+    <system:String x:Key="StrModelosAprobados">Modelos Aprobados</system:String>
+    <system:String x:Key="StrModelosRechazados">Modelos Rechazados</system:String>
+    <system:String x:Key="StrTodosLosModelos">Todos los Modelos</system:String>
     <system:String x:Key="StrPendientes">Pendientes</system:String>
     <system:String x:Key="StrAprobados">Aprobados</system:String>
     <system:String x:Key="StrRechazados">Rechazados</system:String>
@@ -39,6 +47,8 @@
     <system:String x:Key="StrHay">Hay </system:String>
     <system:String x:Key="StrObrasEsperando"> obras esperando tu aprobación hoy.</system:String>
     <system:String x:Key="StrPaginationFormat">Mostrando {0} obras ({1})</system:String>
+    <system:String x:Key="StrAnterior">Anterior</system:String>
+    <system:String x:Key="StrSiguiente">Siguiente</system:String>
     
     <!-- Sidebar -->
     <system:String x:Key="StrMenuPrincipal">MENÚ PRINCIPAL</system:String>
@@ -59,5 +69,119 @@
     <system:String x:Key="StrVersion">Versión</system:String>
     <system:String x:Key="StrCopyright">© 2026 Jovi3D S.A. Todos los derechos reservados.</system:String>
     <system:String x:Key="StrDescripcionApp">Sistema de Gestión de Calidad para Modelos 3D de Jovi S.A.</system:String>
+
+    <!-- Profile View -->
+    <system:String x:Key="StrMiPerfil">Mi Perfil</system:String>
+    <system:String x:Key="StrConfiguracionCuenta">Configuración de Cuenta</system:String>
+    <system:String x:Key="StrCambiarContrasena">Cambiar Contraseña</system:String>
+    <system:String x:Key="StrNuevaContrasenaHint">Nueva Contraseña</system:String>
+    <system:String x:Key="StrActualizarBtn">Actualizar</system:String>
+    <system:String x:Key="StrNotificaciones">Notificaciones</system:String>
+    <system:String x:Key="StrNotificacionesCorreo">Notificaciones por Correo</system:String>
+    <system:String x:Key="StrNotificacionesApp">Notificaciones en la App</system:String>
+    <system:String x:Key="StrCerrarSesion">Cerrar Sesión</system:String>
+    <system:String x:Key="StrEditarPerfil">Editar Perfil</system:String>
+    <system:String x:Key="StrProximamente">Próximamente</system:String>
+    <system:String x:Key="StrUsuario">Usuario</system:String>
+    <system:String x:Key="StrInvitado">Invitado</system:String>
+    <system:String x:Key="StrErrorAlCargar">Error al cargar</system:String>
+    <system:String x:Key="StrNuevaContrasenaError">Ingresa una nueva contraseña.</system:String>
+    <system:String x:Key="StrContrasenaCortaError">La contraseña debe tener al menos 6 caracteres.</system:String>
+    <system:String x:Key="StrContrasenaActualizada">Contraseña actualizada correctamente.</system:String>
+    <system:String x:Key="StrContrasenaError">Error al actualizar la contraseña. Es posible que debas volver a iniciar sesión.</system:String>
+
+    <!-- Settings View Extra -->
+    <system:String x:Key="StrModoOscuroDesc">Cambia el tema visual de la aplicación para reducir la fatiga visual.</system:String>
+    <system:String x:Key="StrLimpiar">LIMPIAR</system:String>
+
+    <!-- Reports View -->
+    <system:String x:Key="StrReportesEstadisticas">Reportes y Estadísticas</system:String>
+    <system:String x:Key="StrFiltrarPor">Filtrar por:</system:String>
+    <system:String x:Key="StrSemanal">Semanal</system:String>
+    <system:String x:Key="StrMensual">Mensual</system:String>
+    <system:String x:Key="StrAnual">Anual</system:String>
+    <system:String x:Key="StrTotalModelos">Total Modelos</system:String>
+    <system:String x:Key="StrActividadRevisiones">Actividad de Revisiones</system:String>
+    
+    <!-- Weekdays & Months (for charts) -->
+    <system:String x:Key="StrChartLun">Lun</system:String>
+    <system:String x:Key="StrChartMar">Mar</system:String>
+    <system:String x:Key="StrChartMie">Mie</system:String>
+    <system:String x:Key="StrChartJue">Jue</system:String>
+    <system:String x:Key="StrChartVie">Vie</system:String>
+    <system:String x:Key="StrChartSab">Sab</system:String>
+    <system:String x:Key="StrChartDom">Dom</system:String>
+    
+    <system:String x:Key="StrChartSem">Sem</system:String>
+    
+    <system:String x:Key="StrChartEne">Ene</system:String>
+    <system:String x:Key="StrChartFeb">Feb</system:String>
+    <system:String x:Key="StrChartMarMonth">Mar</system:String>
+    <system:String x:Key="StrChartAbr">Abr</system:String>
+    <system:String x:Key="StrChartMay">May</system:String>
+    <system:String x:Key="StrChartJun">Jun</system:String>
+    <system:String x:Key="StrChartJul">Jul</system:String>
+    <system:String x:Key="StrChartAgo">Ago</system:String>
+    <system:String x:Key="StrChartSep">Sep</system:String>
+    <system:String x:Key="StrChartOct">Oct</system:String>
+    <system:String x:Key="StrChartNov">Nov</system:String>
+    <system:String x:Key="StrChartDic">Dic</system:String>
+
+    <!-- Users View -->
+    <system:String x:Key="StrGestionUsuarios">Gestión de Usuarios</system:String>
+    <system:String x:Key="StrGestionUsuariosDesc">Administra los permisos y roles de los usuarios registrados.</system:String>
+    <system:String x:Key="StrHeaderUsuario">USUARIO</system:String>
+    <system:String x:Key="StrHeaderRol">ROL</system:String>
+    <system:String x:Key="StrHeaderAdministrador">ADMINISTRADOR</system:String>
+    <system:String x:Key="StrHeaderAcciones">ACCIONES</system:String>
+    <system:String x:Key="StrHacerAdmin">Hacer Admin</system:String>
+    <system:String x:Key="StrQuitarAdmin">Quitar Admin</system:String>
+
+    <!-- Library View -->
+    <system:String x:Key="StrBibliotecaModelos">Biblioteca de Modelos</system:String>
+    <system:String x:Key="StrAprobadoBadge">APROBADO</system:String>
+
+    <!-- Help View -->
+    <system:String x:Key="StrCentroAyuda">Centro de Ayuda</system:String>
+    <system:String x:Key="StrPreguntasFrecuentes">Preguntas Frecuentes</system:String>
+    
+    <system:String x:Key="StrFaq1Pregunta">¿Cómo apruebo un modelo?</system:String>
+    <system:String x:Key="StrFaq1Respuesta">Para aprobar un modelo, navega al Dashboard, selecciona un modelo 'Pendiente' y haz clic en el botón verde 'ACEPTAR' en los detalles del modelo.</system:String>
+    
+    <system:String x:Key="StrFaq2Pregunta">¿Qué pasa si rechazo un modelo?</system:String>
+    <system:String x:Key="StrFaq2Respuesta">Al rechazar un modelo, deberás proporcionar una razón. El modelo cambiará su estado a 'Rechazado' y el creador será notificado con el motivo del rechazo para que pueda realizar correcciones.</system:String>
+    
+    <system:String x:Key="StrFaq3Pregunta">¿Puedo cambiar mi contraseña?</system:String>
+    <system:String x:Key="StrFaq3Respuesta">Sí, ve a tu Perfil (clic en tu nombre en la barra lateral) y utiliza la sección 'Cambiar Contraseña'.</system:String>
+    
+    <system:String x:Key="StrSoporteTecnico">Soporte Técnico</system:String>
+    <system:String x:Key="StrSoporteDesc">Si tienes problemas técnicos, contacta con el administrador del sistema.</system:String>
+    <!-- Model Details View -->
+    <system:String x:Key="StrModelos">Modelos</system:String>
+    <system:String x:Key="StrEstadoHeader">Estado:</system:String>
+    <system:String x:Key="StrPantallaCompleta">Pantalla Completa</system:String>
+    <system:String x:Key="StrDescargarOBJ">Descargar .OBJ</system:String>
+    <system:String x:Key="StrCargandoModelo">Descargando y preparando modelo 3D...</system:String>
+    <system:String x:Key="StrCargandoModeloDesc">Esto puede tardar unos segundos según el tamaño...</system:String>
+    <system:String x:Key="StrCargarPrevisualizacion">Cargar Previsualización 3D</system:String>
+    <system:String x:Key="StrControlCalidad">CONTROL DE CALIDAD</system:String>
+    <system:String x:Key="StrPreguntaControlCalidad">¿El modelo cumple con los estándares de textura y geometría?</system:String>
+    <system:String x:Key="StrAceptarModelo">Aceptar Modelo</system:String>
+    <system:String x:Key="StrCreador">CREADOR</system:String>
+    <system:String x:Key="StrColaborador">Colaborador</system:String>
+    <system:String x:Key="StrMetadatosModelo">METADATOS DEL MODELO</system:String>
+    <system:String x:Key="StrVertices">VÉRTICES</system:String>
+    <system:String x:Key="StrTamano">TAMAÑO</system:String>
+    <system:String x:Key="StrFormato">FORMATO</system:String>
+    <system:String x:Key="StrSubido">SUBIDO</system:String>
+    <system:String x:Key="StrFeedbackInterno">FEEDBACK INTERNO</system:String>
+    <system:String x:Key="StrMensajesLabel">Mensajes</system:String>
+    <system:String x:Key="StrNoFeedback">No hay mensajes de feedback para este modelo.</system:String>
+    <system:String x:Key="StrEscribeComentario">Escribe un comentario...</system:String>
+    
+    <!-- Model3D helpers -->
+    <system:String x:Key="StrDesconocido">Desconocido</system:String>
+    <system:String x:Key="StrRevisado">Revisado</system:String>
+    <system:String x:Key="StrCreado">Creado</system:String>
 
 </ResourceDictionary>

@@ -95,7 +95,8 @@ namespace Jovi3DReview.Views
             {
                 PlayOverlay.Visibility = Visibility.Collapsed;
                 PlaceholderImage.Visibility = Visibility.Collapsed;
-                WebView.Visibility = Visibility.Visible;
+                LoadingOverlay.Visibility = Visibility.Visible;
+                WebView.Visibility = Visibility.Collapsed;
 
                 await WebView.EnsureCoreWebView2Async();
                 
@@ -140,13 +141,27 @@ namespace Jovi3DReview.Views
                 </body>
                 </html>";
 
-                WebView.NavigateToString(html);
+                string htmlPath = System.IO.Path.Combine(tempPath, "index.html");
+                System.IO.File.WriteAllText(htmlPath, html);
+
+                // Nos registramos para ocultar el cargando una vez termine la navegación
+                System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>? handler = null;
+                handler = (s, args) =>
+                {
+                    LoadingOverlay.Visibility = Visibility.Collapsed;
+                    WebView.Visibility = Visibility.Visible;
+                    WebView.NavigationCompleted -= handler; // Desvincular para evitar fugas de memoria
+                };
+                WebView.NavigationCompleted += handler;
+
+                WebView.CoreWebView2.Navigate("https://arte.local/index.html");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al procesar el modelo 3D: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 PlayOverlay.Visibility = Visibility.Visible;
                 PlaceholderImage.Visibility = Visibility.Visible;
+                LoadingOverlay.Visibility = Visibility.Collapsed;
                 WebView.Visibility = Visibility.Collapsed;
             }
         }

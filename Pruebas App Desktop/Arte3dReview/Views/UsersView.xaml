@@ -15,8 +15,8 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="32,32,32,16">
-            <TextBlock Text="Gestión de Usuarios" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBlock Text="Administra los permisos y roles de los usuarios registrados." FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+            <TextBlock Text="{DynamicResource StrGestionUsuarios}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <TextBlock Text="{DynamicResource StrGestionUsuariosDesc}" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
         </StackPanel>
 
         <!-- User List -->
@@ -46,7 +46,7 @@
                 
                 <DataGrid.Columns>
                     <!-- Avatar/Name -->
-                    <DataGridTemplateColumn Header="USUARIO" Width="*">
+                    <DataGridTemplateColumn Header="{DynamicResource StrHeaderUsuario}" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -63,10 +63,10 @@
                     </DataGridTemplateColumn>
 
                     <!-- Role -->
-                    <DataGridTextColumn Header="ROL" Binding="{Binding Role}" Width="150" Foreground="#64748b"/>
+                    <DataGridTextColumn Header="{DynamicResource StrHeaderRol}" Binding="{Binding Role}" Width="150" Foreground="#64748b"/>
 
                     <!-- Admin Status -->
-                    <DataGridTemplateColumn Header="ADMINISTRADOR" Width="150">
+                    <DataGridTemplateColumn Header="{DynamicResource StrHeaderAdministrador}" Width="150">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border Background="{Binding AdminBackground}" CornerRadius="4" Padding="8,2" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -77,11 +77,11 @@
                     </DataGridTemplateColumn>
 
                     <!-- Actions -->
-                    <DataGridTemplateColumn Header="ACCIONES" Width="Auto">
+                    <DataGridTemplateColumn Header="{DynamicResource StrHeaderAcciones}" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="Hacer Admin" 
+                                    <Button Content="{DynamicResource StrHacerAdmin}" 
                                             Click="MakeAdmin_Click"
                                             Visibility="{Binding IsNotAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"
                                             Style="{StaticResource MaterialDesignOutlinedButton}"
@@ -89,7 +89,7 @@
                                             BorderBrush="{StaticResource ARtePrimaryBrush}"
                                             Foreground="{StaticResource ARtePrimaryBrush}"
                                             materialDesign:ButtonAssist.CornerRadius="6"/>
-                                    <Button Content="Quitar Admin" 
+                                    <Button Content="{DynamicResource StrQuitarAdmin}" 
                                             Click="RemoveAdmin_Click"
                                             Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"
                                             Style="{StaticResource MaterialDesignOutlinedButton}"

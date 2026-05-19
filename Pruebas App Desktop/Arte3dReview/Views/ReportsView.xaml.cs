@@ -74,10 +74,22 @@ namespace Jovi3DReview.Views
             DateTime now = DateTime.Now;
             DateTime startDate;
 
+            string approvedName = Application.Current?.Resources["StrAprobados"]?.ToString() ?? "Approved";
+            string rejectedName = Application.Current?.Resources["StrRechazados"]?.ToString() ?? "Rejected";
+
             if (filter == "Weekly")
             {
                 startDate = now.Date.AddDays(-(int)now.DayOfWeek + 1); // Monday
-                labels = new[] { "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom" };
+                labels = new[] 
+                { 
+                    Application.Current?.Resources["StrChartLun"]?.ToString() ?? "Mon",
+                    Application.Current?.Resources["StrChartMar"]?.ToString() ?? "Tue",
+                    Application.Current?.Resources["StrChartMie"]?.ToString() ?? "Wed",
+                    Application.Current?.Resources["StrChartJue"]?.ToString() ?? "Thu",
+                    Application.Current?.Resources["StrChartVie"]?.ToString() ?? "Fri",
+                    Application.Current?.Resources["StrChartSab"]?.ToString() ?? "Sat",
+                    Application.Current?.Resources["StrChartDom"]?.ToString() ?? "Sun"
+                };
                 approvedData = new double[7];
                 rejectedData = new double[7];
 
@@ -91,7 +103,8 @@ namespace Jovi3DReview.Views
             else if (filter == "Monthly")
             {
                 startDate = new DateTime(now.Year, now.Month, 1);
-                labels = new[] { "Sem 1", "Sem 2", "Sem 3", "Sem 4" };
+                string wkLabel = Application.Current?.Resources["StrChartSem"]?.ToString() ?? "Wk";
+                labels = new[] { $"{wkLabel} 1", $"{wkLabel} 2", $"{wkLabel} 3", $"{wkLabel} 4" };
                 approvedData = new double[4];
                 rejectedData = new double[4];
 
@@ -105,7 +118,21 @@ namespace Jovi3DReview.Views
             }
             else // Yearly
             {
-                labels = new[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+                labels = new[] 
+                { 
+                    Application.Current?.Resources["StrChartEne"]?.ToString() ?? "Jan",
+                    Application.Current?.Resources["StrChartFeb"]?.ToString() ?? "Feb",
+                    Application.Current?.Resources["StrChartMarMonth"]?.ToString() ?? "Mar",
+                    Application.Current?.Resources["StrChartAbr"]?.ToString() ?? "Apr",
+                    Application.Current?.Resources["StrChartMay"]?.ToString() ?? "May",
+                    Application.Current?.Resources["StrChartJun"]?.ToString() ?? "Jun",
+                    Application.Current?.Resources["StrChartJul"]?.ToString() ?? "Jul",
+                    Application.Current?.Resources["StrChartAgo"]?.ToString() ?? "Aug",
+                    Application.Current?.Resources["StrChartSep"]?.ToString() ?? "Sep",
+                    Application.Current?.Resources["StrChartOct"]?.ToString() ?? "Oct",
+                    Application.Current?.Resources["StrChartNov"]?.ToString() ?? "Nov",
+                    Application.Current?.Resources["StrChartDic"]?.ToString() ?? "Dec"
+                };
                 approvedData = new double[12];
                 rejectedData = new double[12];
 
@@ -121,14 +148,14 @@ namespace Jovi3DReview.Views
             {
                 new ColumnSeries<double>
                 {
-                    Name = "Aprobados",
+                    Name = approvedName,
                     Values = approvedData,
                     Fill = new SolidColorPaint(SKColor.Parse("#28a745")),
                     Padding = 2
                 },
                 new ColumnSeries<double>
                 {
-                    Name = "Rechazados",
+                    Name = rejectedName,
                     Values = rejectedData,
                     Fill = new SolidColorPaint(SKColor.Parse("#f31621")), // ARte Primary
                     Padding = 2

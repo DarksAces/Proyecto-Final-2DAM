@@ -30,7 +30,7 @@ namespace Jovi3DReview.Tests.ViewModels
 
             // Assert
             Assert.True(_viewModel.IsErrorVisible);
-            Assert.Equal("Por favor, introduce email y contraseña.", _viewModel.ErrorMessage);
+            Assert.Equal("Please enter email and password.", _viewModel.ErrorMessage);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Jovi3DReview.Tests.ViewModels
 
             // Assert
             Assert.True(_viewModel.IsErrorVisible);
-            Assert.Contains("Correo o contraseña incorrectos", _viewModel.ErrorMessage);
+            Assert.Equal("Incorrect email or password.", _viewModel.ErrorMessage);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Jovi3DReview.Tests.ViewModels
 
             // Assert
             Assert.True(_viewModel.IsErrorVisible);
-            Assert.Contains("Error de conexión", _viewModel.ErrorMessage);
+            Assert.Equal("Connection error. Check your internet.", _viewModel.ErrorMessage);
         }
 
         [Fact]

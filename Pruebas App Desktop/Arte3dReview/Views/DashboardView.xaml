@@ -63,7 +63,24 @@
                     </Grid.ColumnDefinitions>
                     
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource StrModelosPendientes}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{DynamicResource StrModelosPendientes}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentFilter}" Value="Approved">
+                                            <Setter Property="Text" Value="{DynamicResource StrModelosAprobados}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentFilter}" Value="Rejected">
+                                            <Setter Property="Text" Value="{DynamicResource StrModelosRechazados}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentFilter}" Value="All">
+                                            <Setter Property="Text" Value="{DynamicResource StrTodosLosModelos}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock x:Name="HeaderCountText" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}">
                             <Run Text="{DynamicResource StrHay}"/>
                             <Run Text="{Binding TotalPendingCount}" FontWeight="Bold"/>
@@ -85,10 +102,10 @@
                             <Separator Style="{StaticResource MaterialDesignLightSeparator}" Margin="0,4,8,4"/>
 
                             <!-- Filter Buttons with x:Name -->
-                            <Button x:Name="FilterPending" Content="{DynamicResource StrPendientes}" Style="{StaticResource FilterPillButtonActive}" Margin="0,0,4,0" Click="Filter_Click"/>
-                            <Button x:Name="FilterApproved" Content="{DynamicResource StrAprobados}" Style="{StaticResource FilterPillButton}" Margin="0,0,4,0" Click="Filter_Click"/>
-                            <Button x:Name="FilterDenied" Content="{DynamicResource StrRechazados}" Style="{StaticResource FilterPillButton}" Margin="0,0,4,0" Click="Filter_Click"/>
-                            <Button x:Name="FilterAll" Content="{DynamicResource StrTodos}" Style="{StaticResource FilterPillButton}" Click="Filter_Click"/>
+                            <Button x:Name="FilterPending" Content="{DynamicResource StrPendientes}" Tag="Pending" Style="{StaticResource FilterPillButtonActive}" Margin="0,0,4,0" Click="Filter_Click"/>
+                            <Button x:Name="FilterApproved" Content="{DynamicResource StrAprobados}" Tag="Approved" Style="{StaticResource FilterPillButton}" Margin="0,0,4,0" Click="Filter_Click"/>
+                            <Button x:Name="FilterRejected" Content="{DynamicResource StrRechazados}" Tag="Rejected" Style="{StaticResource FilterPillButton}" Margin="0,0,4,0" Click="Filter_Click"/>
+                            <Button x:Name="FilterAll" Content="{DynamicResource StrTodos}" Tag="All" Style="{StaticResource FilterPillButton}" Click="Filter_Click"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -177,10 +194,10 @@
                    <Grid>
                        <TextBlock x:Name="PaginationText" Text="{Binding PaginationText}" VerticalAlignment="Center" Foreground="#64748b" FontSize="14"/>
                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                           <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="Anterior" Height="32" Margin="0,0,8,0" BorderBrush="{StaticResource BorderBrush}" Foreground="#64748b"/>
+                           <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="{DynamicResource StrAnterior}" Height="32" Margin="0,0,8,0" BorderBrush="{StaticResource BorderBrush}" Foreground="#64748b"/>
                            <Button Content="1" Style="{StaticResource MaterialDesignFlatButton}" Background="{StaticResource ARtePrimaryBrush}" Foreground="White" Height="32" Width="32" Padding="0" Margin="0,0,8,0"/>
                            <Button Content="2" Style="{StaticResource MaterialDesignOutlinedButton}" Height="32" Width="32" Padding="0" Margin="0,0,8,0" BorderBrush="{StaticResource BorderBrush}" Foreground="#64748b"/>
-                           <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="Siguiente" Height="32" BorderBrush="{StaticResource BorderBrush}" Foreground="#64748b"/>
+                           <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="{DynamicResource StrSiguiente}" Height="32" BorderBrush="{StaticResource BorderBrush}" Foreground="#64748b"/>
                        </StackPanel>
                    </Grid>
                 </Border>

@@ -43,7 +43,8 @@ namespace Jovi3DReview.ViewModels
         {
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                ShowError("Por favor, introduce email y contraseña.");
+                string msg = System.Windows.Application.Current?.Resources["StrLoginCredencialesVacias"]?.ToString() ?? "Please enter email and password.";
+                ShowError(msg);
                 return;
             }
 
@@ -60,7 +61,8 @@ namespace Jovi3DReview.ViewModels
                 }
                 else
                 {
-                    ShowError("Error desconocido al iniciar sesión.");
+                    string msg = System.Windows.Application.Current?.Resources["StrLoginErrorDesconocido"]?.ToString() ?? "Unknown error during login.";
+                    ShowError(msg);
                 }
             }
             catch (Exception ex)
@@ -87,15 +89,18 @@ namespace Jovi3DReview.ViewModels
             string msg = ex.Message.ToLower();
             if (msg.Contains("invalid_login_credentials") || msg.Contains("user_not_found") || msg.Contains("wrong_password") || msg.Contains("invalid-email"))
             {
-                ShowError("Correo o contraseña incorrectos.");
+                string res = System.Windows.Application.Current?.Resources["StrLoginCredencialesIncorrectas"]?.ToString() ?? "Incorrect email or password.";
+                ShowError(res);
             }
             else if (msg.Contains("network") || msg.Contains("http"))
             {
-                ShowError("Error de conexión. Revisa tu internet.");
+                string res = System.Windows.Application.Current?.Resources["StrLoginErrorConexion"]?.ToString() ?? "Connection error. Check your internet.";
+                ShowError(res);
             }
             else
             {
-                ShowError("Error al iniciar sesión. Inténtalo de nuevo.");
+                string res = System.Windows.Application.Current?.Resources["StrLoginErrorInicio"]?.ToString() ?? "Error logging in. Try again.";
+                ShowError(res);
             }
         }
     }

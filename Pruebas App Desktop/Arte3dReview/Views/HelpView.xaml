@@ -13,30 +13,30 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="{StaticResource ARteBackgroundLightBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="32,16">
-            <TextBlock Text="Centro de Ayuda" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
+            <TextBlock Text="{DynamicResource StrCentroAyuda}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
         </Border>
 
         <ScrollViewer Grid.Row="1" Padding="32">
             <StackPanel MaxWidth="800" HorizontalAlignment="Left">
-                <TextBlock Text="Preguntas Frecuentes" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" Foreground="{StaticResource ARtePrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource StrPreguntasFrecuentes}" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" Foreground="{StaticResource ARtePrimaryBrush}"/>
 
-                <Expander Header="¿Cómo apruebo un modelo?" IsExpanded="True" Margin="0,0,0,8" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
-                    <TextBlock Text="Para aprobar un modelo, navega al Dashboard, selecciona un modelo 'Pendiente' y haz clic en el botón verde 'ACEPTAR' en los detalles del modelo." Padding="16" TextWrapping="Wrap"/>
+                <Expander Header="{DynamicResource StrFaq1Pregunta}" IsExpanded="True" Margin="0,0,0,8" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <TextBlock Text="{DynamicResource StrFaq1Respuesta}" Padding="16" TextWrapping="Wrap"/>
                 </Expander>
 
-                <Expander Header="¿Qué pasa si rechazo un modelo?" Margin="0,0,0,8" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
-                    <TextBlock Text="Al rechazar un modelo, deberás proporcionar una razón. El modelo cambiará su estado a 'Rechazado' y el creador será notificado con el motivo del rechazo para que pueda realizar correcciones." Padding="16" TextWrapping="Wrap"/>
+                <Expander Header="{DynamicResource StrFaq2Pregunta}" Margin="0,0,0,8" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <TextBlock Text="{DynamicResource StrFaq2Respuesta}" Padding="16" TextWrapping="Wrap"/>
                 </Expander>
 
-                <Expander Header="¿Puedo cambiar mi contraseña?" Margin="0,0,0,8" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
-                    <TextBlock Text="Sí, ve a tu Perfil (clic en tu nombre en la barra lateral) y utiliza la sección 'Cambiar Contraseña'." Padding="16" TextWrapping="Wrap"/>
+                <Expander Header="{DynamicResource StrFaq3Pregunta}" Margin="0,0,0,8" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <TextBlock Text="{DynamicResource StrFaq3Respuesta}" Padding="16" TextWrapping="Wrap"/>
                 </Expander>
 
-                <TextBlock Text="Soporte Técnico" FontSize="18" FontWeight="Bold" Margin="0,24,0,16" Foreground="{StaticResource ARtePrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource StrSoporteTecnico}" FontSize="18" FontWeight="Bold" Margin="0,24,0,16" Foreground="{StaticResource ARtePrimaryBrush}"/>
                 <Border Background="White" CornerRadius="8" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="Si tienes problemas técnicos, contacta con el administrador del sistema." Margin="0,0,0,8"/>
-                        <TextBlock Text="Email: soporte@arte.es" FontWeight="Bold"/>
+                        <TextBlock Text="{DynamicResource StrSoporteDesc}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource StrSoporteEmail}" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

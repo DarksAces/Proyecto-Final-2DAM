@@ -36,9 +36,9 @@ namespace Jovi3DReview.Tests.ViewModels
             await _viewModel.LoadDataAsync();
 
             // Assert
-            Assert.Equal(2, _viewModel.Models.Count); // Default filter is "Pendientes"
-            Assert.Contains("2 modelos escolares", _viewModel.HeaderCountText);
-            Assert.Contains("Mostrando 2 modelos", _viewModel.PaginationText);
+            Assert.Equal(2, _viewModel.Models.Count); // Default filter is "Pending"
+            Assert.Contains("2 obras esperando", _viewModel.HeaderCountText);
+            Assert.Contains("Mostrando 2 obras", _viewModel.PaginationText);
         }
 
         [Fact]
@@ -54,14 +54,14 @@ namespace Jovi3DReview.Tests.ViewModels
             await _viewModel.LoadDataAsync();
 
             // Act - Change to Approved
-            _viewModel.ChangeFilter("Aprobados");
+            _viewModel.ChangeFilter("Approved");
 
             // Assert
             Assert.Single(_viewModel.Models);
             Assert.Equal("approved", _viewModel.Models[0].Status);
 
-            // Act - Change to Todos
-            _viewModel.ChangeFilter("Todos");
+            // Act - Change to All
+            _viewModel.ChangeFilter("All");
             Assert.Equal(2, _viewModel.Models.Count);
         }
 
@@ -81,8 +81,8 @@ namespace Jovi3DReview.Tests.ViewModels
 
             // Assert
             Assert.Equal("approved", model.Status);
-            Assert.Empty(_viewModel.Models); // Since filter is still "Pendientes", it should disappear
-            Assert.Contains("0 modelos escolares", _viewModel.HeaderCountText);
+            Assert.Empty(_viewModel.Models); // Since filter is still "Pending", it should disappear
+            Assert.Contains("0 obras esperando", _viewModel.HeaderCountText);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace Jovi3DReview.Tests.ViewModels
 
             // Assert
             Assert.Empty(_viewModel.Models);
-            Assert.Contains("0 modelos", _viewModel.HeaderCountText);
+            Assert.Contains("0 obras", _viewModel.HeaderCountText);
         }
     }
 }

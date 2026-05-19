@@ -36,6 +36,8 @@ namespace Jovi3DReview.Services
             }
         }
 
+        public event EventHandler<string>? LanguageChanged;
+
         public void SetLanguage(string langCode, bool save = true) // "es", "en"
         {
             var dict = new ResourceDictionary();
@@ -50,7 +52,7 @@ namespace Jovi3DReview.Services
             }
 
             var oldDicts = Application.Current.Resources.MergedDictionaries
-                .Where(d => d.Source != null && d.Source.OriginalString.Contains("Strings."))
+                .Where(d => d.Source != null && d.Source.OriginalString.ToLower().Contains("strings."))
                 .ToList();
 
             foreach (var old in oldDicts)
@@ -59,6 +61,8 @@ namespace Jovi3DReview.Services
             }
 
             Application.Current.Resources.MergedDictionaries.Add(dict);
+
+            LanguageChanged?.Invoke(this, langCode);
 
             if (save)
             {
