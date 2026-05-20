@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../theme/app_theme.dart';
 import '../../services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -358,7 +359,24 @@ class _GalleryCardState extends State<_GalleryCard> {
                 right: 12,
                 child: Column(
                   children: [
-                    if (widget.contentType == 'ar_object' && widget.modelUrl != null)
+                    _CardActionButton(
+                      icon: Icons.share_rounded,
+                      color: Colors.white,
+                      iconColor: AppTheme.arteBlue,
+                      onTap: () {
+                        final String shareUrl = widget.modelUrl ?? widget.imageUrl;
+                        final String typeName = widget.contentType == 'ar_object' ? 'modelo 3D' : 'obra';
+                        SharePlus.instance.share(
+                          ShareParams(
+                            text: '¡Mira esta $typeName en ARte! 🎨✨\n\n'
+                                'Visualiza "${widget.title}" aquí: $shareUrl\n\n'
+                                '¡Descarga la app para experimentar la realidad aumentada!',
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    if (widget.contentType == 'ar_object' && widget.modelUrl != null) ...[
                       _CardActionButton(
                         icon: Icons.view_in_ar,
                         color: AppTheme.arteYellow,
@@ -374,7 +392,8 @@ class _GalleryCardState extends State<_GalleryCard> {
                           );
                         },
                       ),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
+                    ],
                     _CardActionButton(
                       icon: Icons.delete_outline,
                       color: Colors.white,

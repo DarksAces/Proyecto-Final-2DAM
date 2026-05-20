@@ -40,3 +40,52 @@ cd c:\Users\admin\Desktop\mapa_flutter
 flutter create . --platforms android,ios
 flutter run
 ```
+
+---
+
+## 7. Configurar Google Sign-In (SHA Fingerprints) ⚠️
+
+El login con Google **fallará con el error [16]** si los SHA fingerprints del keystore no están registrados en Firebase. Debes hacer esto una sola vez por entorno (debug y release).
+
+### 7.1 Obtener el SHA-1 y SHA-256 del keystore de Debug
+
+```powershell
+# En PowerShell, desde cualquier directorio:
+keytool -list -v -keystore "$env:USERPROFILE\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
+```
+
+Copia los valores de `SHA1:` y `SHA256:` que aparecen en la salida.
+
+### 7.2 Obtener los SHA del keystore de Release
+
+```powershell
+# Sustituye las rutas y alias por los tuyos:
+keytool -list -v -keystore "android\app\upload-keystore.jks" -alias upload
+```
+
+Introduce la contraseña del keystore cuando te la pida.
+
+### 7.3 Registrar los SHA en Firebase Console
+
+1. Abre [Firebase Console](https://console.firebase.google.com/) → Selecciona el proyecto **ARte**.
+2. Ve a ⚙️ **Configuración del proyecto** → pestaña **General**.
+3. En el bloque **"Tus apps"**, selecciona la app Android (`es.arte.app`).
+4. Haz clic en **"Añadir huella digital"** y pega el SHA-1 y SHA-256 (tanto de debug como de release).
+5. Descarga el nuevo `google-services.json` y reemplaza `android/app/google-services.json`.
+
+### 7.4 Verificar el Web Client ID en Google Cloud
+
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/) → APIs y Servicios → Credenciales.
+2. Busca el **OAuth 2.0 Client ID** de tipo "Android" para `es.arte.app`.
+3. Comprueba que el SHA-1 listado coincide con el que obtuviste en el paso 7.1/7.2.
+4. El **Web Client ID** (tipo "Web application") es el que se usa en `main.dart` como `serverClientId`.
+
+> **Nota:** Cada vez que cambies de keystore o generes uno nuevo, repite este proceso.
+
+### 7.5 Reconstruir la app tras el cambio
+
+```powershell
+flutter clean
+flutter pub get
+flutter run
+```

@@ -66,12 +66,11 @@ class MainWrapperState extends State<MainWrapper> {
   Widget build(BuildContext context) {
     return ShowCaseWidget(
       onFinish: () async {
-        await SettingsService().completeTutorial();
+        await SettingsService().completeShowcase();
       },
       builder: (showcaseContext) {
-        if (!SettingsService().hasSeenTutorial && !_tutorialStarted) {
+        if (!SettingsService().hasSeenShowcase && !_tutorialStarted) {
           _tutorialStarted = true;
-          SettingsService().completeTutorial();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Future.delayed(const Duration(milliseconds: 600), () {
               if (mounted) {

@@ -4,6 +4,7 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../theme/app_theme.dart';
 
 class ArModelViewerScreen extends StatelessWidget {
@@ -41,11 +42,37 @@ class ArModelViewerScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
         actions: [
-          if (modelUrl != null)
+          if (modelUrl != null) ...[
+            IconButton(
+              icon: const Icon(Icons.share_rounded),
+              tooltip: "Compartir enlace AR",
+              onPressed: () {
+                SharePlus.instance.share(
+                  ShareParams(
+                    text: '¡Mira este arte interactivo 3D en ARte! 🎨✨\n\n'
+                        'Visualiza "$title" en realidad aumentada aquí: $modelUrl\n\n'
+                        '¡Descarga la app y crea tus propias obras!',
+                  ),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.download_rounded),
               tooltip: "Descargar modelo .glb",
               onPressed: () => _downloadModel(context),
+            ),
+          ] else if (modelFile != null)
+            IconButton(
+              icon: const Icon(Icons.share_rounded),
+              tooltip: "Compartir archivo 3D",
+              onPressed: () {
+                SharePlus.instance.share(
+                  ShareParams(
+                    files: [XFile(modelFile!.path)],
+                    text: '¡Mira este modelo 3D que he creado con ARte! 🎨✨ #ARArt #ARteApp',
+                  ),
+                );
+              },
             ),
         ],
       ),

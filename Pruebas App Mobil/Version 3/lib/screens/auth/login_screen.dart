@@ -97,7 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (result.success) {
-      Navigator.pushReplacementNamed(context, '/home');
+      // New users see the tutorial; returning users go straight to home
+      if (result.isNewUser) {
+        Navigator.pushReplacementNamed(context, '/tutorial');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } else if (result.errorMessage != 'Inicio de sesión cancelado.') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

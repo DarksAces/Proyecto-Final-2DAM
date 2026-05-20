@@ -3,6 +3,7 @@ import '../../theme/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart'; // provides SharePlus.instance, ShareParams
 import '../../services/chat_service.dart';
 import '../../services/user_service.dart';
 import '../../screens/features/profile_screen.dart';
@@ -139,6 +140,32 @@ class _SocialPostCardState extends State<SocialPostCard> {
         await _userService.addPoints(authorId, 3);
       }
     }
+  }
+
+  void _sharePost() {
+    final String title = widget.data['title'] ?? 'Obra AR';
+    final String username = widget.data['username'] ?? 'Artista';
+    final String description = widget.data['description'] ?? widget.data['content'] ?? '';
+    final String? imageUrl = widget.data['imageUrl'];
+
+    final StringBuffer shareText = StringBuffer();
+    shareText.writeln('🎨 "$title" por $username en ARte');
+    if (description.isNotEmpty) {
+      shareText.writeln();
+      shareText.writeln(description);
+    }
+    shareText.writeln();
+    shareText.writeln('Descubre arte en realidad aumentada con la app ARte 🌐✨');
+    if (imageUrl != null) {
+      shareText.writeln(imageUrl);
+    }
+
+    SharePlus.instance.share(
+      ShareParams(
+        text: shareText.toString().trim(),
+        subject: 'Mira esta obra AR: $title',
+      ),
+    );
   }
 
   void _shareToChat() {
@@ -420,7 +447,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
 
           const Divider(height: 1, thickness: 0.5),
 
-          // Action Bar - only Recommend and Send
+          // Action Bar — Recommend, Share & Send
           Row(
             children: [
               _ActionBarItem(
@@ -428,6 +455,11 @@ class _SocialPostCardState extends State<SocialPostCard> {
                 label: "Recomendar",
                 active: _isLiked,
                 onTap: _toggleLike,
+              ),
+              _ActionBarItem(
+                icon: Icons.share_rounded,
+                label: "Compartir",
+                onTap: _sharePost,
               ),
               _ActionBarItem(
                 icon: Icons.ios_share_rounded,

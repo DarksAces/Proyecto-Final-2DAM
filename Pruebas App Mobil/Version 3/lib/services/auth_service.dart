@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/services.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -110,43 +111,70 @@ class AuthService {
     });
   }
 
-  // Sign in with Google (Updated for v7+)
+  // Sign in with Google (Updated for v7+ — fixed race condition)
   Future<AuthResult> signInWithGoogle() async {
     try {
-      // 1. Authenticate (Identity)
-      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+      // 1. Authenticate (Identity) — abre el selector de cuenta de Google
+      //    In v7, authenticate() throws GoogleSignInException on cancel, never returns null
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+      // 2. Obtain Authentication Details — idToken is available synchronously after authenticate()
+      //    Note: GoogleSignInAuthentication is NOT a Future in v7, no await needed
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
-      if (googleUser == null) return AuthResult(success: false, errorMessage: 'Inicio de sesión cancelado.');
+      // 3. Authorize (Permissions/Scopes) to get Access Token
+      final clientAuth = await googleUser.authorizationClient
+          .authorizeScopes(['email', 'profile']);
 
-      // 2. Authorize (Permissions/Scopes) to get Access Token
-      final clientAuth = await googleUser.authorizationClient.authorizeScopes(['email', 'profile']);
-
-      // 3. Create Credential
+      // 4. Create Firebase credential with both tokens
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: clientAuth.accessToken,
-        idToken: googleUser.authentication.idToken,
+        idToken: googleAuth.idToken,
       );
 
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
       final User? user = userCredential.user;
+      bool isNewUser = false;
 
       if (user != null) {
-        // Check if user document exists, if not create it
+        // Check if user document exists; if not, it's a new user
         final userDoc = await _firestore.collection('users').doc(user.uid).get();
         if (!userDoc.exists) {
+          isNewUser = true;
           await _createUserDocument(
-            user, 
-            user.displayName ?? 'Artista AR', 
-            user.email ?? ''
+            user,
+            user.displayName ?? 'Artista AR',
+            user.email ?? '',
           );
         }
       }
 
-      return AuthResult(success: true, user: user);
+      return AuthResult(success: true, user: user, isNewUser: isNewUser);
+    } on PlatformException catch (e) {
+      // Error [16] = SHA fingerprint not registered in Firebase Console
+      // or the Google account needs re-authentication
+      if (e.code == 'sign_in_failed' || (e.message?.contains('[16]') ?? false)) {
+        return AuthResult(
+          success: false,
+          errorMessage:
+              'Fallo en la autenticación con Google. Comprueba tu conexión e inténtalo de nuevo.',
+        );
+      }
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error de plataforma: ${e.message}',
+      );
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        return AuthResult(success: false, errorMessage: 'Inicio de sesión cancelado.');
+      }
+      return AuthResult(
+        success: false,
+        errorMessage: 'Error al conectar con Google. Inténtalo de nuevo.',
+      );
     } catch (e) {
       return AuthResult(
         success: false,
-        errorMessage: 'Error al conectar con Google: $e',
+        errorMessage: 'Error inesperado al conectar con Google. Inténtalo de nuevo.',
       );
     }
   }
@@ -154,6 +182,7 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     await _auth.signOut();
+    await GoogleSignIn.instance.signOut();
   }
 
   // Change password (requires re-authentication)
@@ -274,11 +303,14 @@ class AuthResult {
   final bool success;
   final User? user;
   final String? errorMessage;
+  /// true when the user just created their account (first sign-in ever)
+  final bool isNewUser;
 
   AuthResult({
     required this.success,
     this.user,
     this.errorMessage,
+    this.isNewUser = false,
   });
 }
 
