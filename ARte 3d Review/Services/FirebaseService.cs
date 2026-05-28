@@ -266,7 +266,7 @@ namespace Jovi3DReview.Services
             
             // Prepare fields
             var fields = new JsonObject();
-            fields["admin"] = new JsonObject { ["stringValue"] = isAdmin ? "si" : "no" };
+            fields["admin"] = new JsonObject { ["stringValue"] = isAdmin ? "1" : "0" };
 
             var body = new JsonObject
             {

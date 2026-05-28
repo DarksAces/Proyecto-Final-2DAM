@@ -22,7 +22,8 @@ function loadModels() {
     // Usamos onSnapshot para actualizaciones en tiempo real
     onSnapshot(collection(db, "ar_objects"), (querySnapshot) => {
         if (querySnapshot.empty) {
-            container.innerHTML = '<div class="loading-state">No hay modelos.</div>';
+            container.innerHTML = '<div class="loading-state">No hay modelos en la base de datos.</div>';
+            document.getElementById('model-name-overlay').innerText = 'Sin modelos';
             allModels = [];
             return;
         }
@@ -30,14 +31,27 @@ function loadModels() {
         allModels = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const isApproved = data.status === 'accepted' || data.status === 'approved';
+            console.log("Documento en DB:", doc.id, data); // Para depurar en consola
             
-            if (data.url && data.type === 'glb' && isApproved) {
+            // Hacemos el filtro más tolerante
+            const isGLB = data.type === 'glb' || (data.url && data.url.toLowerCase().includes('.glb'));
+            // Si no tiene status, asumimos que es válido. Si lo tiene, verificamos que sea accepted o approved
+            const isApproved = !data.status || data.status === 'accepted' || data.status === 'approved';
+            
+            if (data.url && isGLB && isApproved) {
                 allModels.push({ id: doc.id, name: data.name || "Objeto 3D", url: data.url });
             }
         });
 
         container.innerHTML = ''; 
+        
+        if (allModels.length === 0) {
+            container.innerHTML = '<div class="loading-state">No hay modelos .glb aprobados para mostrar.</div>';
+            document.getElementById('model-name-overlay').innerText = 'Ningún modelo disponible';
+            document.getElementById('main-viewer').removeAttribute('src');
+            return;
+        }
+
         allModels.forEach((model, index) => {
             const thumb = createThumbnail(model, index);
             container.appendChild(thumb);
